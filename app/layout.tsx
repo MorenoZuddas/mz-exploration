@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import Header from "./components/Header";
 import Footer from "./components/Footer";
 
 const geistSans = Geist({
@@ -14,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Running Analytics",
-  description: "Analizza le tue attività running con dati Garmin",
+  title: "mz-exploration - Running, Trekking e Viaggi",
+  description: "Scopri le mie avventure di running, trekking e viaggi intorno al mondo",
 };
 
 export default function RootLayout({
@@ -28,6 +29,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <Header />
         {children}
         <Footer />
       </body>

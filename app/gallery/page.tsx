@@ -48,7 +48,6 @@ export default function GalleryPage() {
 
   return (
     <>
-      <Navigation />
 
       <div className="max-w-6xl mx-auto py-16 px-4">
         <h1 className="text-5xl font-bold mb-4">Percorsi e Foto</h1>
