@@ -27,7 +27,7 @@ export default function Navigation() {
             href="/login"
             className="bg-white text-blue-600 px-4 py-2 rounded font-bold hover:bg-blue-50 transition"
           >
-            Accedi
+            Login
           </Link>
         </div>
       </div>
