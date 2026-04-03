@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "mz-grm - Running Analytics",
+  title: "mz-exploration - Running, Trekking e Viaggi",
   description: "Scopri le mie avventure di running, trekking e viaggi intorno al mondo",
 };
 
