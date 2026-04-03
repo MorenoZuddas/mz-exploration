@@ -1,10 +1,11 @@
-# mz-grm - Running Analytics
+# mz-exploration (package: mz-grm)
 
 ## Project Snapshot (AI-Ready)
 
 ```yaml
 project:
-  name: mz-grm
+  display_name: mz-exploration
+  package_name: mz-grm
   version: 0.1.0
   type: web-app
   framework: next.js
@@ -14,15 +15,7 @@ project:
   styling: tailwindcss v4 (via @tailwindcss/postcss)
   routing_model: next app router (file-based)
   deployment_target: vercel-compatible
-  package_manager: npm (scripts present in package.json)
-  os_last_verified_by_context: macOS
-
-domain:
-  scope: personal running analytics showcase
-  audience: owner portfolio + future users interested in running stats
-  locale_primary: it
-  data_source_current: static mock data in UI
-  data_source_planned: garmin/strava integration (not implemented)
+  package_manager: npm
 
 status:
   maturity: early prototype / MVP UI
@@ -30,25 +23,38 @@ status:
   database: none (MongoDB is mentioned in UI text but not configured)
   authentication: not implemented
   api_routes: none
+  testing: no automated test suite configured
+
+domain:
+  scope: personal showcase (running, trekking, trips)
+  locale_primary: it
+  data_source_current: static mock data in UI
+  data_source_planned: garmin/strava integration (not implemented)
 
 known_critical_gaps:
-  - route /login linked from multiple pages but file app/login/page.tsx is missing
-  - contact form does not send messages; only local state + console.log
-  - no test suite configured
+  - contact form is simulated only (local state + console.log)
+  - no backend or persistence for activities/metrics
+  - no automated tests
 ```
 
 ## Obiettivo del progetto
 
-`mz-grm` e una web app in Next.js pensata per visualizzare e raccontare attivita di running personali (metriche, progressione, percorsi, contatti). In questa fase il progetto e prevalentemente frontend e dimostrativo: mostra contenuti statici e componenti UI riutilizzabili, ma non include ancora pipeline dati reali, backend, autenticazione o persistenza.
+`mz-exploration` e una web app Next.js che presenta avventure personali in tre aree: running, trekking e viaggi.
 
-## Caratteristiche attualmente implementate
+Lo stato attuale e principalmente frontend dimostrativo: pagine statiche, dati hardcoded e componenti UI condivisi. Non ci sono backend, autenticazione, API o persistenza dati.
 
-- Homepage marketing con hero, feature cards, metriche aggregate e call-to-action.
-- Pagina "Chi Sono" con bio personale, obiettivi running e metriche principali.
-- Pagina "Percorsi e Foto" con griglia di elementi statici (mock routes/photos).
-- Pagina "Contatti" con form client-side e feedback di invio simulato.
-- Navigazione top sticky condivisa (`Navigation`) e footer globale (`Footer`).
-- Tema base con Tailwind CSS v4 e font Geist/Geist Mono tramite `next/font`.
+## Cosa e implementato oggi
+
+- Homepage con hero, card di navigazione e statistiche aggregate.
+- Pagina `about` con bio, obiettivi e metriche personali statiche.
+- Area `exploration` con 3 sottosezioni dedicate:
+  - `running`
+  - `trekking`
+  - `trips`
+- Pagina `gallery` con griglia di elementi statiche.
+- Pagina `contact` con form client-side e feedback simulato.
+- Header sticky responsive con dropdown desktop e menu mobile.
+- Footer globale con link interni e social.
 
 ## Stack tecnico
 
@@ -60,23 +66,28 @@ known_critical_gaps:
 - `@tailwindcss/postcss@^4`
 - `eslint@^9` + `eslint-config-next@16.2.2`
 
-## Struttura del repository
+## Struttura repository (attuale)
 
 ```text
-mz-grm/
+mz-exploration/
   app/
-    layout.tsx                # Root layout, metadata globali, font, Footer globale
-    page.tsx                  # Homepage
-    globals.css               # Token tema + import Tailwind
-    about/page.tsx            # Pagina "Chi Sono"
-    gallery/page.tsx          # Pagina "Percorsi e Foto"
-    contact/page.tsx          # Pagina "Contatti" (client component)
+    layout.tsx
+    page.tsx
+    globals.css
+    about/page.tsx
+    contact/page.tsx
+    gallery/page.tsx
+    exploration/
+      page.tsx
+      running/page.tsx
+      trekking/page.tsx
+      trips/page.tsx
     components/
-      Navigation.tsx          # Navbar sticky con link principali
-      Footer.tsx              # Footer con link/sociaux/copyright
+      Header.tsx
+      Footer.tsx
   public/
     logo/hp-logo.svg
-    ...altre icone statiche
+    ...icone statiche
   package.json
   tsconfig.json
   next.config.ts
@@ -85,174 +96,189 @@ mz-grm/
   AGENTS.md
 ```
 
-## Architettura applicativa
+## Routing (App Router)
 
-### 1) Routing (App Router)
-
-Routing file-based sotto `app/`:
+Rotte implementate:
 
 - `/` -> `app/page.tsx`
 - `/about` -> `app/about/page.tsx`
+- `/exploration` -> `app/exploration/page.tsx`
+- `/exploration/running` -> `app/exploration/running/page.tsx`
+- `/exploration/trekking` -> `app/exploration/trekking/page.tsx`
+- `/exploration/trips` -> `app/exploration/trips/page.tsx`
 - `/gallery` -> `app/gallery/page.tsx`
 - `/contact` -> `app/contact/page.tsx`
 
-Rotte referenziate ma non implementate:
+Nota: al momento non ci sono link attivi a `/login` nel codice applicativo.
 
-- `/login` (link presente in `app/page.tsx` e `app/components/Navigation.tsx`, pagina assente)
+## Architettura applicativa
 
-### 2) Layout globale
+### Layout globale
 
 `app/layout.tsx`:
 
-- Definisce metadata globali (`title`, `description`).
-- Configura font Geist e Geist Mono tramite `next/font/google`.
-- Applica `lang="it"` al documento HTML.
-- Renderizza `children` e `Footer` in tutte le pagine.
+- imposta metadata globali (titolo + descrizione)
+- applica font Geist e Geist Mono via `next/font/google`
+- usa `lang="it"`
+- renderizza `Header`, `children`, `Footer`
 
-### 3) Componentizzazione
+### Componenti condivisi
 
-- `Navigation` (client component): top nav sticky con link interni e CTA login.
-- `Footer` (server component per default): link interni/esterni e icone SVG inline.
+- `app/components/Header.tsx` (client component)
+  - navbar desktop
+  - dropdown `Exploration`
+  - menu mobile con stato locale (`isMenuOpen`, `isExplorationOpen`)
+- `app/components/Footer.tsx`
+  - logo
+  - link rapidi (`about`, `exploration`, `contact`)
+  - link social esterni
 
-### 4) Strategia rendering
+### Strategia rendering
 
-- Le pagine senza `"use client"` sono server component per default (App Router behavior).
-- `app/contact/page.tsx` usa `"use client"` per `useState` e gestione form.
+- server components di default per le pagine senza `"use client"`
+- `app/contact/page.tsx` e `app/components/Header.tsx` sono client components
 
-### 5) Stato e dati
+### Dati e stato
 
-- Nessuno stato globale (no Redux/Zustand/Context custom).
-- Dati mostrati sono hardcoded nelle pagine (es. statistiche, lista foto, bio).
-- Il form contatti salva temporaneamente stato locale (`formData`, `submitted`).
+- nessuno stato globale (no Redux/Zustand/Context custom)
+- dati statici hardcoded nelle pagine
+- form contatti gestito con stato locale (`formData`, `submitted`)
 
 ## Dettaglio pagine
 
-### Homepage - `app/page.tsx`
+### Home - `app/page.tsx`
 
-Contiene:
-
-- Hero con value proposition del progetto.
-- CTA verso `/login` e `/about`.
-- Sezione feature (3 card principali).
-- Sezione statistiche aggregate (4 metriche).
-- CTA finale verso login.
-
-Nota: valori numerici e KPI sono statici e dimostrativi.
+- hero principale
+- card di preview per `about`, `exploration`, `contact`
+- statistiche aggregate statiche
+- CTA verso exploration
 
 ### About - `app/about/page.tsx`
 
-Contiene:
+- bio personale
+- obiettivi running
+- metriche statiche
+- lista tecnologie mostrata a UI
 
-- Presentazione personale e motivazione progetto.
-- Obiettivi running con target numerici.
-- Box metriche statiche.
-- Lista "Tecnologie Usate" renderizzata da array locale.
+Nota: la lista tecnologie include `MongoDB` e `Vercel`, ma nel repository non c'e configurazione DB o pipeline deployment dedicata.
 
-Nota: nella lista tecnologie appaiono `MongoDB` e `Vercel`, ma nel codice corrente non esiste configurazione DB o deployment script specifico.
+### Exploration hub - `app/exploration/page.tsx`
+
+- overview delle categorie
+- card navigabili verso `running`, `trekking`, `trips`
+- sezione statistiche aggregate
+
+### Running - `app/exploration/running/page.tsx`
+
+- lista attivita running mock
+- metriche per attivita (distanza, tempo, pace)
+- blocco riepilogo statistiche
+
+### Trekking - `app/exploration/trekking/page.tsx`
+
+- lista escursioni mock
+- attributi attivita (elevazione, durata, difficolta)
+- blocco riepilogo statistiche
+
+### Trips - `app/exploration/trips/page.tsx`
+
+- lista viaggi mock
+- dettagli per viaggio (destinazioni, durata, highlights)
+- blocco riepilogo statistiche
 
 ### Gallery - `app/gallery/page.tsx`
 
-Contiene:
-
-- Array locale `photos` con metadati attivita (titolo, data, distanza, descrizione).
-- Render a griglia responsive con placeholder grafico.
-- Pulsante "Visualizza Percorso" senza azione associata.
+- griglia card statiche
+- placeholder grafico
+- pulsante "Visualizza Percorso" senza azione associata
 
 ### Contact - `app/contact/page.tsx`
 
-Contiene:
+- contatti statici (email, GitHub, Strava, location)
+- form con validazione HTML base (`required`)
+- submit simulato (`preventDefault`, `console.log`, reset, alert temporaneo)
 
-- Informazioni di contatto (email, GitHub, Strava, location).
-- Form nome/email/messaggio con validazione HTML base (`required`).
-- `handleSubmit` che previene submit reale, fa `console.log`, resetta form e mostra alert success per 5 secondi.
+## Styling e design
 
-Nota: non c'e integrazione con API route, provider email o backend.
+- Tailwind CSS v4 tramite `@import "tailwindcss"` in `app/globals.css`
+- token CSS (`--background`, `--foreground`) mappati in `@theme inline`
+- dark mode base via `prefers-color-scheme`
+- font body fallback: `Arial, Helvetica, sans-serif`
 
-## Styling e design system
-
-- Tailwind CSS v4 importato in `app/globals.css` con `@import "tailwindcss"`.
-- Token CSS custom (`--background`, `--foreground`) e mapping nel blocco `@theme inline`.
-- Supporto dark mode base via `prefers-color-scheme` (variazioni di variabili root).
-- Font globale: fallback `Arial, Helvetica, sans-serif`; variabili Geist disponibili via classi nel body.
-
-## Configurazione e quality tooling
+## Configurazione e tooling
 
 ### TypeScript - `tsconfig.json`
 
-- Modalita strict attiva (`strict: true`).
-- `moduleResolution: bundler` e plugin `next`.
-- Alias path `@/* -> ./*`.
+- `strict: true`
+- `moduleResolution: bundler`
+- plugin `next`
+- alias `@/* -> ./*`
 
 ### ESLint - `eslint.config.mjs`
 
-- Estende `eslint-config-next/core-web-vitals` e `eslint-config-next/typescript`.
-- Ignora output build (`.next`, `out`, `build`) e `next-env.d.ts`.
+- estende `eslint-config-next/core-web-vitals`
+- estende `eslint-config-next/typescript`
+- ignora `.next`, `out`, `build`, `next-env.d.ts`
 
 ### Next config - `next.config.ts`
 
-- Configurazione default (nessuna opzione custom attiva).
+- configurazione base senza opzioni custom
 
 ## Script disponibili
 
 Da `package.json`:
 
-- `npm run dev` -> avvio ambiente sviluppo
-- `npm run build` -> build produzione
-- `npm run start` -> avvio build prod
-- `npm run lint` -> linting progetto
+- `npm run dev`
+- `npm run build`
+- `npm run start`
+- `npm run lint`
 
 ## Setup locale
 
-Prerequisiti minimi (dedotti dal progetto):
+Prerequisiti minimi dedotti dai file:
 
 - Node.js compatibile con Next.js 16
 - npm
-
-Comandi base:
 
 ```bash
 npm install
 npm run dev
 ```
 
-App disponibile in locale su:
+App locale: `http://localhost:3000`
 
-- `http://localhost:3000`
+## Limiti attuali e rischi
 
-## Limiti attuali e rischi funzionali
+- Nessuna persistenza dati (contenuti mock/statici)
+- Nessun backend/API per ingestione dati reali
+- Form contatti non invia messaggi reali
+- Pulsanti/azioni in alcune sezioni sono solo placeholder UI
+- Nessun test automatico configurato
 
-- Link a `/login` non risolto -> possibile 404 in navigazione.
-- Nessuna persistenza dati -> tutti i contenuti sono statici o effimeri.
-- Nessun backend/API -> impossibile ingestione dati Garmin/Strava reale.
-- Nessun test automatico -> regressioni non coperte.
-- Nessuna gestione errori asincrona per submission contatti (perche non esiste submit reale).
+## Roadmap tecnica suggerita
 
-## Roadmap tecnica consigliata
+1. Introdurre API route (`app/api/...`) per dati attivita e contatti.
+2. Definire modello dati per running/trekking/trips.
+3. Integrare persistenza (MongoDB/PostgreSQL) se confermata.
+4. Collegare il form contatti a provider email/API interna.
+5. Sostituire progressivamente mock con fetch server/client.
+6. Aggiungere test (unit/integration + eventuale e2e) e CI.
 
-1. Implementare `app/login/page.tsx` o rimuovere temporaneamente i link.
-2. Introdurre API route (`app/api/...`) per ingestion/normalizzazione attivita running.
-3. Definire schema dati (attivita, metriche aggregate, records personali).
-4. Integrare persistenza (es. MongoDB/PostgreSQL) coerente con stack target.
-5. Sostituire mock con fetch server/client e stati loading/error.
-6. Aggiungere test (`vitest`/`jest` + `@testing-library/react` + E2E opzionale).
-7. Configurare CI (lint + build + test) per quality gate.
+## Note operative per analisi AI
 
-## Note per analisi AI esterne
-
-Se questo repository viene analizzato da agenti AI, usare queste assunzioni operative:
-
-- Il progetto e un frontend prototype con App Router, non una piattaforma completa.
-- Le metriche attuali non rappresentano una pipeline dati verificabile.
-- Qualsiasi feature che implichi auth, backend o DB va considerata "planned" salvo file espliciti aggiunti.
-- Le decisioni tecniche devono essere validate con i file di configurazione reali (`package.json`, `tsconfig.json`, `next.config.ts`).
-- Considerare `AGENTS.md`: la versione Next puo avere breaking changes rispetto a riferimenti storici.
+- Trattare il progetto come frontend prototype con App Router.
+- Considerare le metriche correnti come dati dimostrativi non verificati.
+- Considerare auth/backend/database come non implementati finche non presenti file espliciti.
+- Validare sempre decisioni tecniche su `package.json`, `tsconfig.json`, `next.config.ts`.
 
 ## Stato documentazione
 
-Questo README descrive lo stato corrente del codice presente nel repository al momento dell'aggiornamento. Aggiornare questa documentazione ogni volta che si introducono:
+Questo README e allineato allo stato corrente del repository al momento dell'aggiornamento.
 
-- nuove rotte,
-- integrazioni API,
-- dipendenze infrastrutturali,
-- meccanismi di auth/persistenza,
-- test o pipeline CI/CD.
+Aggiornarlo quando cambiano:
+
+- rotte
+- componenti condivisi
+- integrazioni API/backend
+- persistenza/auth
+- test o CI/CD
