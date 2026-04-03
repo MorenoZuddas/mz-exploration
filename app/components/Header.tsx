@@ -39,12 +39,6 @@ export default function Header() {
           {/* Desktop Menu - Center */}
           <nav className="hidden md:flex items-center gap-8">
             <Link
-              href="/"
-              className="hover:text-blue-400 transition-colors font-medium"
-            >
-              Home
-            </Link>
-            <Link
               href="/about"
               className="hover:text-blue-400 transition-colors font-medium"
             >
@@ -53,7 +47,10 @@ export default function Header() {
 
             {/* Exploration Dropdown */}
             <div className="relative group">
-              <button className="hover:text-blue-400 transition-colors font-medium flex items-center gap-1">
+              <Link
+                href="/exploration"
+                className="hover:text-blue-400 transition-colors font-medium flex items-center gap-1"
+              >
                 Exploration
                 <svg
                   className="w-4 h-4 group-hover:rotate-180 transition-transform"
@@ -68,7 +65,7 @@ export default function Header() {
                     d="M19 14l-7 7m0 0l-7-7m7 7V3"
                   />
                 </svg>
-              </button>
+              </Link>
 
               {/* Dropdown Menu */}
               <div className="absolute left-0 mt-0 w-48 bg-slate-800 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-2">

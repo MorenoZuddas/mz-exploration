@@ -11,9 +11,9 @@ export default function Footer() {
             <Image
               src="/logo/hp-logo.svg"
               alt="mz-exploration logo"
-              width={100}
-              height={100}
-              priority
+              width={150}
+              height={150}
+              className="opacity-75"
             />
           </div>
 

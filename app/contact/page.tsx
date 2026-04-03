@@ -31,8 +31,6 @@ export default function ContactPage() {
 
   return (
     <>
-      <Navigation />
-
       <div className="max-w-6xl mx-auto py-16 px-4">
         <h1 className="text-5xl font-bold mb-12">Contatti</h1>
 
