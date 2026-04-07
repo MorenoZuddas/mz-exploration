@@ -7,6 +7,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { CardTypeCarousel } from "./card-type-carousel"
 
 export default function ComponentsDemo() {
   return (
@@ -110,6 +118,43 @@ export default function ComponentsDemo() {
             </div>
           </Card>
         </div>
+
+        {/* ── CARD CAROUSEL ── */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Carousel Card</CardTitle>
+            <CardDescription>
+              Demo con Carousel shadcn/ui per scorrere le varianti di card.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <CardTypeCarousel />
+          </CardContent>
+        </Card>
+
+        {/* -- SELECT PLACEHOLDER DEMO -- */}
+        <Card>
+          <CardHeader>
+            <CardTitle>Select</CardTitle>
+            <CardDescription>
+              Placeholder iniziale con opzioni statiche di esempio.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="max-w-sm">
+              <Select>
+                <SelectTrigger>
+                  <SelectValue placeholder="Seleziona una categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="placeholder-running">Running</SelectItem>
+                  <SelectItem value="placeholder-trekking">Trekking</SelectItem>
+                  <SelectItem value="placeholder-trips">Trips</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
 
       </div>
     </div>
