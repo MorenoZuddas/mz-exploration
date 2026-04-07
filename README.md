@@ -282,3 +282,57 @@ Aggiornarlo quando cambiano:
 - integrazioni API/backend
 - persistenza/auth
 - test o CI/CD
+
+## 🎨 shadcn/ui Integration
+
+### ✅ Configurazione Completata
+
+A partire da questa versione, il progetto integra **shadcn/ui** per componenti UI professionali e riutilizzabili. La configurazione è stata eseguita **proteggendo i font originali**.
+
+### Caratteristiche della Setup
+
+- ✅ **Font Protetti**: Geist da Google Fonts + Arial rimangono intatti
+- ✅ **Componenti Pronti**: Button, Card e altri disponibili immediatamente
+- ✅ **Tailwind CSS v4 Integrato**: Compatibile con la versione già installata
+- ✅ **Completamente Customizzabile**: Tutti i componenti sono nel tuo repository
+
+### Componenti Disponibili
+
+Currently installed:
+- `Button` - Bottone versatile con varianti (default, secondary, destructive, outline, ghost, link)
+- `Card` - Contenitore Card con CardHeader, CardTitle, CardDescription, CardContent, CardFooter
+
+To add more components:
+```bash
+npx shadcn-ui@latest add [component-name] --yes
+```
+
+### File Relativi
+
+- `SHADCN_SETUP.md` - Documentazione completa sulla setup e configurazione
+- `app/components-demo/page.tsx` - Pagina di test per i componenti
+- `components.json` - Configurazione CLI di shadcn/ui
+- `components/ui/globals-shadcn.css` - Variabili CSS per i componenti
+- `lib/utils.ts` - Utilità helper (funzione `cn()`)
+
+### Uso Rapido
+
+```tsx
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+
+export default function Example() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Titolo</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Button variant="outline">Clicca</Button>
+      </CardContent>
+    </Card>
+  )
+}
+```
+
+Per ulteriori dettagli, consulta il file `SHADCN_SETUP.md`.
