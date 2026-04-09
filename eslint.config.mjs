@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Script di utilità locale, non parte del build
+    "check-db.js",
   ]),
 ]);
 
