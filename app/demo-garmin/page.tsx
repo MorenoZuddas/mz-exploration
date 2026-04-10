@@ -43,6 +43,21 @@ interface FloatingNotice {
   tone: 'success';
 }
 
+interface ApiErrorPayload {
+  message?: string;
+  error?: string;
+}
+
+function extractApiError(payload: ApiErrorPayload, fallback: string): string {
+  const message = payload?.message?.trim();
+  const error = payload?.error?.trim();
+
+  if (message && error && error !== message) return `${message} - ${error}`;
+  if (error) return error;
+  if (message) return message;
+  return fallback;
+}
+
 export default function DemoGarminPage() {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loadingDB, setLoadingDB] = useState(false);
@@ -87,7 +102,7 @@ export default function DemoGarminPage() {
     try {
       const res = await fetch('/api/test-db');
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || data.error || 'Errore sconosciuto');
+      if (!res.ok) throw new Error(extractApiError(data as ApiErrorPayload, 'Errore sconosciuto'));
       setDbMessage({ text: `✅ Connesso — Attività: ${data.data.collections.activities}`, ok: true });
     } catch (error) {
       setDbMessage({ text: `❌ ${error instanceof Error ? error.message : 'Errore connessione'}`, ok: false });
@@ -103,7 +118,7 @@ export default function DemoGarminPage() {
     try {
       const res = await fetch('/api/status');
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || data.error || 'Errore sconosciuto');
+      if (!res.ok) throw new Error(extractApiError(data as ApiErrorPayload, 'Errore sconosciuto'));
       setDbStatus({
         total_activities: data.database.total_activities,
         total_sync_logs: data.database.total_sync_logs,
@@ -123,7 +138,7 @@ export default function DemoGarminPage() {
     try {
       const res = await fetch('/api/activities/garmin');
       const data = await res.json();
-      if (!res.ok) throw new Error(data.message || data.error || 'Errore caricamento');
+      if (!res.ok) throw new Error(extractApiError(data as ApiErrorPayload, 'Errore caricamento'));
       const list: Activity[] = data.data.recent_activities || [];
       setActivities(list);
       setDbMessage({ text: `✅ ${data.data.total_activities} attività caricate`, ok: true });
@@ -153,7 +168,7 @@ export default function DemoGarminPage() {
       });
       const data = await res.json();
       if (!res.ok || data.status !== 'success') {
-        throw new Error(data.message || data.error || 'Errore import');
+        throw new Error(extractApiError(data as ApiErrorPayload, 'Errore import'));
       }
       setUploadResult(data.data as UploadResult);
       const removed = data.data?.maintenance?.total_duplicates_removed;
@@ -218,7 +233,7 @@ export default function DemoGarminPage() {
       });
       const result = await res.json();
       if (!res.ok || result.status !== 'success') {
-        throw new Error(result.message || result.error || 'Errore salvataggio');
+        throw new Error(extractApiError(result as ApiErrorPayload, 'Errore salvataggio'));
       }
       setManualMessage({ text: `✅ Attività aggiunta (${result.data.saved} salvata)`, ok: true });
       setFormData({ name: '', type: 'running', date: new Date().toISOString().split('T')[0], distance: 0, duration: 0 });
