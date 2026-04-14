@@ -43,9 +43,35 @@ export async function GET(): Promise<NextResponse> {
           type: a.type,
           date: a.date,
           distance_km: (a.distance / 1000).toFixed(2),
+          distance_formatted: (() => {
+            const km = a.distance / 1000;
+            if (km < 10) {
+              return `${Math.round(a.distance).toLocaleString('it-IT')} m`;
+            } else {
+              return `${km.toFixed(2)} km`;
+            }
+          })(),
           duration_min: Math.round(a.duration / 60),
-          elevation_m: a.elevation_gain || 0,
-          calories: a.calories || 0,
+          duration_formatted: (() => {
+            const totalMinutes = Math.round(a.duration / 60);
+            if (totalMinutes < 10) {
+              const minutes = totalMinutes;
+              const seconds = Math.round(a.duration % 60);
+              const centiseconds = Math.round(((a.duration % 60) % 1) * 100);
+              return `${minutes}:${String(seconds).padStart(2, '0')}.${String(centiseconds).padStart(2, '0')}`;
+            } else if (totalMinutes < 60) {
+              const minutes = totalMinutes;
+              const seconds = Math.round(a.duration % 60);
+              return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            } else {
+              const hours = Math.floor(totalMinutes / 60);
+              const minutes = totalMinutes % 60;
+              const seconds = Math.round(a.duration % 60);
+              return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            }
+          })(),
+          calories_kcal: a.calories ? Math.round(a.calories / 4.184) : 0,
+          pace_min_per_km: a.avg_pace,
           source: a.source,
           avg_speed_ms: a.avg_speed?.toFixed(2) || 0,
           created_at: a.created_at,
@@ -71,4 +97,3 @@ export async function GET(): Promise<NextResponse> {
     );
   }
 }
-

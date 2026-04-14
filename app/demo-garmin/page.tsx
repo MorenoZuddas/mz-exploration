@@ -1,6 +1,17 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { StatsCard } from "@/components/ui/card"
 
 interface Activity {
   _id?: string;
@@ -63,6 +74,15 @@ export default function DemoGarminPage() {
     distance: 0,
     duration: 0,
   });
+  const [filters, setFilters] = useState({
+    dateFrom: undefined as Date | undefined,
+    dateTo: undefined as Date | undefined,
+    types: [] as string[],
+    minDistance: undefined as number | undefined,
+    maxDistance: undefined as number | undefined,
+  });
+  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
+  const tableRef = useRef<HTMLDivElement>(null);
 
   const getActivityKey = (activity: Activity, idx: number): string => {
     if (activity._id) return `db-${activity._id}`;
@@ -231,6 +251,15 @@ export default function DemoGarminPage() {
     } finally {
       setLoadingManual(false);
     }
+  };
+
+  const handlePBClick = (type: string, activity: Activity) => {
+    setSelectedActivity(activity);
+    // Scroll to the table
+    if (tableRef.current) {
+      tableRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    showFloatingNotice(`📍 Navigato all'attività: ${activity.name}`);
   };
 
   const showFloatingNotice = (text: string) => {
@@ -416,7 +445,7 @@ export default function DemoGarminPage() {
               {loadingDB ? '⏳' : '🔄 Aggiorna'}
             </button>
           </div>
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto" ref={tableRef}>
             <table className="w-full text-white text-sm">
               <thead className="border-b border-slate-600">
                 <tr>
@@ -447,9 +476,13 @@ export default function DemoGarminPage() {
                     const pace = activity.pace_min_per_km != null
                       ? Math.floor(activity.pace_min_per_km) + ':' + String(Math.round((activity.pace_min_per_km % 1) * 60)).padStart(2, '0')
                       : '—';
-                    const dateStr = activity.date ? new Date(activity.date).toLocaleDateString('it-IT') : '—';
+                    const dateStr = activity.date ? new Date(activity.date).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: '2-digit',
+                      day: '2-digit'
+                    }) : '—';
                     return (
-                    <tr key={getActivityKey(activity, idx)} className="border-b border-slate-600 hover:bg-slate-600">
+                    <tr key={getActivityKey(activity, idx)} className={`border-b border-slate-600 hover:bg-slate-600 ${selectedActivity && getActivityKey(activity, idx) === getActivityKey(selectedActivity, activities.indexOf(selectedActivity)) ? 'bg-yellow-600' : ''}`}>
                       <td className="p-2 font-medium">{activity.name}</td>
                       <td className="p-2 capitalize">{activity.type}</td>
                       <td className="p-2">{dateStr}</td>
@@ -477,6 +510,103 @@ export default function DemoGarminPage() {
             </table>
           </div>
         </div>
+
+        {/* Sezione Statistiche */}
+        <div className="bg-slate-700 rounded-lg p-6 shadow-xl mt-8">
+          <h2 className="text-2xl font-bold text-white mb-6">📊 Statistiche Attività</h2>
+
+          {/* Filtri */}
+          <div className="bg-slate-800 rounded-lg p-4 mb-6">
+            <h3 className="text-lg font-semibold text-white mb-4">Filtri</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <div>
+                <Label htmlFor="dateFrom" className="text-white">Da data</Label>
+                <Input
+                  id="dateFrom"
+                  type="date"
+                  value={filters.dateFrom ? filters.dateFrom.toISOString().split('T')[0] : ''}
+                  onChange={(e) => setFilters(prev => ({ ...prev, dateFrom: e.target.value ? new Date(e.target.value) : undefined }))}
+                  className="bg-slate-600 border-slate-500 text-white"
+                />
+              </div>
+              <div>
+                <Label htmlFor="dateTo" className="text-white">A data</Label>
+                <Input
+                  id="dateTo"
+                  type="date"
+                  value={filters.dateTo ? filters.dateTo.toISOString().split('T')[0] : ''}
+                  onChange={(e) => setFilters(prev => ({ ...prev, dateTo: e.target.value ? new Date(e.target.value) : undefined }))}
+                  className="bg-slate-600 border-slate-500 text-white"
+                />
+              </div>
+              <div>
+                <Label htmlFor="types" className="text-white">Tipo</Label>
+                <Select
+                  value={filters.types.join(',')}
+                  onValueChange={(value) => setFilters(prev => ({ ...prev, types: value ? value.split(',') : [] }))}
+                >
+                  <SelectTrigger className="bg-slate-600 border-slate-500 text-white">
+                    <SelectValue placeholder="Seleziona tipi" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="running">Running</SelectItem>
+                    <SelectItem value="cycling">Cycling</SelectItem>
+                    <SelectItem value="hiking">Hiking</SelectItem>
+                    <SelectItem value="walking">Walking</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="minDistance" className="text-white">Distanza min (m)</Label>
+                <Input
+                  id="minDistance"
+                  type="number"
+                  value={filters.minDistance || ''}
+                  onChange={(e) => setFilters(prev => ({ ...prev, minDistance: e.target.value ? parseFloat(e.target.value) : undefined }))}
+                  className="bg-slate-600 border-slate-500 text-white"
+                />
+              </div>
+              <div>
+                <Label htmlFor="maxDistance" className="text-white">Distanza max (m)</Label>
+                <Input
+                  id="maxDistance"
+                  type="number"
+                  value={filters.maxDistance || ''}
+                  onChange={(e) => setFilters(prev => ({ ...prev, maxDistance: e.target.value ? parseFloat(e.target.value) : undefined }))}
+                  className="bg-slate-600 border-slate-500 text-white"
+                />
+              </div>
+              <div className="flex items-end">
+                <Button onClick={() => setFilters({
+                  dateFrom: undefined,
+                  dateTo: undefined,
+                  types: [],
+                  minDistance: undefined,
+                  maxDistance: undefined,
+                })} className="bg-red-600 hover:bg-red-700">
+                  Reset Filtri
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Statistiche */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <StatsCard type="total_runs" activities={activities} filters={filters} dataName="stats-total-runs" />
+            <StatsCard type="pb_100" activities={activities} filters={filters} onPBClick={handlePBClick} dataName="stats-pb-100" />
+            <StatsCard type="pb_200" activities={activities} filters={filters} onPBClick={handlePBClick} dataName="stats-pb-200" />
+            <StatsCard type="pb_400" activities={activities} filters={filters} onPBClick={handlePBClick} dataName="stats-pb-400" />
+            <StatsCard type="pb_1000" activities={activities} filters={filters} onPBClick={handlePBClick} dataName="stats-pb-1000" />
+            <StatsCard type="pb_2000" activities={activities} filters={filters} onPBClick={handlePBClick} dataName="stats-pb-2000" />
+            <StatsCard type="pb_5000" activities={activities} filters={filters} onPBClick={handlePBClick} dataName="stats-pb-5000" />
+            <StatsCard type="pb_10000" activities={activities} filters={filters} onPBClick={handlePBClick} dataName="stats-pb-10000" />
+            <StatsCard type="pb_21000" activities={activities} filters={filters} onPBClick={handlePBClick} dataName="stats-pb-21000" />
+            <StatsCard type="longest_run" activities={activities} filters={filters} onPBClick={handlePBClick} dataName="stats-longest-run" />
+            <StatsCard type="total_distance" activities={activities} filters={filters} dataName="stats-total-distance" />
+            <StatsCard type="total_hours" activities={activities} filters={filters} dataName="stats-total-hours" />
+          </div>
+        </div>
+
       </div>
     </div>
   );

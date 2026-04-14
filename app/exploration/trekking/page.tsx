@@ -52,11 +52,19 @@ export default function TrekkingPage() {
             ← Torna a Exploration
           </Link>
           <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 dark:text-white mb-4">
-            🥾 Trekking
+            🏔️ Trekking
           </h1>
           <p className="text-lg text-slate-600 dark:text-slate-300">
-            Escursioni in montagna e natura. Scopri le vette che ho conquistato e i sentieri più affascinanti.
+            Le mie avventure in montagna e i trekking più affascinanti.
           </p>
+          <div className="mt-6 flex gap-4">
+            <Link
+              href="/exploration/equipment/trekking"
+              className="inline-flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition font-semibold"
+            >
+              🎽 Attrezzatura
+            </Link>
+          </div>
         </div>
       </section>
 
