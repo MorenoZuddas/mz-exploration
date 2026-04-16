@@ -1,40 +1,113 @@
+"use client";
+
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  StatsCard,
+} from "@/components/ui/card"
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+
+interface Activity {
+  id: string;
+  name: string;
+  type: string;
+  date: string;
+  originalDate: string;
+  distance_km: string;
+  distance_formatted: string;
+  duration_min: number;
+  duration_formatted: string;
+  calories_kcal: number;
+  pace_min_per_km?: number;
+}
 
 export default function RunningPage() {
-  const runningActivities = [
-    {
-      id: 1,
-      title: 'Corsa Mattutina',
-      distance: '10 km',
-      time: '50 min',
-      date: '2024-01-15',
-      pace: '5:00 min/km',
-    },
-    {
-      id: 2,
-      title: 'Trail Running',
-      distance: '15 km',
-      time: '75 min',
-      date: '2024-01-14',
-      pace: '5:00 min/km',
-    },
-    {
-      id: 3,
-      title: 'Corsa Serale',
-      distance: '8 km',
-      time: '40 min',
-      date: '2024-01-13',
-      pace: '5:00 min/km',
-    },
-    {
-      id: 4,
-      title: 'Long Run',
-      distance: '20 km',
-      time: '100 min',
-      date: '2024-01-12',
-      pace: '5:00 min/km',
-    },
-  ];
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [displayedCount, setDisplayedCount] = useState(4);
+  const [filters, setFilters] = useState({
+    dateFrom: undefined as Date | undefined,
+    dateTo: undefined as Date | undefined,
+    types: [] as string[],
+    minDistance: undefined as number | undefined,
+    maxDistance: undefined as number | undefined,
+  });
+
+  const formatPace = (pace: number | undefined): string => {
+    if (!pace || pace <= 0) return 'N/A';
+    const min = Math.floor(pace);
+    const sec = Math.round((pace % 1) * 60);
+    return `${min}:${String(sec).padStart(2, '0')}`;
+  };
+
+  useEffect(() => {
+    const fetchActivities = async () => {
+      try {
+        const response = await fetch('/api/activities/all');
+        const data = await response.json();
+        if (data.status === 'success') {
+          const runningActivities = data.data.activities.filter(
+            (act: any) => act.type === 'running' || act.type === 'track_running'
+          ).map((act: any) => ({
+            id: act.id,
+            name: act.name,
+            type: act.type,
+            date: new Date(act.date).toLocaleDateString('it-IT'),
+            originalDate: act.date,
+            distance_km: act.distance_km,
+            distance_formatted: act.distance_formatted,
+            duration_min: act.duration_min,
+            duration_formatted: act.duration_formatted,
+            calories_kcal: act.calories_kcal,
+            pace_min_per_km: act.pace_min_per_km,
+          }));
+          setActivities(runningActivities);
+        }
+      } catch (error) {
+        console.error('Error fetching activities:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchActivities();
+  }, []);
+
+  const displayedActivities = activities.slice(0, displayedCount);
+  const hasMore = activities.length > displayedCount;
+
+  const loadMore = () => {
+    setDisplayedCount(prev => prev + 4);
+  };
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 flex items-center justify-center">
+        <p className="text-lg">Caricamento...</p>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800">
@@ -53,6 +126,14 @@ export default function RunningPage() {
           <p className="text-lg text-slate-600 dark:text-slate-300">
             Le mie corse e i percorsi preferiti. Scopri le statistiche e i dettagli di ogni attività.
           </p>
+          <div className="mt-6 flex gap-4">
+            <Link
+              href="/exploration/equipment/running"
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
+            >
+              🎽 Attrezzatura
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -60,14 +141,15 @@ export default function RunningPage() {
       <section className="px-4 py-12 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {runningActivities.map((activity) => (
-              <div
+            {displayedActivities.map((activity, index) => (
+              <Card
                 key={activity.id}
-                className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-6 hover:shadow-lg transition-shadow"
+                className="p-6 hover:shadow-lg transition-shadow"
+                dataName={`card ${index + 1}`}
               >
                 <div className="flex justify-between items-start mb-4">
                   <h3 className="text-xl font-bold text-slate-900 dark:text-white">
-                    {activity.title}
+                    {activity.name}
                   </h3>
                   <span className="text-sm text-slate-500 dark:text-slate-400">
                     {activity.date}
@@ -77,30 +159,80 @@ export default function RunningPage() {
                   <div>
                     <p className="text-sm text-slate-600 dark:text-slate-400">Distanza</p>
                     <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                      {activity.distance}
+                      {activity.distance_formatted}
                     </p>
                   </div>
                   <div>
                     <p className="text-sm text-slate-600 dark:text-slate-400">Tempo</p>
                     <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                      {activity.time}
+                      {activity.duration_formatted}
                     </p>
                   </div>
                   <div>
                     <p className="text-sm text-slate-600 dark:text-slate-400">Pace</p>
                     <p className="text-lg font-semibold text-slate-900 dark:text-white">
-                      {activity.pace}
+                      {formatPace(activity.pace_min_per_km)} min/km
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">Velocità Media</p>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">Kcal</p>
                     <p className="text-lg font-semibold text-slate-900 dark:text-white">
-                      12 km/h
+                      {activity.calories_kcal || '—'}
                     </p>
                   </div>
                 </div>
-              </div>
+              </Card>
             ))}
+          </div>
+          {hasMore && (
+            <div className="mt-6 text-center">
+              <button
+                onClick={loadMore}
+                className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Mostra Altro
+              </button>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* My Best Section with Carousel */}
+      <section className="px-4 py-12 sm:px-6 lg:px-8 bg-slate-100 dark:bg-slate-700">
+        <div className="max-w-6xl mx-auto">
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-8">
+            My Best
+          </h2>
+          <div className="space-y-4">
+            <Carousel
+              orientation="horizontal"
+              opts={{ align: "start" }}
+              className="mx-auto w-full max-w-4xl"
+              data-name="carousel"
+            >
+              <CarouselContent>
+                {activities.sort((a, b) => parseFloat(b.distance_km) - parseFloat(a.distance_km)).slice(0, 4).map((activity, index) => (
+                  <CarouselItem key={activity.id} className="md:basis-1/1">
+                    <Card className="flex min-h-[320px] flex-col" dataName={`carousel card ${index + 1}`}>
+                      <CardHeader>
+                        <CardTitle>{activity.name}</CardTitle>
+                        <CardDescription>{activity.date}</CardDescription>
+                      </CardHeader>
+                      <CardContent className="flex-1">
+                        <p className="text-sm text-muted-foreground">
+                          Distanza: {activity.distance_formatted}<br/>
+                          Tempo: {activity.duration_formatted}<br/>
+                          Pace: {formatPace(activity.pace_min_per_km)} min/km<br/>
+                          Kcal: {activity.calories_kcal || '—'}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
           </div>
         </div>
       </section>
@@ -111,23 +243,81 @@ export default function RunningPage() {
           <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-8">
             Statistiche Running
           </h2>
+
+          {/* Filters */}
+          <div className="bg-white dark:bg-slate-800 rounded-lg p-6 mb-6">
+            <h3 className="text-lg font-semibold mb-4">Filtri</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <div>
+                <Label htmlFor="dateFrom">Da data</Label>
+                <Input
+                  id="dateFrom"
+                  type="date"
+                  value={filters.dateFrom ? filters.dateFrom.toISOString().split('T')[0] : ''}
+                  onChange={(e) => setFilters(prev => ({ ...prev, dateFrom: e.target.value ? new Date(e.target.value) : undefined }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="dateTo">A data</Label>
+                <Input
+                  id="dateTo"
+                  type="date"
+                  value={filters.dateTo ? filters.dateTo.toISOString().split('T')[0] : ''}
+                  onChange={(e) => setFilters(prev => ({ ...prev, dateTo: e.target.value ? new Date(e.target.value) : undefined }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="types">Tipo</Label>
+                <Select
+                  value={filters.types.join(',')}
+                  onValueChange={(value) => setFilters(prev => ({ ...prev, types: value ? value.split(',') : [] }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleziona tipi" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="running">Running</SelectItem>
+                    <SelectItem value="track_running">Track Running</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="minDistance">Distanza min (m)</Label>
+                <Input
+                  id="minDistance"
+                  type="number"
+                  value={filters.minDistance || ''}
+                  onChange={(e) => setFilters(prev => ({ ...prev, minDistance: e.target.value ? parseFloat(e.target.value) : undefined }))}
+                />
+              </div>
+              <div>
+                <Label htmlFor="maxDistance">Distanza max (m)</Label>
+                <Input
+                  id="maxDistance"
+                  type="number"
+                  value={filters.maxDistance || ''}
+                  onChange={(e) => setFilters(prev => ({ ...prev, maxDistance: e.target.value ? parseFloat(e.target.value) : undefined }))}
+                />
+              </div>
+              <div className="flex items-end">
+                <Button onClick={() => setFilters({
+                  dateFrom: undefined,
+                  dateTo: undefined,
+                  types: [],
+                  minDistance: undefined,
+                  maxDistance: undefined,
+                })}>
+                  Reset Filtri
+                </Button>
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div className="bg-white dark:bg-slate-800 rounded-lg p-6">
-              <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">Corse Totali</p>
-              <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">150+</p>
-            </div>
-            <div className="bg-white dark:bg-slate-800 rounded-lg p-6">
-              <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">km Totali</p>
-              <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">1500+</p>
-            </div>
-            <div className="bg-white dark:bg-slate-800 rounded-lg p-6">
-              <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">Ore di Corsa</p>
-              <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">125+</p>
-            </div>
-            <div className="bg-white dark:bg-slate-800 rounded-lg p-6">
-              <p className="text-sm text-slate-600 dark:text-slate-400 mb-2">Pace Media</p>
-              <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">5:00</p>
-            </div>
+            <StatsCard type="total_runs" activities={activities} filters={filters} dataName="stats-total-runs" />
+            <StatsCard type="total_distance" activities={activities} filters={filters} dataName="stats-total-distance" />
+            <StatsCard type="longest_run" activities={activities} filters={filters} dataName="stats-longest-run" />
+            <StatsCard type="total_hours" activities={activities} filters={filters} dataName="stats-total-hours" />
           </div>
         </div>
       </section>
