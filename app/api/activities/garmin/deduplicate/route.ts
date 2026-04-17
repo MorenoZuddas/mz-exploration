@@ -24,6 +24,23 @@ interface ActivityDocWithRaw {
   updated_at?: Date;
 }
 
+// Adapter esplicito: converte un documento DB (legacy/canonico) in input valido per convertGarminRaw.
+function toGarminRawCandidate(doc: ActivityDocWithRaw): GarminRawActivity {
+  if (isObjectRecord(doc.raw_payload)) {
+    return doc.raw_payload as GarminRawActivity;
+  }
+
+  return {
+    activityId: isFiniteNumber(doc.activityId) ? doc.activityId : undefined,
+    source_id: typeof doc.source_id === 'string' ? doc.source_id : undefined,
+    name: typeof doc.name === 'string' ? doc.name : undefined,
+    type: typeof doc.type === 'string' ? doc.type : undefined,
+    date: safeDate(doc.date) ?? undefined,
+    distance: isFiniteNumber(doc.distance) ? doc.distance : undefined,
+    duration: isFiniteNumber(doc.duration) ? doc.duration : undefined,
+  };
+}
+
 function isObjectRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
@@ -65,8 +82,7 @@ function unifiedDedupKey(doc: ActivityDocWithRaw): string {
   }
 
   // Priority 3: ricalcola fingerprint dal raw_payload o dai campi direct
-  const raw = isObjectRecord(doc.raw_payload) ? (doc.raw_payload as GarminRawActivity) : doc;
-  const converted = convertGarminRaw(raw);
+  const converted = convertGarminRaw(toGarminRawCandidate(doc));
   const fp = [
     converted.date?.toISOString() ?? '',
     converted.type,
