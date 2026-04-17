@@ -253,15 +253,22 @@ export default function DemoGarminPage() {
     }
   };
 
-  const handlePBClick = (type: string, activity: Activity | { type: string; distance_m?: number; distance_km?: string; duration_sec?: number; date?: string | null }) => {
-    // Cast sicuro: StatsActivity è compatibile con Activity per i campi essenziali
-    const activityFull = activity as Activity;
-    setSelectedActivity(activityFull);
+  const handlePBClick = (type: string, activity: any) => {
+    // Accetta sia Activity che StatsActivity; StatsActivity potrebbe non avere name/source
+    // ma ne abbiamo bisogno solo per il messaggio e setSelectedActivity
+    const activityForDisplay = {
+      ...activity,
+      name: activity.name || 'Attività',
+      source: activity.source || 'unknown',
+      _id: activity._id || `${Math.random()}`,
+    } as Activity;
+
+    setSelectedActivity(activityForDisplay);
     // Scroll to the table
     if (tableRef.current) {
       tableRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-    showFloatingNotice(`📍 Navigato all'attività: ${activityFull.name || 'Attività'}`);
+    showFloatingNotice(`📍 Navigato all'attività: ${activityForDisplay.name}`);
   };
 
   const showFloatingNotice = (text: string) => {
