@@ -12,7 +12,12 @@ export default function LayoutClient({
   children: React.ReactNode;
 }) {
   const [isLoading, setIsLoading] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
   const pathname = usePathname();
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   useEffect(() => {
     const startTimer = setTimeout(() => setIsLoading(true), 0);
@@ -29,7 +34,7 @@ export default function LayoutClient({
       {isLoading && <Loader />}
       <Header />
       {children}
-      <Footer />
+      {isHydrated ? <Footer /> : null}
     </>
   );
 }

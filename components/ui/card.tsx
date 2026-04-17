@@ -87,9 +87,12 @@ type StatsType = 'total_runs' | 'pb_100' | 'pb_200' | 'pb_400' | 'pb_1000' | 'pb
 
 interface StatsActivity {
   type: string;
-  originalDate: string;
-  distance_km: string;
+  originalDate?: string;
+  date?: string | null;
+  distance_km?: string;
+  distance_m?: number | null;
   duration_min?: number;
+  duration_sec?: number | null;
 }
 
 interface StatsCardProps {
@@ -109,13 +112,31 @@ interface StatsCardProps {
 
 const StatsCard = React.forwardRef<HTMLDivElement, StatsCardProps>(
   ({ type, activities = [], filters = {}, className, dataName, onPBClick }, ref) => {
+    const getActivityDate = (act: StatsActivity): Date => {
+      const raw = act.originalDate ?? act.date ?? '';
+      const d = new Date(raw);
+      return Number.isNaN(d.getTime()) ? new Date(0) : d;
+    };
+
+    const getDistanceKm = (act: StatsActivity): number => {
+      if (typeof act.distance_km === 'string') return parseFloat(act.distance_km || '0') || 0;
+      if (typeof act.distance_m === 'number') return act.distance_m / 1000;
+      return 0;
+    };
+
+    const getDurationMin = (act: StatsActivity): number => {
+      if (typeof act.duration_min === 'number') return act.duration_min;
+      if (typeof act.duration_sec === 'number') return Math.round(act.duration_sec / 60);
+      return 0;
+    };
+
     const filterActivities = (acts: StatsActivity[]): StatsActivity[] => {
       return acts.filter((act) => {
-        const actDate = new Date(act.originalDate);
+        const actDate = getActivityDate(act);
         if (filters.dateFrom && actDate < filters.dateFrom) return false;
         if (filters.dateTo && actDate > filters.dateTo) return false;
         if (filters.types && filters.types.length > 0 && !filters.types.includes(act.type)) return false;
-        const distMeters = parseFloat(act.distance_km) * 1000;
+        const distMeters = getDistanceKm(act) * 1000;
         if (filters.minDistance && distMeters < filters.minDistance) return false;
         if (filters.maxDistance && distMeters > filters.maxDistance) return false;
         return true;
@@ -129,14 +150,14 @@ const StatsCard = React.forwardRef<HTMLDivElement, StatsCardProps>(
         case 'total_runs':
           return filteredActivities.length;
         case 'total_distance':
-          return filteredActivities.reduce((sum, a) => sum + parseFloat(a.distance_km || '0'), 0).toFixed(1) + ' km';
+          return filteredActivities.reduce((sum, a) => sum + getDistanceKm(a), 0).toFixed(1) + ' km';
         case 'longest_run': {
           if (filteredActivities.length === 0) return '0.00 km';
-          const maxDist = Math.max(...filteredActivities.map((a) => parseFloat(a.distance_km || '0')));
+          const maxDist = Math.max(...filteredActivities.map((a) => getDistanceKm(a)));
           return maxDist.toFixed(2) + ' km';
         }
         case 'total_hours': {
-          const totalMinutes = filteredActivities.reduce((sum, a) => sum + (a.duration_min || 0), 0);
+          const totalMinutes = filteredActivities.reduce((sum, a) => sum + getDurationMin(a), 0);
           return Math.round(totalMinutes / 60);
         }
         case 'pb_100':
@@ -158,7 +179,7 @@ const StatsCard = React.forwardRef<HTMLDivElement, StatsCardProps>(
         case 'longest_run':
           if (filteredActivities.length === 0) return null;
           return filteredActivities.reduce((max, act) =>
-            parseFloat(act.distance_km || '0') > parseFloat(max.distance_km || '0') ? act : max
+            getDistanceKm(act) > getDistanceKm(max) ? act : max
           );
         case 'pb_100':
         case 'pb_200':
