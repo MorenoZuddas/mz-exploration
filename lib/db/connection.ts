@@ -9,9 +9,10 @@ async function ensureDatabaseMaintenance(): Promise<void> {
 
   if (!maintenanceRunPromise) {
     maintenanceRunPromise = (async () => {
-      if (process.env.MONGODB_AUTO_MAINTENANCE === 'false') {
+      // Policy: manutenzione SOLO opt-in.
+      if (process.env.MONGODB_AUTO_MAINTENANCE !== 'true') {
         maintenanceReady = true;
-        console.log('ℹ️ Auto maintenance MongoDB disabilitata via env');
+        console.log('ℹ️ Auto maintenance MongoDB disabilitata (opt-in)');
         return;
       }
 
@@ -30,11 +31,22 @@ async function ensureDatabaseMaintenance(): Promise<void> {
   await maintenanceRunPromise;
 }
 
+function isConnectionAlive(conn: Connection | null): boolean {
+  if (!conn) return false;
+  // 1 = connected (mongoose.ConnectionStates.connected)
+  return conn.readyState === 1 && mongoose.connection.readyState === 1;
+}
+
 export async function connectToDatabase(): Promise<Connection> {
-  if (cachedConnection) {
+  if (isConnectionAlive(cachedConnection)) {
     console.log('📦 Usando connessione MongoDB in cache');
     await ensureDatabaseMaintenance();
-    return cachedConnection;
+    return cachedConnection as Connection;
+  }
+
+  // Se la cache esiste ma non e' viva, la scartiamo per evitare operazioni bufferizzate.
+  if (cachedConnection && !isConnectionAlive(cachedConnection)) {
+    cachedConnection = null;
   }
 
   const mongoUri = process.env.MONGODB_URI;
@@ -45,6 +57,11 @@ export async function connectToDatabase(): Promise<Connection> {
   console.log('🔗 Creando nuova connessione a MongoDB...');
 
   try {
+    // Se mongoose e' rimasto in stato non connesso da un tentativo precedente, chiudi prima di riconnettere.
+    if (mongoose.connection.readyState !== 0) {
+      await mongoose.disconnect();
+    }
+
     const conn = await mongoose.connect(mongoUri, {
       maxPoolSize: parseInt(process.env.MONGODB_MAX_POOL_SIZE || '10'),
       minPoolSize: parseInt(process.env.MONGODB_MIN_POOL_SIZE || '1'),
@@ -57,6 +74,7 @@ export async function connectToDatabase(): Promise<Connection> {
     await ensureDatabaseMaintenance();
     return cachedConnection;
   } catch (error) {
+    cachedConnection = null;
     console.error('❌ Errore connessione MongoDB:', error);
     throw error;
   }

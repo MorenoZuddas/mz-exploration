@@ -170,13 +170,21 @@ function firstNumber(...values: unknown[]): number | null {
 }
 
 function hasGarminRawSignals(raw: GarminRawActivity): boolean {
+  // Consideriamo "raw" solo quando sono presenti campi tipici dell'export Garmin,
+  // NON solo activityId/source_id che esistono anche sui record canonical nel DB.
   return (
-    n(raw.activityId) !== null ||
     n(raw.startTimeLocal) !== null ||
     n(raw.startTimeGmt) !== null ||
     n(raw.beginTimestamp) !== null ||
     typeof raw.activityType === 'string' ||
-    typeof raw.sportType === 'string'
+    typeof raw.sportType === 'string' ||
+    raw.totalDistance !== undefined ||
+    raw.movingDuration !== undefined ||
+    raw.elapsedDuration !== undefined ||
+    raw.avgSpeed !== undefined ||
+    raw.maxSpeed !== undefined ||
+    raw.elevationGain !== undefined ||
+    raw.elevationLoss !== undefined
   );
 }
 
@@ -322,9 +330,53 @@ export function convertGarminRaw(raw: GarminRawActivity): NormalizedActivity {
   const min_elevation_m = minElevRaw !== null ? Math.round((fromRaw ? minElevRaw / 100 : minElevRaw) * 10) / 10 : null;
   const max_elevation_m = maxElevRaw !== null ? Math.round((fromRaw ? maxElevRaw / 100 : maxElevRaw) * 10) / 10 : null;
 
-  // Calorie: teniamo kcal "as is". La conversione kJ->kcal causava sottostima.
+  function normalizeCaloriesKcal(
+    caloriesRaw: number | null,
+    distanceM: number | null,
+    durationSec: number | null
+  ): number | null {
+    if (caloriesRaw === null) return null;
+
+    const raw = Math.round(caloriesRaw);
+    const converted = Math.round(raw / 4.184);
+
+    // Heuristic 1: plausibilità kcal/km quando c'è distanza.
+    if (distanceM !== null && distanceM > 0) {
+      const km = distanceM / 1000;
+      const rawPerKm = raw / km;
+      const convPerKm = converted / km;
+
+      // Se il valore raw è palesemente troppo alto ma quello convertito è plausibile,
+      // il dato originale è in pratica energia non espressa in kcal.
+      if (rawPerKm > 160 && convPerKm >= 20 && convPerKm <= 130) {
+        return converted;
+      }
+    }
+
+    // Heuristic 2: fallback su kcal/ora quando non c'è distanza affidabile.
+    if (durationSec !== null && durationSec > 0) {
+      const hours = durationSec / 3600;
+      const rawPerHour = raw / hours;
+      const convPerHour = converted / hours;
+
+      if (rawPerHour > 1400 && convPerHour >= 150 && convPerHour <= 1200) {
+        return converted;
+      }
+    }
+
+    // Guard rail: valori enormi raramente sono kcal reali in questo dominio.
+    if (raw > 3000 && converted > 0 && converted < raw) {
+      return converted;
+    }
+
+    return raw;
+  }
+
+  // Calorie Garmin:
+  // normalizziamo in kcal con regole di plausibilità,
+  // evitando di rovinare i record già corretti.
   const caloriesRaw = firstNumber(raw.calories);
-  const calories_kcal = caloriesRaw !== null ? Math.round(caloriesRaw) : null;
+  const calories_kcal = normalizeCaloriesKcal(caloriesRaw, distance_m, duration_sec);
 
   // Cadenza: Garmin usa avgRunCadence (per gamba)
   const avg_cadence =
@@ -338,9 +390,21 @@ export function convertGarminRaw(raw: GarminRawActivity): NormalizedActivity {
   // Falcata: cm -> metri
   const avg_stride_length_m = n(raw.avgStrideLength) !== null ? Math.round((fromRaw ? n(raw.avgStrideLength)! / 100 : n(raw.avgStrideLength)!) * 100) / 100 : null;
 
+  function normalizeSourceId(raw: GarminRawActivity, date: Date | null): string {
+    if (typeof raw.source_id === 'string' && raw.source_id.trim().length > 0) {
+      return raw.source_id.trim();
+    }
+
+    if (typeof raw.activityId === 'number' && Number.isFinite(raw.activityId)) {
+      return String(raw.activityId);
+    }
+
+    return `garmin_${date?.getTime() ?? Date.now()}`;
+  }
+
   return {
     source: 'garmin',
-    source_id: raw.source_id ?? String(raw.activityId ?? `garmin_${date?.getTime() ?? Date.now()}`),
+    source_id: normalizeSourceId(raw, date),
     name: (raw.name ?? '').trim() || 'Attivita Garmin',
     type: normalizeType(raw.activityType, raw.sportType, raw.type),
 

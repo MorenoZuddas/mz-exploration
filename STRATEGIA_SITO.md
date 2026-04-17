@@ -1,179 +1,52 @@
-# 🎯 STRATEGIA SITO VETRINA - mz-grm
+# Strategia sito - MZ Exploration
 
-## ANALISI ATTUALE
-Il sito è ben strutturato con:
-- ✅ Homepage accattivante con hero section
-- ✅ Sezioni exploration (Running, Trekking, Trips)
-- ✅ About (Chi sono)
-- ✅ Contatti
-- ✅ Sistema di login/registrazione
-- ✅ Database con attività reali
+Aggiornata: 2026-04-17
 
----
+## Stato di partenza
+- Sezioni pubbliche presenti: home, about, exploration, running, trekking, trips, contact.
+- Pipeline dati attivita` disponibile via API Garmin + MongoDB.
+- Associazione foto attivita` disponibile via Cloudinary.
+- Area autenticata completa e policy pubblico/privato: ancora da consolidare.
 
-## 📊 COSA MOSTRARE NELLA VETRINA (PUBBLICO)
+## Obiettivo prodotto
+Separare chiaramente:
+- esperienza pubblica vetrina (storytelling + highlights),
+- esperienza personale/tecnica (dettagli attivita, filtri avanzati, gestione dati).
 
-### 🏠 HOMEPAGE
-**MODIFICARE** le statistiche statiche con dati reali aggregati:
-- Somma totale km corsi (calcolare da DB)
-- Somma totale km trekking
-- Numero paesi visitati
-- Anno di attività
+## Priorita` suggerite
+1. Rendere la home realmente data-driven (metriche aggregate da API).
+2. Uniformare le card Running/Trekking/Trips con stesso standard visivo.
+3. Definire policy di visibilita` (campi pubblici vs campi privati).
+4. Aggiungere una pagina tecnica amministrativa separata per sync/import/debug.
 
-```
-Esempio:
-- 2,000+ km
-- 45+ trekking
-- 15+ paesi
-- Dal 2015
-```
+## Running (pubblico)
+Mostrare:
+- ultime attivita` ordinate per data,
+- card con foto quando presenti,
+- metriche aggregate (km, durata, numero sessioni).
 
-### 🏃 SEZIONE RUNNING (PUBBLICA)
+Nascondere (o rinviare ad area privata):
+- dettagli sensibili per singola attivita,
+- strumenti di manutenzione DB/API.
 
-**MOSTRA:**
-- [ ] Gallery with 5-6 foto delle corse più belle (aggiungere foto)
-- [ ] Descrizione: "Amante del running su strada e trail da 10+ anni"
-- [ ] Statistiche aggregate:
-  - Totale corse: 150+
-  - Km totali: 2,000+
-  - Preferenza: Running strada 60%, Trail running 40%
-- [ ] Top 3 locations dove corro (con mappa)
-- [ ] **SEZIONE ATTREZZATURA** (NUOVO ✨):
-  - Link alla pagina Equipment
-  - Preview di 3 scarpe in highlight
-  - "Scopri di più" → Equipment page
+## Running (tecnico/admin)
+Mantenere in area dedicata:
+- upload JSON,
+- dedup/normalize/index,
+- diagnostica sync foto.
 
-**NASCONDI (solo dopo login):**
-- ❌ Tutte le attività singole
-- ❌ Pace personale
-- ❌ Calorie bruciate
-- ❌ Filtri per data/tipo
-- ❌ Statistiche dettagliate
+## Trekking e Trips
+- replicare schema Running: preview pubblica + dettaglio progressivo.
+- priorita` a contenuti foto/mappa e narrativa prima di metriche tecniche.
 
----
+## KPI di avanzamento
+- card ordinate per data in tutte le sezioni attivita.
+- riduzione errori lint critici.
+- zero discrepanze tra API payload e valori mostrati a FE.
+- documentazione aggiornata ad ogni modifica di endpoint/flow.
 
-### 🏔️ SEZIONE TREKKING (PUBBLICA)
-
-**MOSTRA:**
-- [ ] Foto montagne spettacolari (aggiungere)
-- [ ] Descrizione trekking
-- [ ] Top 5 escursioni fatte con foto hero
-- [ ] Montagne preferite (lista + mappa)
-- [ ] **SEZIONE ATTREZZATURA** (NUOVO ✨):
-  - Link Equipment page
-  - Focus su scarpe e zaino
-
-**NASCONDI (login):**
-- ❌ Dettagli di tutte le salite
-- ❌ Dati privati
-
----
-
-### ✈️ SEZIONE TRIPS (PUBBLICA)
-
-**MOSTRA:**
-- [ ] Mappa interattiva paesi visitati (IMPORTANTE!)
-- [ ] Gallery viaggi (foto paesaggi)
-- [ ] Card per ogni trip con:
-  - Nome viaggio
-  - Paese
-  - Periodo
-  - 1-2 foto hero
-  - Breve descrizione (max 50 parole)
-  
-Esempio card:
-```
-"Sulle Dolomiti"
-🇮🇹 Italia | Agosto 2024
-Trekking tra le Tre Cime di Lavaredo
-→ Scopri di più
-```
-
-**NASCONDI (login):**
-- ❌ Costi
-- ❌ Itinerari dettagliati
-- ❌ Note personali
-
----
-
-## 🔐 COSA MOSTRARE DOPO LOGIN
-
-### 🏃 RUNNING COMPLETA
-- ✅ Tutte le attività con filtri (com'è ora)
-- ✅ Statistiche dettagliate con filtri data/tipo/distanza
-- ✅ "My Best" con carousel
-- ✅ Equipment completa
-
-### 🏔️ TREKKING COMPLETA
-- ✅ Tutte le escursioni dettagliate
-- ✅ Mappa con traccia GPX
-- ✅ Note personali
-- ✅ Equipment
-
-### 📊 DASHBOARD (AREA PROTETTA)
-Aggiungere una dashboard riassuntiva con:
-- Corse questo mese
-- Km totali questo anno
-- Ultimi trip
-- Statistiche personali
-
----
-
-## 🛠️ IMPLEMENTAZIONE PRIORITARIA
-
-### FASE 1 (FATTO ✅):
-- ✅ Pagina Equipment Running
-- ✅ Pagina Equipment Trekking
-- ✅ Link nelle pagine corrispondenti
-
-### FASE 2 (CONSIGLIATO):
-1. Aggiungere gallery/foto alle sezioni
-2. Implementare mappa interattiva Trips
-3. Modificare Home con statistiche reali da DB
-4. Aggiungere sezione preview nella vetrina pubblica
-
-### FASE 3 (OPZIONALE):
-1. Dashboard area riservata
-2. Certificati/achievement
-3. Blog con trip reports
-4. Timeline attività
-
----
-
-## 🎨 STRUTTURA PUBBLICO vs PRIVATO
-
-```
-SITO VETRINA (No Login)
-├── Home (statistiche aggregate)
-├── Chi Sono
-├── Running (preview + equipment)
-├── Trekking (preview + equipment)
-├── Trips (preview mappa + storie)
-└── Contatti
-
-AREA RISERVATA (Login richiesto)
-├── Dashboard personale
-├── Running completa (filtri, dati)
-├── Trekking completa
-├── Trips (full details)
-├── Profilo
-└── Equipment (modifica/aggiungi)
-```
-
----
-
-## 💡 CONSIGLI FINALI
-
-1. **Foto**: Aggiungi foto di qualità per attirare visitatori
-2. **Mappa**: Una buona mappa aumenta l'engagement (Trips)
-3. **CTA chiaro**: "Scopri di più" → Login necessario
-4. **Social proof**: Mostra badge/achievement sulla vetrina
-5. **Statistiche reali**: Calcola da DB, non hardcoded
-6. **SEO**: Descrizioni dettagliate delle attività (soprattutto Trips)
-7. **Equipment**: È una buona idea per la monetizzazione (link affiliati futuri)
-
----
-
-**Data**: Aprile 2026  
-**Stato**: Strategia defined, Phase 1 completata ✅
-
+## Regola operativa
+Ogni nuova feature deve aggiornare nello stesso branch:
+- `README.md`
+- `docs/API_README.md`
+- eventuale runbook specifico in `docs/`

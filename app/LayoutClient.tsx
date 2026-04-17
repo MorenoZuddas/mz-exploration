@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
@@ -15,9 +15,13 @@ export default function LayoutClient({
   const pathname = usePathname();
 
   useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => setIsLoading(false), 500);
-    return () => clearTimeout(timer);
+    const startTimer = setTimeout(() => setIsLoading(true), 0);
+    const stopTimer = setTimeout(() => setIsLoading(false), 500);
+
+    return () => {
+      clearTimeout(startTimer);
+      clearTimeout(stopTimer);
+    };
   }, [pathname]);
 
   return (
@@ -29,4 +33,3 @@ export default function LayoutClient({
     </>
   );
 }
-

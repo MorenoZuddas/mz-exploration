@@ -85,9 +85,16 @@ CardFooter.displayName = "CardFooter"
 
 type StatsType = 'total_runs' | 'pb_100' | 'pb_200' | 'pb_400' | 'pb_1000' | 'pb_2000' | 'pb_5000' | 'pb_10000' | 'pb_21000' | 'longest_run' | 'total_hours' | 'total_distance';
 
+interface StatsActivity {
+  type: string;
+  originalDate: string;
+  distance_km: string;
+  duration_min?: number;
+}
+
 interface StatsCardProps {
   type: StatsType;
-  activities?: any[];
+  activities?: StatsActivity[];
   filters?: {
     dateFrom?: Date;
     dateTo?: Date;
@@ -95,15 +102,15 @@ interface StatsCardProps {
     minDistance?: number;
     maxDistance?: number;
   };
-  onPBClick?: (type: StatsType, activity: any) => void;
+  onPBClick?: (type: StatsType, activity: StatsActivity) => void;
   className?: string;
   dataName?: string;
 }
 
 const StatsCard = React.forwardRef<HTMLDivElement, StatsCardProps>(
   ({ type, activities = [], filters = {}, className, dataName, onPBClick }, ref) => {
-    const filterActivities = (acts: any[]) => {
-      return acts.filter(act => {
+    const filterActivities = (acts: StatsActivity[]): StatsActivity[] => {
+      return acts.filter((act) => {
         const actDate = new Date(act.originalDate);
         if (filters.dateFrom && actDate < filters.dateFrom) return false;
         if (filters.dateTo && actDate > filters.dateTo) return false;
@@ -123,12 +130,15 @@ const StatsCard = React.forwardRef<HTMLDivElement, StatsCardProps>(
           return filteredActivities.length;
         case 'total_distance':
           return filteredActivities.reduce((sum, a) => sum + parseFloat(a.distance_km || '0'), 0).toFixed(1) + ' km';
-        case 'longest_run':
-          const maxDist = Math.max(...filteredActivities.map(a => parseFloat(a.distance_km || '0')));
+        case 'longest_run': {
+          if (filteredActivities.length === 0) return '0.00 km';
+          const maxDist = Math.max(...filteredActivities.map((a) => parseFloat(a.distance_km || '0')));
           return maxDist.toFixed(2) + ' km';
-        case 'total_hours':
+        }
+        case 'total_hours': {
           const totalMinutes = filteredActivities.reduce((sum, a) => sum + (a.duration_min || 0), 0);
           return Math.round(totalMinutes / 60);
+        }
         case 'pb_100':
         case 'pb_200':
         case 'pb_400':
@@ -137,14 +147,13 @@ const StatsCard = React.forwardRef<HTMLDivElement, StatsCardProps>(
         case 'pb_5000':
         case 'pb_10000':
         case 'pb_21000':
-          // Placeholder per PB - da implementare con logica split
           return 'N/A';
         default:
           return 0;
       }
     };
 
-    const findActivityForStat = () => {
+    const findActivityForStat = (): StatsActivity | null => {
       switch (type) {
         case 'longest_run':
           if (filteredActivities.length === 0) return null;
@@ -159,8 +168,7 @@ const StatsCard = React.forwardRef<HTMLDivElement, StatsCardProps>(
         case 'pb_5000':
         case 'pb_10000':
         case 'pb_21000':
-          // Placeholder - trovare attività con miglior split per quella distanza
-          return null; // Per ora null
+          return null;
         default:
           return null;
       }

@@ -218,7 +218,7 @@ export default function EquipmentPage() {
             🎽 {data.title}
           </h1>
           <p className="text-lg text-slate-600 dark:text-slate-300">
-            L'attrezzatura che utilizzo per le mie avventure
+            L&apos;attrezzatura che utilizzo per le mie avventure
           </p>
         </div>
       </section>
@@ -284,4 +284,3 @@ export default function EquipmentPage() {
     </main>
   );
 }
-

@@ -1,15 +1,16 @@
 import mongoose, { Schema, Document } from 'mongoose';
+import type { ActivityPhoto } from '@/types/activity';
 
 export interface IActivity extends Document {
   // Informazioni generali
-  name: string;
-  type: string; // 'running', 'cycling', 'hiking', etc.
-  date: Date;
+  name?: string;
+  type?: string; // 'running', 'cycling', 'hiking', etc.
+  date?: Date;
   description?: string;
 
   // Dati distanza e tempo
-  distance: number; // in metri
-  duration: number; // in secondi
+  distance?: number; // in metri (o valore raw se import diretto)
+  duration?: number; // in secondi (o valore raw se import diretto)
   moving_time?: number; // in secondi
 
   // Dati di performance
@@ -55,21 +56,36 @@ export interface IActivity extends Document {
     humidity?: number;
   };
 
+  // Raw Garmin originale (payload non convertito)
+  raw_payload?: Record<string, unknown>;
+
+  photos: ActivityPhoto[];
+
   // Timestamp
   created_at: Date;
   updated_at: Date;
   synced_at?: Date;
 }
 
+const photoSchema = new Schema<ActivityPhoto>(
+  {
+    public_id: { type: String, required: true },
+    secure_url: { type: String, required: true },
+    width: { type: Number },
+    height: { type: Number },
+  },
+  { _id: false }
+);
+
 const activitySchema = new Schema<IActivity>(
   {
-    name: { type: String, required: true },
-    type: { type: String, required: true },
-    date: { type: Date, required: true },
+    name: { type: String },
+    type: { type: String },
+    date: { type: Date },
     description: { type: String },
 
-    distance: { type: Number, required: true },
-    duration: { type: Number, required: true },
+    distance: { type: Number },
+    duration: { type: Number },
     moving_time: { type: Number },
 
     avg_speed: { type: Number },
@@ -116,6 +132,10 @@ const activitySchema = new Schema<IActivity>(
       temperature: { type: Number },
       humidity: { type: Number },
     },
+
+    raw_payload: { type: Schema.Types.Mixed },
+
+    photos: { type: [photoSchema], default: [] },
 
     created_at: { type: Date, default: Date.now },
     updated_at: { type: Date, default: Date.now },

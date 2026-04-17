@@ -1,12 +1,14 @@
 import { connectToDatabase } from '@/lib/db/connection';
 import { Activity } from '@/lib/db/models/Activity';
+import { convertGarminRaw, GarminRawActivity } from '@/lib/garmin/converter';
+import crypto from 'crypto';
 import { NextRequest, NextResponse } from 'next/server';
 
 interface DeduplicateBody {
   apply?: boolean;
 }
 
-interface GarminDoc {
+interface ActivityDocWithRaw {
   _id: unknown;
   source?: string;
   source_id?: string;
@@ -17,12 +19,13 @@ interface GarminDoc {
   date?: Date;
   distance?: number;
   duration?: number;
-  beginTimestamp?: number;
-  startTimeLocal?: number;
-  startTimeGmt?: number;
-  activityType?: string;
+  raw_payload?: Record<string, unknown>;
   created_at?: Date;
   updated_at?: Date;
+}
+
+function isObjectRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 function isFiniteNumber(value: unknown): value is number {
@@ -38,7 +41,12 @@ function safeDate(value: unknown): Date | null {
   return null;
 }
 
-function toDedupKey(doc: GarminDoc): string {
+/**
+ * Unified dedup key: materializza raw_payload se presente,
+ * poi calcola fingerprint come in POST import.
+ * Così tutti i flussi (POST, deduplicate, maintenance) vedono lo stesso comparatore.
+ */
+function unifiedDedupKey(doc: ActivityDocWithRaw): string {
   const sourceId =
     typeof doc.source_id === 'string' && doc.source_id.length > 0 && !doc.source_id.startsWith('garmin_')
       ? doc.source_id
@@ -46,35 +54,29 @@ function toDedupKey(doc: GarminDoc): string {
   const activityId = isFiniteNumber(doc.activityId) ? String(doc.activityId) : null;
   const stableExternalId = sourceId ?? activityId;
 
+  // Priority 1: source_id or activityId (esterno, non derivato)
   if (stableExternalId) {
     return `sid:${stableExternalId}`;
   }
 
+  // Priority 2: fingerprint pre-calcolato
   if (typeof doc.fingerprint === 'string' && doc.fingerprint.length > 0) {
     return `fp:${doc.fingerprint}`;
   }
 
-  const rawTs = isFiniteNumber(doc.startTimeLocal)
-    ? doc.startTimeLocal
-    : isFiniteNumber(doc.startTimeGmt)
-      ? doc.startTimeGmt
-      : isFiniteNumber(doc.beginTimestamp)
-        ? doc.beginTimestamp
-        : undefined;
-
-  const dateIso = safeDate(doc.date)?.toISOString() ?? (rawTs ? new Date(rawTs).toISOString() : '');
-  const type =
-    typeof doc.type === 'string'
-      ? doc.type
-      : typeof doc.activityType === 'string'
-        ? doc.activityType.toLowerCase()
-        : '';
-  const distance = isFiniteNumber(doc.distance) ? Math.round(doc.distance) : 0;
-  const duration = isFiniteNumber(doc.duration) ? Math.round(doc.duration) : 0;
-  return `cmp:${dateIso}_${type}_${distance}_${duration}`;
+  // Priority 3: ricalcola fingerprint dal raw_payload o dai campi direct
+  const raw = isObjectRecord(doc.raw_payload) ? (doc.raw_payload as GarminRawActivity) : doc;
+  const converted = convertGarminRaw(raw);
+  const fp = [
+    converted.date?.toISOString() ?? '',
+    converted.type,
+    Math.round(converted.distance_m ?? 0),
+    Math.round(converted.duration_sec ?? 0),
+  ].join('_');
+  return `fp:${crypto.createHash('sha256').update(fp).digest('hex')}`;
 }
 
-function getSortTs(doc: GarminDoc): number {
+function getSortTs(doc: ActivityDocWithRaw): number {
   return (
     safeDate(doc.updated_at)?.getTime() ??
     safeDate(doc.created_at)?.getTime() ??
@@ -91,21 +93,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const apply = Boolean(body.apply);
 
     const docs = (await Activity.find({
-      $or: [
-        { source: 'garmin' },
-        { activityId: { $exists: true } },
-        { source_id: { $exists: true } },
-        { fingerprint: { $exists: true } },
-        { activityType: { $exists: true } },
-        { beginTimestamp: { $exists: true } },
-        { startTimeLocal: { $exists: true } },
-        { startTimeGmt: { $exists: true } },
-      ],
-    }).lean()) as GarminDoc[];
-    const groups = new Map<string, GarminDoc[]>();
+      source: 'garmin',
+    }).lean()) as ActivityDocWithRaw[];
+
+    const groups = new Map<string, ActivityDocWithRaw[]>();
 
     for (const doc of docs) {
-      const key = toDedupKey(doc);
+      const key = unifiedDedupKey(doc);
       const list = groups.get(key) ?? [];
       list.push(doc);
       groups.set(key, list);
