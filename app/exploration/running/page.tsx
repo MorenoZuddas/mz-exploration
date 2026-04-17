@@ -33,6 +33,7 @@ import type { ActivityPhoto } from '@/types/activity';
 
 interface Activity {
   id: string;
+  source_id?: string;
   name: string;
   type: string;
   date: string;
@@ -104,6 +105,7 @@ export default function RunningPage() {
           ).map((act: {
             id?: string;
             _id?: string;
+            source_id?: string;
             name: string;
             type: string;
             date: Date | string;
@@ -113,8 +115,8 @@ export default function RunningPage() {
             pace_min_per_km?: number;
             photos?: ActivityPhoto[];
           }) => ({
-            // L'API proiettata espone `id`; `_id` resta fallback per compatibilita legacy.
             id: act.id ?? act._id ?? '',
+            source_id: act.source_id,
             name: act.name,
             type: act.type,
             date: new Date(act.date).toLocaleDateString('it-IT'),
@@ -267,7 +269,7 @@ export default function RunningPage() {
                   <div className="mt-4">
                     {activity.id ? (
                       <Link
-                        href={`/activities/${activity.id}`}
+                        href={`/activities/${activity.source_id || activity.id}`}
                         className="inline-flex items-center text-sm font-semibold text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
                       >
                         Apri dettaglio →

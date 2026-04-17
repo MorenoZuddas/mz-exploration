@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import mongoose from 'mongoose';
 import { connectToDatabase } from '@/lib/db/connection';
 import { Activity } from '@/lib/db/models/Activity';
 import { projectActivity } from '@/lib/activities/projector';
@@ -35,7 +36,23 @@ export async function GET(_req: NextRequest, context: RouteContext): Promise<Nex
     const { id } = await context.params;
     await connectToDatabase();
 
-    const activity = (await Activity.findById(id).lean()) as (GarminRawActivity & {
+    const filters: Record<string, unknown>[] = [];
+
+    // Supporto ID Mongo nativo
+    if (mongoose.Types.ObjectId.isValid(id)) {
+      filters.push({ _id: id });
+    }
+
+    // Supporto source_id string
+    filters.push({ source_id: id });
+
+    // Supporto activityId/source_id numerico
+    if (/^\d+$/.test(id)) {
+      filters.push({ activityId: Number(id) });
+      filters.push({ source_id: Number(id) });
+    }
+
+    const activity = (await Activity.findOne({ $or: filters }).lean()) as (GarminRawActivity & {
       _id?: unknown;
       activityId?: number;
       photos?: unknown;
