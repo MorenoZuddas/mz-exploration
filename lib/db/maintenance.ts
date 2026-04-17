@@ -17,6 +17,7 @@ interface ActivityDoc {
   created_at?: Date | string;
   updated_at?: Date | string;
   photos?: Array<{ public_id?: string }>;
+  raw_payload?: Record<string, unknown>;
 }
 
 interface MaintenanceResult {
