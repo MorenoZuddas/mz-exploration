@@ -309,6 +309,3 @@ export async function runDatabaseMaintenanceOnce(): Promise<MaintenanceResult> {
   return maintenancePromise;
 }
 
-function isObjectRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
