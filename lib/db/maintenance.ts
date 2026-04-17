@@ -205,7 +205,7 @@ async function removeDuplicatePhotoAssociationsNow(): Promise<number> {
       ops.push({
         updateOne: {
           filter: { _id: item._id },
-          update: { $pull: { photos: { public_id: publicId } } },
+          update: { $pull: { photos: { public_id: publicId } } } as any,
         },
       });
     }
