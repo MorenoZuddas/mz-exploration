@@ -253,13 +253,15 @@ export default function DemoGarminPage() {
     }
   };
 
-  const handlePBClick = (type: string, activity: Activity) => {
-    setSelectedActivity(activity);
+  const handlePBClick = (type: string, activity: Activity | { type: string; distance_m?: number; distance_km?: string; duration_sec?: number; date?: string | null }) => {
+    // Cast sicuro: StatsActivity è compatibile con Activity per i campi essenziali
+    const activityFull = activity as Activity;
+    setSelectedActivity(activityFull);
     // Scroll to the table
     if (tableRef.current) {
       tableRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-    showFloatingNotice(`📍 Navigato all'attività: ${activity.name}`);
+    showFloatingNotice(`📍 Navigato all'attività: ${activityFull.name || 'Attività'}`);
   };
 
   const showFloatingNotice = (text: string) => {
