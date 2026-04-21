@@ -47,12 +47,12 @@ interface Activity {
   photos?: ActivityPhoto[];
 }
 
-function activityKey(activity: Activity, index: number, scope: string): string {
+function activityKey(activity: Activity, scope: string): string {
   const idPart = activity.id?.trim();
-  if (idPart) return `${scope}-${idPart}-${index}`;
+  if (idPart) return `${scope}-${idPart}`;
 
   const fallback = [activity.originalDate, activity.name, activity.type].filter(Boolean).join('-');
-  return `${scope}-${fallback || 'activity'}-${index}`;
+  return `${scope}-${fallback || 'activity'}`;
 }
 
 function safeTimestamp(value: string | undefined): number {
@@ -216,7 +216,7 @@ export default function RunningPage() {
 
               return (
                 <Card
-                  key={activityKey(activity, index, 'running-grid')}
+                  key={activityKey(activity, 'running-grid')}
                   className="overflow-hidden p-6 hover:shadow-lg transition-shadow"
                   dataName={`card ${index + 1}`}
                 >
@@ -315,7 +315,7 @@ export default function RunningPage() {
                   .sort((a, b) => parseFloat(b.distance_km) - parseFloat(a.distance_km))
                   .slice(0, 4)
                   .map((activity, index) => (
-                  <CarouselItem key={activityKey(activity, index, 'running-carousel')} className="md:basis-1/1">
+                  <CarouselItem key={activityKey(activity, 'running-carousel')} className="md:basis-1/1">
                     <Card className="flex min-h-[320px] flex-col" dataName={`carousel card ${index + 1}`}>
                       <CardHeader>
                         <CardTitle>{activity.name}</CardTitle>
