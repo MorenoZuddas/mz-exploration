@@ -37,27 +37,53 @@ export async function connectToDatabase(): Promise<Connection> {
     return cachedConnection;
   }
 
-  const mongoUri = process.env.MONGODB_URI;
+  let mongoUri = process.env.MONGODB_URI;
   if (!mongoUri) {
     throw new Error('❌ MONGODB_URI non è definito in .env.local');
+  }
+
+  // In produzione, assicurati che la URI punti al database corretto
+  if (process.env.NODE_ENV === 'production') {
+    // Se la URI finisce con /? (senza database), aggiungi mz-exploration
+    if (mongoUri.includes('/?')) {
+      mongoUri = mongoUri.replace('/?', '/mz-exploration?');
+      console.log('🔄 URI produzione modificata per puntare a mz-exploration');
+    }
   }
 
   console.log('🔗 Creando nuova connessione a MongoDB...');
 
   try {
-    const conn = await mongoose.connect(mongoUri, {
-      maxPoolSize: parseInt(process.env.MONGODB_MAX_POOL_SIZE || '10'),
-      minPoolSize: parseInt(process.env.MONGODB_MIN_POOL_SIZE || '1'),
-      serverSelectionTimeoutMS: parseInt(process.env.MONGODB_SERVER_SELECTION_TIMEOUT_MS || '10000'),
-      socketTimeoutMS: parseInt(process.env.MONGODB_SOCKET_TIMEOUT_MS || '45000'),
-    });
+    const connectTimeoutMs = parseInt(process.env.MONGODB_CONNECT_TIMEOUT_MS || '30000');
+
+    const conn = await Promise.race([
+      mongoose.connect(mongoUri, {
+        maxPoolSize: parseInt(process.env.MONGODB_MAX_POOL_SIZE || '10'),
+        minPoolSize: parseInt(process.env.MONGODB_MIN_POOL_SIZE || '1'),
+        serverSelectionTimeoutMS: parseInt(process.env.MONGODB_SERVER_SELECTION_TIMEOUT_MS || '10000'),
+        socketTimeoutMS: parseInt(process.env.MONGODB_SOCKET_TIMEOUT_MS || '45000'),
+        dbName: process.env.MONGODB_DB_NAME || 'mz-exploration',
+      }),
+      new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('MongoDB connection timeout')), connectTimeoutMs)
+      ),
+    ]);
 
     cachedConnection = conn.connection;
     console.log('✅ Connessione MongoDB stabilita');
-    await ensureDatabaseMaintenance();
+
+    // Non aspettare la manutenzione al primo avvio - esegui in background
+    if (process.env.MONGODB_AUTO_MAINTENANCE !== 'false') {
+      ensureDatabaseMaintenance().catch(err => {
+        console.warn('⚠️ Maintenance setup error (non-blocking):', err);
+      });
+    }
+
     return cachedConnection;
   } catch (error) {
     console.error('❌ Errore connessione MongoDB:', error);
+    // Non lanciare errore - consenti all'app di proseguire
+    console.log('⚠️ MongoDB non disponibile, app in modalità limitata');
     throw error;
   }
 }
