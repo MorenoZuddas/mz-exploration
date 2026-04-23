@@ -19,7 +19,7 @@ export async function GET(): Promise<NextResponse> {
       );
     }
 
-    const dbName = db.name;
+    const dbName = conn.name;
     const collections = await db.listCollections().toArray();
     const collectionNames = collections.map(c => c.name);
 
@@ -67,4 +67,3 @@ export async function GET(): Promise<NextResponse> {
     );
   }
 }
-
