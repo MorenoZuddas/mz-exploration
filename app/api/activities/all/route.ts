@@ -1,19 +1,68 @@
 import { connectToDatabase } from '@/lib/db/connection';
 import { Activity } from '@/lib/db/models/Activity';
+import { convertGarminRaw, GarminRawActivity } from '@/lib/garmin/converter';
 import { NextResponse } from 'next/server';
+
+function isObjectRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function formatDuration(durationSec: number): string {
+  const total = Math.max(0, Math.floor(durationSec));
+  const hours = Math.floor(total / 3600);
+  const minutes = Math.floor((total % 3600) / 60);
+  const seconds = total % 60;
+
+  if (total >= 3600) {
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  }
+
+  return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
+
+function formatDistance(distanceM: number): string {
+  const km = distanceM / 1000;
+  if (km < 10) {
+    return `${Math.round(distanceM).toLocaleString('it-IT')} m`;
+  }
+  return `${km.toFixed(2)} km`;
+}
 
 export async function GET(): Promise<NextResponse> {
   try {
     await connectToDatabase();
 
-    // Recupera tutte le attività ordinate per data
-    const activities = await Activity.find()
-      .sort({ date: -1 })
-      .lean();
+    const rawDocs = (await Activity.find().sort({ date: -1 }).lean()) as GarminRawActivity[];
 
-    // Calcola statistiche
+    const normalized = rawDocs.map((doc) => {
+      const payloadSource = isObjectRecord(doc.raw_payload)
+        ? ({ ...(doc as Record<string, unknown>), ...(doc.raw_payload as Record<string, unknown>) } as GarminRawActivity)
+        : doc;
+
+      const converted = convertGarminRaw(payloadSource);
+      const distanceM = converted.distance_m ?? 0;
+      const durationSec = converted.duration_sec ?? 0;
+      const rawId = (doc as { _id?: unknown })._id;
+
+      return {
+        id: rawId != null ? String(rawId) : converted.source_id,
+        name: converted.name,
+        type: converted.type,
+        date: converted.date,
+        distance_km: (distanceM / 1000).toFixed(2),
+        distance_formatted: formatDistance(distanceM),
+        duration_min: Math.round(durationSec / 60),
+        duration_formatted: formatDuration(durationSec),
+        calories_kcal: converted.calories_kcal ?? 0,
+        pace_min_per_km: converted.pace_min_per_km,
+        source: converted.source,
+        avg_speed_ms: converted.avg_speed_mps?.toFixed(2) ?? '0',
+        created_at: (doc as { created_at?: Date }).created_at,
+      };
+    });
+
     const stats = {
-      total_activities: activities.length,
+      total_activities: normalized.length,
       by_type: {} as Record<string, number>,
       by_source: {} as Record<string, number>,
       total_distance: 0,
@@ -21,61 +70,18 @@ export async function GET(): Promise<NextResponse> {
       total_calories: 0,
     };
 
-    activities.forEach((act) => {
-      // Per tipo
+    normalized.forEach((act) => {
       stats.by_type[act.type] = (stats.by_type[act.type] || 0) + 1;
-
-      // Per sorgente
       stats.by_source[act.source] = (stats.by_source[act.source] || 0) + 1;
-
-      // Totali
-      stats.total_distance += act.distance || 0;
-      stats.total_duration += act.duration || 0;
-      stats.total_calories += act.calories || 0;
+      stats.total_distance += Number.parseFloat(act.distance_km) * 1000;
+      stats.total_duration += act.duration_min * 60;
+      stats.total_calories += act.calories_kcal;
     });
 
     return NextResponse.json({
       status: 'success',
       data: {
-        activities: activities.map((a) => ({
-          id: a._id,
-          name: a.name,
-          type: a.type,
-          date: a.date,
-          distance_km: (a.distance / 1000).toFixed(2),
-          distance_formatted: (() => {
-            const km = a.distance / 1000;
-            if (km < 10) {
-              return `${Math.round(a.distance).toLocaleString('it-IT')} m`;
-            } else {
-              return `${km.toFixed(2)} km`;
-            }
-          })(),
-          duration_min: Math.round(a.duration / 60),
-          duration_formatted: (() => {
-            const totalMinutes = Math.round(a.duration / 60);
-            if (totalMinutes < 10) {
-              const minutes = totalMinutes;
-              const seconds = Math.round(a.duration % 60);
-              const centiseconds = Math.round(((a.duration % 60) % 1) * 100);
-              return `${minutes}:${String(seconds).padStart(2, '0')}.${String(centiseconds).padStart(2, '0')}`;
-            } else if (totalMinutes < 60) {
-              const minutes = totalMinutes;
-              const seconds = Math.round(a.duration % 60);
-              return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-            } else {
-              const hours = Math.floor(totalMinutes / 60);
-              const minutes = totalMinutes % 60;
-              const seconds = Math.round(a.duration % 60);
-              return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-            }
-          })(),
-          calories_kcal: a.calories ? Math.round(a.calories / 4.184) : 0,
-          pace_min_per_km: a.avg_pace,
-          source: a.source,
-          avg_speed_ms: a.avg_speed?.toFixed(2) || 0,
-          created_at: a.created_at,
-        })),
+        activities: normalized,
         statistics: {
           total_activities: stats.total_activities,
           total_distance_km: (stats.total_distance / 1000).toFixed(2),

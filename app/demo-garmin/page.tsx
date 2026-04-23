@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -52,6 +52,36 @@ interface UploadResult {
 interface FloatingNotice {
   text: string;
   tone: 'success';
+}
+
+function inferTypeForDisplay(name: string, rawType: string): string {
+  const normalizedRawType = rawType.trim().toLowerCase();
+  const typeAlias: Record<string, string> = {
+    running: 'running',
+    trail_running: 'running',
+    road_running: 'running',
+    virtual_running: 'running',
+    track_running: 'track_running',
+    cycling: 'cycling',
+    hiking: 'hiking',
+    walking: 'walking',
+    strength: 'strength',
+    strength_training: 'strength',
+  };
+  if (normalizedRawType && normalizedRawType !== 'unknown' && typeAlias[normalizedRawType]) {
+    return typeAlias[normalizedRawType];
+  }
+
+  const normalized = name.toLowerCase().trim();
+  if (normalized.includes('pista') || normalized.includes('track')) return 'track_running';
+  if (normalized.includes('corsa') || normalized.includes('run') || normalized.includes('jog')) return 'running';
+  if (normalized.includes('ripetute') || normalized.includes('interval') || /\d+x\d+/.test(normalized)) return 'running';
+  if (normalized.includes('marathon') || normalized.includes('half marathon') || /\b\d{1,2}k\b/.test(normalized)) return 'running';
+  if (normalized.includes('cicl') || normalized.includes('bike')) return 'cycling';
+  if (normalized.includes('trek') || normalized.includes('hike')) return 'hiking';
+  if (normalized.includes('walk') || normalized.includes('cammin')) return 'walking';
+  if (normalized.includes('palestra') || normalized.includes('strength') || normalized.includes('gym')) return 'strength';
+  return normalizedRawType || 'unknown';
 }
 
 export default function DemoGarminPage() {
@@ -137,22 +167,40 @@ export default function DemoGarminPage() {
   };
 
   // Carica le attività esistenti (silenzioso, nessun alert)
-  const handleLoadActivities = async () => {
+  const handleLoadActivities = useCallback(async (silent = false) => {
     setLoadingDB(true);
-    setDbMessage(null);
+    if (!silent) setDbMessage(null);
+
     try {
       const res = await fetch('/api/activities/garmin');
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || data.error || 'Errore caricamento');
-      const list: Activity[] = data.data.recent_activities || [];
+
+      const list: Activity[] = (data.data.recent_activities || []).map((item: Activity) => ({
+        ...item,
+        type: inferTypeForDisplay(item.name, item.type),
+      }));
       setActivities(list);
-      setDbMessage({ text: `✅ ${data.data.total_activities} attività caricate`, ok: true });
+
+      if (!silent) {
+        setDbMessage({ text: `✅ ${data.data.total_activities} attività caricate`, ok: true });
+      }
     } catch (error) {
-      setDbMessage({ text: `❌ ${error instanceof Error ? error.message : 'Errore caricamento'}`, ok: false });
+      if (!silent) {
+        setDbMessage({ text: `❌ ${error instanceof Error ? error.message : 'Errore caricamento'}`, ok: false });
+      }
     } finally {
       setLoadingDB(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    const timerId = window.setTimeout(() => {
+      void handleLoadActivities(true);
+    }, 0);
+
+    return () => window.clearTimeout(timerId);
+  }, [handleLoadActivities]);
 
   // Upload JSON Garmin
   const handleJSONUpload = async (file: File) => {
@@ -201,7 +249,13 @@ export default function DemoGarminPage() {
       // Aggiorna la lista silenziosamente
       const listRes = await fetch('/api/activities/garmin');
       const listData = await listRes.json();
-      if (listRes.ok) setActivities(listData.data.recent_activities || []);
+      if (listRes.ok) {
+        const list: Activity[] = (listData.data.recent_activities || []).map((item: Activity) => ({
+          ...item,
+          type: inferTypeForDisplay(item.name, item.type),
+        }));
+        setActivities(list);
+      }
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : '❌ File JSON non valido o errore server');
     } finally {
@@ -260,7 +314,13 @@ export default function DemoGarminPage() {
       // Aggiorna lista silenziosamente
       const listRes = await fetch('/api/activities/garmin');
       const listData = await listRes.json();
-      if (listRes.ok) setActivities(listData.data.recent_activities || []);
+      if (listRes.ok) {
+        const list: Activity[] = (listData.data.recent_activities || []).map((item: Activity) => ({
+          ...item,
+          type: inferTypeForDisplay(item.name, item.type),
+        }));
+        setActivities(list);
+      }
     } catch (error) {
       setManualMessage({ text: `❌ ${error instanceof Error ? error.message : 'Errore'}`, ok: false });
     } finally {
