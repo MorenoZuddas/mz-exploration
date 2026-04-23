@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { StatsCard } from "@/components/ui/card"
+import { StatsCard, type StatsActivity, type StatsType } from "@/components/ui/card"
 
 interface Activity {
   _id?: string;
@@ -328,13 +328,39 @@ export default function DemoGarminPage() {
     }
   };
 
-  const handlePBClick = (type: string, activity: Activity) => {
-    setSelectedActivity(activity);
+  const handlePBClick = (type: StatsType, activity: StatsActivity) => {
+    const normalizedActivity: Activity = {
+      _id: undefined,
+      source_id: undefined,
+      name: 'name' in activity && typeof activity.name === 'string' ? activity.name : 'Attivita',
+      type: activity.type ?? 'unknown',
+      date: activity.date ?? activity.originalDate ?? null,
+      distance_m:
+        activity.distance_m ??
+        (typeof activity.distance_km === 'string' ? Number.parseFloat(activity.distance_km) * 1000 : null),
+      duration_sec:
+        activity.duration_sec ??
+        (typeof activity.duration_min === 'number' ? Math.round(activity.duration_min * 60) : null),
+      calories_kcal: 'calories_kcal' in activity ? (activity as Activity).calories_kcal ?? null : null,
+      pace_min_per_km: 'pace_min_per_km' in activity ? (activity as Activity).pace_min_per_km ?? null : null,
+      elevation_gain_m: 'elevation_gain_m' in activity ? (activity as Activity).elevation_gain_m ?? null : null,
+      elevation_loss_m: 'elevation_loss_m' in activity ? (activity as Activity).elevation_loss_m ?? null : null,
+      avg_hr: 'avg_hr' in activity ? (activity as Activity).avg_hr ?? null : null,
+      max_hr: 'max_hr' in activity ? (activity as Activity).max_hr ?? null : null,
+      steps: 'steps' in activity ? (activity as Activity).steps ?? null : null,
+      avg_cadence: 'avg_cadence' in activity ? (activity as Activity).avg_cadence ?? null : null,
+      vo2max: 'vo2max' in activity ? (activity as Activity).vo2max ?? null : null,
+      aerobic_te: 'aerobic_te' in activity ? (activity as Activity).aerobic_te ?? null : null,
+      location: 'location' in activity ? (activity as Activity).location ?? null : null,
+      source: 'source' in activity && typeof activity.source === 'string' ? activity.source : 'garmin',
+    };
+
+    setSelectedActivity(normalizedActivity);
     // Scroll to the table
     if (tableRef.current) {
       tableRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-    showFloatingNotice(`📍 Navigato all'attività: ${activity.name}`);
+    showFloatingNotice(`📍 Navigato all'attività: ${normalizedActivity.name}`);
   };
 
   const showFloatingNotice = (text: string) => {
@@ -397,7 +423,7 @@ export default function DemoGarminPage() {
               {loadingDB ? '⏳ ...' : '📊 Check Status'}
             </button>
             <button
-              onClick={handleLoadActivities}
+              onClick={() => void handleLoadActivities()}
               disabled={loadingDB}
               className="w-full mt-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-500 text-white font-bold py-3 px-4 rounded transition"
             >
@@ -515,7 +541,7 @@ export default function DemoGarminPage() {
         <div className="bg-slate-700 rounded-lg p-6 shadow-xl">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold text-white">📋 Attività ({activities.length})</h2>
-            <button onClick={handleLoadActivities} disabled={loadingDB}
+            <button onClick={() => void handleLoadActivities()} disabled={loadingDB}
               className="bg-green-600 hover:bg-green-700 disabled:bg-gray-500 text-white font-bold py-2 px-4 rounded text-sm transition">
               {loadingDB ? '⏳' : '🔄 Aggiorna'}
             </button>

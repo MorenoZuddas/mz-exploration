@@ -56,7 +56,7 @@ export async function connectToDatabase(): Promise<Connection> {
   try {
     const connectTimeoutMs = parseInt(process.env.MONGODB_CONNECT_TIMEOUT_MS || '30000');
 
-    const conn = await Promise.race([
+    const conn = await Promise.race<typeof mongoose>([
       mongoose.connect(mongoUri, {
         maxPoolSize: parseInt(process.env.MONGODB_MAX_POOL_SIZE || '10'),
         minPoolSize: parseInt(process.env.MONGODB_MIN_POOL_SIZE || '1'),
@@ -64,7 +64,7 @@ export async function connectToDatabase(): Promise<Connection> {
         socketTimeoutMS: parseInt(process.env.MONGODB_SOCKET_TIMEOUT_MS || '45000'),
         dbName: process.env.MONGODB_DB_NAME || 'mz-exploration',
       }),
-      new Promise((_, reject) =>
+      new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error('MongoDB connection timeout')), connectTimeoutMs)
       ),
     ]);
@@ -79,7 +79,7 @@ export async function connectToDatabase(): Promise<Connection> {
       });
     }
 
-    return cachedConnection;
+    return conn.connection;
   } catch (error) {
     console.error('❌ Errore connessione MongoDB:', error);
     // Non lanciare errore - consenti all'app di proseguire

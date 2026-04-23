@@ -83,7 +83,7 @@ const CardFooter = React.forwardRef<
 ))
 CardFooter.displayName = "CardFooter"
 
-type StatsType =
+export type StatsType =
   | 'total_runs'
   | 'pb_100'
   | 'pb_200'
@@ -97,7 +97,7 @@ type StatsType =
   | 'total_hours'
   | 'total_distance';
 
-interface StatsActivity {
+export interface StatsActivity {
   type?: string;
   originalDate?: string;
   date?: string | null;
