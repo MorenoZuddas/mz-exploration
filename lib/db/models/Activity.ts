@@ -59,6 +59,9 @@ export interface IActivity extends Document {
   created_at: Date;
   updated_at: Date;
   synced_at?: Date;
+
+  // Payload originale sorgente (raw) per conversioni/reprocessing lato API
+  raw_payload?: Record<string, unknown>;
 }
 
 const activitySchema = new Schema<IActivity>(
@@ -120,6 +123,9 @@ const activitySchema = new Schema<IActivity>(
     created_at: { type: Date, default: Date.now },
     updated_at: { type: Date, default: Date.now },
     synced_at: { type: Date },
+
+    // Mantiene il raw Garmin/Strava senza imporre schema rigido.
+    raw_payload: { type: Schema.Types.Mixed },
   },
   { timestamps: false }
 );

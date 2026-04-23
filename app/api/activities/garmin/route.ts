@@ -176,6 +176,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
               updated_at: new Date(),
               // Dato utile per debug geografico nel FE
               description: converted.location ?? undefined,
+              // Fonte raw mantenuta per riconversioni consistenti lato API.
+              raw_payload: raw,
             },
             $setOnInsert: { created_at: new Date() },
           },
@@ -231,6 +233,57 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 }
 
+function inferTypeFromName(name: string): string | null {
+  const normalized = name.toLowerCase().trim();
+  if (normalized.includes('pista') || normalized.includes('track')) return 'track_running';
+  if (normalized.includes('corsa') || normalized.includes('run') || normalized.includes('jog')) return 'running';
+  if (normalized.includes('ripetute') || normalized.includes('interval') || /\d+x\d+/.test(normalized)) return 'running';
+  if (normalized.includes('marathon') || normalized.includes('half marathon') || /\b\d{1,2}k\b/.test(normalized)) return 'running';
+  if (normalized.includes('cicl') || normalized.includes('bike')) return 'cycling';
+  if (normalized.includes('trek') || normalized.includes('hike')) return 'hiking';
+  if (normalized.includes('walk') || normalized.includes('cammin')) return 'walking';
+  if (normalized.includes('palestra') || normalized.includes('strength') || normalized.includes('gym')) return 'strength';
+  return null;
+}
+
+function resolveActivityType(raw: GarminRawActivity, convertedType: string): string {
+  const normalizedConverted = convertedType.trim().toLowerCase();
+  if (normalizedConverted && normalizedConverted !== 'unknown') {
+    return normalizedConverted;
+  }
+
+  const aliasMap: Record<string, string> = {
+    running: 'running',
+    trail_running: 'running',
+    road_running: 'running',
+    virtual_running: 'running',
+    track_running: 'track_running',
+    cycling: 'cycling',
+    hiking: 'hiking',
+    walking: 'walking',
+    strength: 'strength',
+    strength_training: 'strength',
+  };
+
+  const aliases = [raw.type, raw.activityType, raw.sportType]
+    .filter((v): v is string => typeof v === 'string' && v.trim().length > 0)
+    .map((v) => v.trim().toLowerCase());
+
+  for (const alias of aliases) {
+    const mapped = aliasMap[alias];
+    if (mapped) return mapped;
+    const inferred = inferTypeFromName(alias);
+    if (inferred) return inferred;
+  }
+
+  const inferredByName = inferTypeFromName(raw.name ?? '');
+  return inferredByName ?? 'unknown';
+}
+
+function isObjectRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
 // GET: legge i raw dal DB e li converte con convertGarminRaw prima di mandarli al FE
 export async function GET(): Promise<NextResponse> {
   try {
@@ -255,14 +308,19 @@ export async function GET(): Promise<NextResponse> {
 
     // Conversione raw/canonico -> payload FE
     const normalized = uniqueRaw.map((activity) => {
-      const converted = convertGarminRaw(activity);
+      const payloadSource = isObjectRecord(activity.raw_payload)
+        ? ({ ...(activity as Record<string, unknown>), ...(activity.raw_payload as Record<string, unknown>) } as GarminRawActivity)
+        : activity;
+
+      const converted = convertGarminRaw(payloadSource);
+      const resolvedType = resolveActivityType(payloadSource, converted.type);
       const rawId = (activity as { _id?: unknown })._id;
       const serializedId = rawId !== undefined && rawId !== null ? String(rawId) : undefined;
 
       if (!converted.location && typeof activity.description === 'string') {
-        return { ...converted, _id: serializedId, location: activity.description };
+        return { ...converted, type: resolvedType, _id: serializedId, location: activity.description };
       }
-      return { ...converted, _id: serializedId };
+      return { ...converted, type: resolvedType, _id: serializedId };
     });
 
     return NextResponse.json({

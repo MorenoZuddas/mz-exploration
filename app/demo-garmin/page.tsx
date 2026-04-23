@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { StatsCard } from "@/components/ui/card"
+import { StatsCard, type StatsActivity, type StatsType } from "@/components/ui/card"
 
 interface Activity {
   _id?: string;
@@ -52,6 +52,36 @@ interface UploadResult {
 interface FloatingNotice {
   text: string;
   tone: 'success';
+}
+
+function inferTypeForDisplay(name: string, rawType: string): string {
+  const normalizedRawType = rawType.trim().toLowerCase();
+  const typeAlias: Record<string, string> = {
+    running: 'running',
+    trail_running: 'running',
+    road_running: 'running',
+    virtual_running: 'running',
+    track_running: 'track_running',
+    cycling: 'cycling',
+    hiking: 'hiking',
+    walking: 'walking',
+    strength: 'strength',
+    strength_training: 'strength',
+  };
+  if (normalizedRawType && normalizedRawType !== 'unknown' && typeAlias[normalizedRawType]) {
+    return typeAlias[normalizedRawType];
+  }
+
+  const normalized = name.toLowerCase().trim();
+  if (normalized.includes('pista') || normalized.includes('track')) return 'track_running';
+  if (normalized.includes('corsa') || normalized.includes('run') || normalized.includes('jog')) return 'running';
+  if (normalized.includes('ripetute') || normalized.includes('interval') || /\d+x\d+/.test(normalized)) return 'running';
+  if (normalized.includes('marathon') || normalized.includes('half marathon') || /\b\d{1,2}k\b/.test(normalized)) return 'running';
+  if (normalized.includes('cicl') || normalized.includes('bike')) return 'cycling';
+  if (normalized.includes('trek') || normalized.includes('hike')) return 'hiking';
+  if (normalized.includes('walk') || normalized.includes('cammin')) return 'walking';
+  if (normalized.includes('palestra') || normalized.includes('strength') || normalized.includes('gym')) return 'strength';
+  return normalizedRawType || 'unknown';
 }
 
 export default function DemoGarminPage() {
@@ -137,22 +167,40 @@ export default function DemoGarminPage() {
   };
 
   // Carica le attività esistenti (silenzioso, nessun alert)
-  const handleLoadActivities = async () => {
+  const handleLoadActivities = useCallback(async (silent = false) => {
     setLoadingDB(true);
-    setDbMessage(null);
+    if (!silent) setDbMessage(null);
+
     try {
       const res = await fetch('/api/activities/garmin');
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || data.error || 'Errore caricamento');
-      const list: Activity[] = data.data.recent_activities || [];
+
+      const list: Activity[] = (data.data.recent_activities || []).map((item: Activity) => ({
+        ...item,
+        type: inferTypeForDisplay(item.name, item.type),
+      }));
       setActivities(list);
-      setDbMessage({ text: `✅ ${data.data.total_activities} attività caricate`, ok: true });
+
+      if (!silent) {
+        setDbMessage({ text: `✅ ${data.data.total_activities} attività caricate`, ok: true });
+      }
     } catch (error) {
-      setDbMessage({ text: `❌ ${error instanceof Error ? error.message : 'Errore caricamento'}`, ok: false });
+      if (!silent) {
+        setDbMessage({ text: `❌ ${error instanceof Error ? error.message : 'Errore caricamento'}`, ok: false });
+      }
     } finally {
       setLoadingDB(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    const timerId = window.setTimeout(() => {
+      void handleLoadActivities(true);
+    }, 0);
+
+    return () => window.clearTimeout(timerId);
+  }, [handleLoadActivities]);
 
   // Upload JSON Garmin
   const handleJSONUpload = async (file: File) => {
@@ -201,7 +249,13 @@ export default function DemoGarminPage() {
       // Aggiorna la lista silenziosamente
       const listRes = await fetch('/api/activities/garmin');
       const listData = await listRes.json();
-      if (listRes.ok) setActivities(listData.data.recent_activities || []);
+      if (listRes.ok) {
+        const list: Activity[] = (listData.data.recent_activities || []).map((item: Activity) => ({
+          ...item,
+          type: inferTypeForDisplay(item.name, item.type),
+        }));
+        setActivities(list);
+      }
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : '❌ File JSON non valido o errore server');
     } finally {
@@ -260,7 +314,13 @@ export default function DemoGarminPage() {
       // Aggiorna lista silenziosamente
       const listRes = await fetch('/api/activities/garmin');
       const listData = await listRes.json();
-      if (listRes.ok) setActivities(listData.data.recent_activities || []);
+      if (listRes.ok) {
+        const list: Activity[] = (listData.data.recent_activities || []).map((item: Activity) => ({
+          ...item,
+          type: inferTypeForDisplay(item.name, item.type),
+        }));
+        setActivities(list);
+      }
     } catch (error) {
       setManualMessage({ text: `❌ ${error instanceof Error ? error.message : 'Errore'}`, ok: false });
     } finally {
@@ -268,13 +328,39 @@ export default function DemoGarminPage() {
     }
   };
 
-  const handlePBClick = (type: string, activity: Activity) => {
-    setSelectedActivity(activity);
+  const handlePBClick = (type: StatsType, activity: StatsActivity) => {
+    const normalizedActivity: Activity = {
+      _id: undefined,
+      source_id: undefined,
+      name: 'name' in activity && typeof activity.name === 'string' ? activity.name : 'Attivita',
+      type: activity.type ?? 'unknown',
+      date: activity.date ?? activity.originalDate ?? null,
+      distance_m:
+        activity.distance_m ??
+        (typeof activity.distance_km === 'string' ? Number.parseFloat(activity.distance_km) * 1000 : null),
+      duration_sec:
+        activity.duration_sec ??
+        (typeof activity.duration_min === 'number' ? Math.round(activity.duration_min * 60) : null),
+      calories_kcal: 'calories_kcal' in activity ? (activity as Activity).calories_kcal ?? null : null,
+      pace_min_per_km: 'pace_min_per_km' in activity ? (activity as Activity).pace_min_per_km ?? null : null,
+      elevation_gain_m: 'elevation_gain_m' in activity ? (activity as Activity).elevation_gain_m ?? null : null,
+      elevation_loss_m: 'elevation_loss_m' in activity ? (activity as Activity).elevation_loss_m ?? null : null,
+      avg_hr: 'avg_hr' in activity ? (activity as Activity).avg_hr ?? null : null,
+      max_hr: 'max_hr' in activity ? (activity as Activity).max_hr ?? null : null,
+      steps: 'steps' in activity ? (activity as Activity).steps ?? null : null,
+      avg_cadence: 'avg_cadence' in activity ? (activity as Activity).avg_cadence ?? null : null,
+      vo2max: 'vo2max' in activity ? (activity as Activity).vo2max ?? null : null,
+      aerobic_te: 'aerobic_te' in activity ? (activity as Activity).aerobic_te ?? null : null,
+      location: 'location' in activity ? (activity as Activity).location ?? null : null,
+      source: 'source' in activity && typeof activity.source === 'string' ? activity.source : 'garmin',
+    };
+
+    setSelectedActivity(normalizedActivity);
     // Scroll to the table
     if (tableRef.current) {
       tableRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
-    showFloatingNotice(`📍 Navigato all'attività: ${activity.name}`);
+    showFloatingNotice(`📍 Navigato all'attività: ${normalizedActivity.name}`);
   };
 
   const showFloatingNotice = (text: string) => {
@@ -337,7 +423,7 @@ export default function DemoGarminPage() {
               {loadingDB ? '⏳ ...' : '📊 Check Status'}
             </button>
             <button
-              onClick={handleLoadActivities}
+              onClick={() => void handleLoadActivities()}
               disabled={loadingDB}
               className="w-full mt-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-500 text-white font-bold py-3 px-4 rounded transition"
             >
@@ -455,7 +541,7 @@ export default function DemoGarminPage() {
         <div className="bg-slate-700 rounded-lg p-6 shadow-xl">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold text-white">📋 Attività ({activities.length})</h2>
-            <button onClick={handleLoadActivities} disabled={loadingDB}
+            <button onClick={() => void handleLoadActivities()} disabled={loadingDB}
               className="bg-green-600 hover:bg-green-700 disabled:bg-gray-500 text-white font-bold py-2 px-4 rounded text-sm transition">
               {loadingDB ? '⏳' : '🔄 Aggiorna'}
             </button>

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Card,
   CardContent,
@@ -28,6 +28,17 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
+interface GarminApiActivity {
+  _id?: string;
+  name: string;
+  type: string;
+  date: string | null;
+  distance_m: number | null;
+  duration_sec: number | null;
+  calories_kcal?: number | null;
+  pace_min_per_km?: number | null;
+}
+
 interface Activity {
   id: string;
   name: string;
@@ -40,6 +51,52 @@ interface Activity {
   duration_formatted: string;
   calories_kcal: number;
   pace_min_per_km?: number;
+}
+
+function safeTimestamp(value: string | null | undefined): number {
+  if (!value) return 0;
+  const ts = new Date(value).getTime();
+  return Number.isNaN(ts) ? 0 : ts;
+}
+
+function inferRunningType(name: string, rawType: string): string {
+  const normalizedRawType = rawType.trim().toLowerCase();
+  const typeAlias: Record<string, string> = {
+    running: 'running',
+    trail_running: 'running',
+    road_running: 'running',
+    virtual_running: 'running',
+    track_running: 'track_running',
+  };
+  if (normalizedRawType && normalizedRawType !== 'unknown' && typeAlias[normalizedRawType]) {
+    return typeAlias[normalizedRawType];
+  }
+
+  const normalized = name.toLowerCase().trim();
+  if (normalized.includes('pista') || normalized.includes('track')) return 'track_running';
+  if (normalized.includes('corsa') || normalized.includes('run') || normalized.includes('jog')) return 'running';
+  if (normalized.includes('ripetute') || normalized.includes('interval') || /\d+x\d+/.test(normalized)) return 'running';
+  if (normalized.includes('marathon') || normalized.includes('half marathon') || /\b\d{1,2}k\b/.test(normalized)) return 'running';
+  return normalizedRawType || 'unknown';
+}
+
+function formatDurationFromSeconds(durationSec: number): string {
+  const total = Math.max(0, Math.floor(durationSec));
+  const hours = Math.floor(total / 3600);
+  const minutes = Math.floor((total % 3600) / 60);
+  const seconds = total % 60;
+
+  if (total >= 3600) {
+    return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  }
+
+  return `${minutes}:${String(seconds).padStart(2, '0')}`;
+}
+
+function formatDistance(distanceM: number): string {
+  const km = distanceM / 1000;
+  if (km < 10) return `${Math.round(distanceM).toLocaleString('it-IT')} m`;
+  return `${km.toFixed(2)} km`;
 }
 
 export default function RunningPage() {
@@ -64,24 +121,36 @@ export default function RunningPage() {
   useEffect(() => {
     const fetchActivities = async () => {
       try {
-        const response = await fetch('/api/activities/all');
+        const response = await fetch('/api/activities/garmin');
         const data = await response.json();
+
         if (data.status === 'success') {
-          const runningActivities = data.data.activities.filter(
-            (act: any) => act.type === 'running' || act.type === 'track_running'
-          ).map((act: any) => ({
-            id: act.id,
-            name: act.name,
-            type: act.type,
-            date: new Date(act.date).toLocaleDateString('it-IT'),
-            originalDate: act.date,
-            distance_km: act.distance_km,
-            distance_formatted: act.distance_formatted,
-            duration_min: act.duration_min,
-            duration_formatted: act.duration_formatted,
-            calories_kcal: act.calories_kcal,
-            pace_min_per_km: act.pace_min_per_km,
-          }));
+          const source: GarminApiActivity[] = data?.data?.recent_activities ?? [];
+
+          const runningActivities = source
+            .map((act) => {
+              const resolvedType = inferRunningType(act.name, act.type);
+              const distanceM = act.distance_m ?? 0;
+              const durationSec = act.duration_sec ?? 0;
+              const dateIso = act.date ?? new Date(0).toISOString();
+
+              return {
+                id: act._id ?? `${act.name}-${dateIso}-${distanceM}`,
+                name: act.name,
+                type: resolvedType,
+                date: new Date(dateIso).toLocaleDateString('it-IT'),
+                originalDate: dateIso,
+                distance_km: (distanceM / 1000).toFixed(2),
+                distance_formatted: formatDistance(distanceM),
+                duration_min: Math.round(durationSec / 60),
+                duration_formatted: formatDurationFromSeconds(durationSec),
+                calories_kcal: act.calories_kcal ?? 0,
+                pace_min_per_km: act.pace_min_per_km ?? undefined,
+              };
+            })
+            .filter((act) => act.type === 'running' || act.type === 'track_running')
+            .sort((a, b) => safeTimestamp(b.originalDate) - safeTimestamp(a.originalDate));
+
           setActivities(runningActivities);
         }
       } catch (error) {
@@ -91,14 +160,18 @@ export default function RunningPage() {
       }
     };
 
-    fetchActivities();
+    void fetchActivities();
   }, []);
 
   const displayedActivities = activities.slice(0, displayedCount);
   const hasMore = activities.length > displayedCount;
+  const bestActivities = useMemo(
+    () => [...activities].sort((a, b) => parseFloat(b.distance_km) - parseFloat(a.distance_km)).slice(0, 4),
+    [activities]
+  );
 
   const loadMore = () => {
-    setDisplayedCount(prev => prev + 4);
+    setDisplayedCount((prev) => prev + 4);
   };
 
   if (loading) {
@@ -211,7 +284,7 @@ export default function RunningPage() {
               data-name="carousel"
             >
               <CarouselContent>
-                {activities.sort((a, b) => parseFloat(b.distance_km) - parseFloat(a.distance_km)).slice(0, 4).map((activity, index) => (
+                {bestActivities.map((activity, index) => (
                   <CarouselItem key={activity.id} className="md:basis-1/1">
                     <Card className="flex min-h-[320px] flex-col" dataName={`carousel card ${index + 1}`}>
                       <CardHeader>
@@ -254,7 +327,7 @@ export default function RunningPage() {
                   id="dateFrom"
                   type="date"
                   value={filters.dateFrom ? filters.dateFrom.toISOString().split('T')[0] : ''}
-                  onChange={(e) => setFilters(prev => ({ ...prev, dateFrom: e.target.value ? new Date(e.target.value) : undefined }))}
+                  onChange={(e) => setFilters((prev) => ({ ...prev, dateFrom: e.target.value ? new Date(e.target.value) : undefined }))}
                 />
               </div>
               <div>
@@ -263,15 +336,12 @@ export default function RunningPage() {
                   id="dateTo"
                   type="date"
                   value={filters.dateTo ? filters.dateTo.toISOString().split('T')[0] : ''}
-                  onChange={(e) => setFilters(prev => ({ ...prev, dateTo: e.target.value ? new Date(e.target.value) : undefined }))}
+                  onChange={(e) => setFilters((prev) => ({ ...prev, dateTo: e.target.value ? new Date(e.target.value) : undefined }))}
                 />
               </div>
               <div>
                 <Label htmlFor="types">Tipo</Label>
-                <Select
-                  value={filters.types.join(',')}
-                  onValueChange={(value) => setFilters(prev => ({ ...prev, types: value ? value.split(',') : [] }))}
-                >
+                <Select value={filters.types.join(',')} onValueChange={(value) => setFilters((prev) => ({ ...prev, types: value ? value.split(',') : [] }))}>
                   <SelectTrigger>
                     <SelectValue placeholder="Seleziona tipi" />
                   </SelectTrigger>
@@ -287,7 +357,7 @@ export default function RunningPage() {
                   id="minDistance"
                   type="number"
                   value={filters.minDistance || ''}
-                  onChange={(e) => setFilters(prev => ({ ...prev, minDistance: e.target.value ? parseFloat(e.target.value) : undefined }))}
+                  onChange={(e) => setFilters((prev) => ({ ...prev, minDistance: e.target.value ? parseFloat(e.target.value) : undefined }))}
                 />
               </div>
               <div>
@@ -296,17 +366,15 @@ export default function RunningPage() {
                   id="maxDistance"
                   type="number"
                   value={filters.maxDistance || ''}
-                  onChange={(e) => setFilters(prev => ({ ...prev, maxDistance: e.target.value ? parseFloat(e.target.value) : undefined }))}
+                  onChange={(e) => setFilters((prev) => ({ ...prev, maxDistance: e.target.value ? parseFloat(e.target.value) : undefined }))}
                 />
               </div>
               <div className="flex items-end">
-                <Button onClick={() => setFilters({
-                  dateFrom: undefined,
-                  dateTo: undefined,
-                  types: [],
-                  minDistance: undefined,
-                  maxDistance: undefined,
-                })}>
+                <Button
+                  onClick={() =>
+                    setFilters({ dateFrom: undefined, dateTo: undefined, types: [], minDistance: undefined, maxDistance: undefined })
+                  }
+                >
                   Reset Filtri
                 </Button>
               </div>

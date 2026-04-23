@@ -1,7 +1,12 @@
 import { connectToDatabase } from '@/lib/db/connection';
 import { Activity } from '@/lib/db/models/Activity';
 import { SyncLog } from '@/lib/db/models/SyncLog';
+import { convertGarminRaw, GarminRawActivity } from '@/lib/garmin/converter';
 import { NextResponse } from 'next/server';
+
+function isObjectRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
 
 export async function GET(): Promise<NextResponse> {
   try {
@@ -14,10 +19,10 @@ export async function GET(): Promise<NextResponse> {
     const syncLogsCount = await SyncLog.countDocuments();
 
     // Ultimi inserimenti
-    const recentActivities = await Activity.find()
+    const recentActivities = (await Activity.find()
       .sort({ created_at: -1 })
       .limit(3)
-      .lean();
+      .lean()) as GarminRawActivity[];
 
     const recentLogs = await SyncLog.find()
       .sort({ created_at: -1 })
@@ -32,14 +37,21 @@ export async function GET(): Promise<NextResponse> {
         total_sync_logs: syncLogsCount,
       },
       recent: {
-        activities: recentActivities.map((a) => ({
-          name: a.name,
-          type: a.type,
-          date: a.date,
-          distance: a.distance,
-          source: a.source,
-          created_at: a.created_at,
-        })),
+        activities: recentActivities.map((a) => {
+          const payloadSource = isObjectRecord(a.raw_payload)
+            ? ({ ...(a as Record<string, unknown>), ...(a.raw_payload as Record<string, unknown>) } as GarminRawActivity)
+            : a;
+          const converted = convertGarminRaw(payloadSource);
+          return {
+            name: converted.name,
+            type: converted.type,
+            date: converted.date,
+            distance_m: converted.distance_m,
+            calories_kcal: converted.calories_kcal,
+            source: converted.source,
+            created_at: (a as { created_at?: Date }).created_at,
+          };
+        }),
         logs: recentLogs.map((l) => ({
           source: l.source,
           status: l.status,
@@ -59,4 +71,3 @@ export async function GET(): Promise<NextResponse> {
     );
   }
 }
-

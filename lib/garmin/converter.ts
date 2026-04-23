@@ -82,6 +82,26 @@ export interface GarminRawActivity {
   totalReps?: number;
   waterEstimated?: number;
   source_id?: string;
+  duration_sec?: number;
+  distance_m?: number;
+  moving_sec?: number;
+  avg_speed_mps?: number;
+  max_speed_mps?: number;
+  pace_min_per_km?: number;
+  avg_pace?: number;
+  elevation_gain_m?: number;
+  elevation_loss_m?: number;
+  avg_hr?: number;
+  max_hr?: number;
+  min_hr?: number;
+  calories_kcal?: number;
+  aerobic_te?: number;
+  anaerobic_te?: number;
+  training_load?: number;
+  start_lat?: number;
+  start_lon?: number;
+  end_lat?: number;
+  end_lon?: number;
   [key: string]: unknown;
 }
 
@@ -255,6 +275,17 @@ function pickDistanceMeters(
   return asMeters;
 }
 
+function looksLikeRawGarminEnergy(raw: GarminRawActivity): boolean {
+  return (
+    n(raw.startTimeLocal) !== null ||
+    n(raw.startTimeGmt) !== null ||
+    n(raw.beginTimestamp) !== null ||
+    typeof raw.activityType === 'string' ||
+    typeof raw.sportType === 'string' ||
+    n(raw.bmrCalories) !== null
+  );
+}
+
 /**
  * Converte un documento Garmin raw (dal DB o dal JSON) in formato normalizzato per il FE.
  * Tutte le conversioni di unita sono qui - una sola responsabilita.
@@ -267,15 +298,15 @@ export function convertGarminRaw(raw: GarminRawActivity): NormalizedActivity {
   const date = toDate(dateMs) ?? toDateLike(raw.startTime) ?? toDateLike(raw.date);
 
   // Durata: supporta secondi o millisecondi senza fidarsi solo del "tipo record".
-  const rawDuration = firstNumber(raw.totalTimeInSeconds, raw.duration);
+  const rawDuration = firstNumber(raw.totalTimeInSeconds, raw.duration_sec, raw.duration);
   const duration_sec =
     rawDuration !== null
-      ? raw.totalTimeInSeconds !== undefined
+      ? raw.totalTimeInSeconds !== undefined || raw.duration_sec !== undefined
         ? Math.round(rawDuration)
         : toSeconds(rawDuration)
       : null;
 
-  const rawElapsed = firstNumber(raw.elapsedDuration, raw.elapsed_sec);
+  const rawElapsed = firstNumber(raw.elapsed_sec, raw.elapsedDuration);
   const elapsed_sec =
     rawElapsed !== null
       ? raw.elapsed_sec !== undefined
@@ -283,25 +314,25 @@ export function convertGarminRaw(raw: GarminRawActivity): NormalizedActivity {
         : toSeconds(rawElapsed)
       : null;
 
-  const rawMoving = firstNumber(raw.moving_time, raw.movingDuration);
+  const rawMoving = firstNumber(raw.moving_time, raw.moving_sec, raw.movingDuration);
   const moving_sec =
     rawMoving !== null
-      ? raw.moving_time !== undefined
+      ? raw.moving_time !== undefined || raw.moving_sec !== undefined
         ? Math.round(rawMoving)
         : toSeconds(rawMoving)
       : null;
 
   // Velocita'
-  const avgSpeedRaw = firstNumber(raw.avgSpeed, raw.averageSpeed, raw.avg_speed);
-  const maxSpeedRaw = firstNumber(raw.maxSpeed, raw.max_speed);
+  const avgSpeedRaw = firstNumber(raw.avg_speed_mps, raw.avgSpeed, raw.averageSpeed, raw.avg_speed);
+  const maxSpeedRaw = firstNumber(raw.max_speed_mps, raw.maxSpeed, raw.max_speed);
   const avg_speed_mps = avgSpeedRaw !== null ? (fromRaw ? normalizeSpeed(avgSpeedRaw) : avgSpeedRaw) : null;
   const max_speed_mps = maxSpeedRaw !== null ? (fromRaw ? normalizeSpeed(maxSpeedRaw) : maxSpeedRaw) : null;
 
   // Distanza: raw Garmin puo' arrivare in cm; record gia' canonici in metri.
-  const candidateDistance = firstNumber(raw.totalDistance, raw.distance);
+  const candidateDistance = firstNumber(raw.totalDistance, raw.distance_m, raw.distance);
   let distance_m: number | null = null;
   if (candidateDistance !== null) {
-    if (raw.totalDistance !== undefined) {
+    if (raw.totalDistance !== undefined || raw.distance_m !== undefined) {
       distance_m = Math.round(candidateDistance * 100) / 100;
     } else {
       const meters = pickDistanceMeters(candidateDistance, duration_sec, avg_speed_mps);
@@ -309,22 +340,34 @@ export function convertGarminRaw(raw: GarminRawActivity): NormalizedActivity {
     }
   }
 
-  const pace_min_per_km = calcPace(avg_speed_mps);
+  const pace_min_per_km = firstNumber(raw.pace_min_per_km, raw.avg_pace) ?? calcPace(avg_speed_mps);
 
   // Elevazione: raw Garmin in cm, schema normalizzato in metri
-  const gainRaw = firstNumber(raw.elevationGain, raw.elevation_gain);
-  const lossRaw = firstNumber(raw.elevationLoss, raw.elevation_loss);
+  const gainRaw = firstNumber(raw.elevation_gain_m, raw.elevationGain, raw.elevation_gain);
+  const lossRaw = firstNumber(raw.elevation_loss_m, raw.elevationLoss, raw.elevation_loss);
   const minElevRaw = firstNumber(raw.minElevation);
   const maxElevRaw = firstNumber(raw.maxElevation);
 
-  const elevation_gain_m = gainRaw !== null ? Math.round((fromRaw && raw.elevation_gain === undefined ? gainRaw / 100 : gainRaw) * 10) / 10 : null;
-  const elevation_loss_m = lossRaw !== null ? Math.round((fromRaw && raw.elevation_loss === undefined ? lossRaw / 100 : lossRaw) * 10) / 10 : null;
+  const elevation_gain_m =
+    gainRaw !== null
+      ? Math.round((fromRaw && raw.elevation_gain === undefined && raw.elevation_gain_m === undefined ? gainRaw / 100 : gainRaw) * 10) / 10
+      : null;
+  const elevation_loss_m =
+    lossRaw !== null
+      ? Math.round((fromRaw && raw.elevation_loss === undefined && raw.elevation_loss_m === undefined ? lossRaw / 100 : lossRaw) * 10) / 10
+      : null;
   const min_elevation_m = minElevRaw !== null ? Math.round((fromRaw ? minElevRaw / 100 : minElevRaw) * 10) / 10 : null;
   const max_elevation_m = maxElevRaw !== null ? Math.round((fromRaw ? maxElevRaw / 100 : maxElevRaw) * 10) / 10 : null;
 
-  // Calorie: teniamo kcal "as is". La conversione kJ->kcal causava sottostima.
+  // Calorie: Garmin raw arriva in kJ, il FE vuole kcal.
+  const caloriesDirectKcal = firstNumber(raw.calories_kcal);
   const caloriesRaw = firstNumber(raw.calories);
-  const calories_kcal = caloriesRaw !== null ? Math.round(caloriesRaw) : null;
+  const calories_kcal =
+    caloriesDirectKcal !== null
+      ? Math.round(caloriesDirectKcal)
+      : caloriesRaw !== null
+        ? Math.round(looksLikeRawGarminEnergy(raw) ? caloriesRaw / 4.184 : caloriesRaw)
+        : null;
 
   // Cadenza: Garmin usa avgRunCadence (per gamba)
   const avg_cadence =
@@ -336,7 +379,10 @@ export function convertGarminRaw(raw: GarminRawActivity): NormalizedActivity {
         : null);
 
   // Falcata: cm -> metri
-  const avg_stride_length_m = n(raw.avgStrideLength) !== null ? Math.round((fromRaw ? n(raw.avgStrideLength)! / 100 : n(raw.avgStrideLength)!) * 100) / 100 : null;
+  const avg_stride_length_m =
+    n(raw.avgStrideLength) !== null
+      ? Math.round((fromRaw ? n(raw.avgStrideLength)! / 100 : n(raw.avgStrideLength)!) * 100) / 100
+      : null;
 
   return {
     source: 'garmin',
@@ -359,9 +405,9 @@ export function convertGarminRaw(raw: GarminRawActivity): NormalizedActivity {
     min_elevation_m,
     max_elevation_m,
 
-    avg_hr: firstNumber(raw.avgHr, raw.avg_heart_rate),
-    max_hr: firstNumber(raw.maxHr, raw.max_heart_rate),
-    min_hr: firstNumber(raw.minHr, raw.min_heart_rate),
+    avg_hr: firstNumber(raw.avg_hr, raw.avgHr, raw.avg_heart_rate),
+    max_hr: firstNumber(raw.max_hr, raw.maxHr, raw.max_heart_rate),
+    min_hr: firstNumber(raw.min_hr, raw.minHr, raw.min_heart_rate),
 
     calories_kcal,
 
@@ -369,15 +415,20 @@ export function convertGarminRaw(raw: GarminRawActivity): NormalizedActivity {
     avg_cadence,
     avg_stride_length_m,
     vo2max: firstNumber(raw.vO2MaxValue, raw.vo2max),
-    aerobic_te: n(raw.aerobicTrainingEffect),
-    anaerobic_te: n(raw.anaerobicTrainingEffect),
-    training_load: firstNumber(raw.activityTrainingLoad, raw.training_effect),
+    aerobic_te: firstNumber(raw.aerobic_te, raw.aerobicTrainingEffect),
+    anaerobic_te: firstNumber(raw.anaerobic_te, raw.anaerobicTrainingEffect),
+    training_load: firstNumber(raw.training_load, raw.activityTrainingLoad, raw.training_effect),
 
-    start_lat: n(raw.startLatitude),
-    start_lon: n(raw.startLongitude),
-    end_lat: n(raw.endLatitude),
-    end_lon: n(raw.endLongitude),
-    location: typeof raw.locationName === 'string' ? raw.locationName : typeof raw.location === 'string' ? raw.location : null,
+    start_lat: firstNumber(raw.start_lat, raw.startLatitude),
+    start_lon: firstNumber(raw.start_lon, raw.startLongitude),
+    end_lat: firstNumber(raw.end_lat, raw.endLatitude),
+    end_lon: firstNumber(raw.end_lon, raw.endLongitude),
+    location:
+      typeof raw.locationName === 'string'
+        ? raw.locationName
+        : typeof raw.location === 'string'
+          ? raw.location
+          : null,
 
     active_sets: n(raw.activeSets),
     total_sets: n(raw.totalSets),
