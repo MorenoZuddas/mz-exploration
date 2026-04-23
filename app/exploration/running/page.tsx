@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Card,
   CardContent,
@@ -27,6 +28,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { ActivityDetailModal } from '@/components/ActivityDetailModal';
 
 interface GarminApiActivity {
   _id?: string;
@@ -100,9 +102,12 @@ function formatDistance(distanceM: number): string {
 }
 
 export default function RunningPage() {
+  const router = useRouter();
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [displayedCount, setDisplayedCount] = useState(4);
+  const [selectedActivityId, setSelectedActivityId] = useState<string | null>(null);
+  const [isDesktop, setIsDesktop] = useState(false);
   const [filters, setFilters] = useState({
     dateFrom: undefined as Date | undefined,
     dateTo: undefined as Date | undefined,
@@ -110,6 +115,27 @@ export default function RunningPage() {
     minDistance: undefined as number | undefined,
     maxDistance: undefined as number | undefined,
   });
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia('(min-width: 1024px)');
+    setIsDesktop(mediaQuery.matches);
+
+    const onChange = (event: MediaQueryListEvent) => {
+      setIsDesktop(event.matches);
+    };
+
+    mediaQuery.addEventListener('change', onChange);
+    return () => mediaQuery.removeEventListener('change', onChange);
+  }, []);
+
+  const handleActivityClick = (activityId: string): void => {
+    if (isDesktop) {
+      setSelectedActivityId(activityId);
+      return;
+    }
+
+    router.push(`/exploration/running/${activityId}`);
+  };
 
   const formatPace = (pace: number | undefined): string => {
     if (!pace || pace <= 0) return 'N/A';
@@ -201,7 +227,7 @@ export default function RunningPage() {
           </p>
           <div className="mt-6 flex gap-4">
             <Link
-              href="/exploration/equipment/running"
+              href="/exploration/running/equipment"
               className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
             >
               🎽 Attrezzatura
@@ -217,8 +243,9 @@ export default function RunningPage() {
             {displayedActivities.map((activity, index) => (
               <Card
                 key={activity.id}
-                className="p-6 hover:shadow-lg transition-shadow"
+                className="p-6 hover:shadow-lg transition-shadow cursor-pointer"
                 dataName={`card ${index + 1}`}
+                onClick={() => handleActivityClick(activity.id)}
               >
                 <div className="flex justify-between items-start mb-4">
                   <h3 className="text-xl font-bold text-slate-900 dark:text-white">
@@ -389,6 +416,16 @@ export default function RunningPage() {
           </div>
         </div>
       </section>
+
+      {/* Activity Detail Modal (Desktop only) */}
+      {selectedActivityId && (
+        <ActivityDetailModal
+          activityId={selectedActivityId}
+          isOpen={true}
+          onClose={() => setSelectedActivityId(null)}
+          detailsPageUrl={`/exploration/running/${selectedActivityId}`}
+        />
+      )}
     </main>
   );
 }
