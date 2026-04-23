@@ -165,7 +165,22 @@ export default function DemoGarminPage() {
     setUploadError(null);
     try {
       const text = await file.text();
-      const json = JSON.parse(text);
+
+      // Validazione del contenuto JSON
+      const trimmedText = text.trim();
+      if (!trimmedText.startsWith('{') && !trimmedText.startsWith('[')) {
+        throw new Error('File non è un JSON valido - Non inizia con { o [');
+      }
+
+      let json;
+      try {
+        json = JSON.parse(text);
+      } catch (parseError) {
+        const errorMsg = parseError instanceof Error ? parseError.message : 'Errore parsing';
+        // Fornisci info più specifiche sull'errore
+        throw new Error(`JSON non valido: ${errorMsg}`);
+      }
+
       const res = await fetch('/api/activities/garmin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

@@ -37,9 +37,18 @@ export async function connectToDatabase(): Promise<Connection> {
     return cachedConnection;
   }
 
-  const mongoUri = process.env.MONGODB_URI;
+  let mongoUri = process.env.MONGODB_URI;
   if (!mongoUri) {
     throw new Error('❌ MONGODB_URI non è definito in .env.local');
+  }
+
+  // In produzione, assicurati che la URI punti al database corretto
+  if (process.env.NODE_ENV === 'production') {
+    // Se la URI finisce con /? (senza database), aggiungi mz-exploration
+    if (mongoUri.includes('/?')) {
+      mongoUri = mongoUri.replace('/?', '/mz-exploration?');
+      console.log('🔄 URI produzione modificata per puntare a mz-exploration');
+    }
   }
 
   console.log('🔗 Creando nuova connessione a MongoDB...');
@@ -50,6 +59,7 @@ export async function connectToDatabase(): Promise<Connection> {
       minPoolSize: parseInt(process.env.MONGODB_MIN_POOL_SIZE || '1'),
       serverSelectionTimeoutMS: parseInt(process.env.MONGODB_SERVER_SELECTION_TIMEOUT_MS || '10000'),
       socketTimeoutMS: parseInt(process.env.MONGODB_SOCKET_TIMEOUT_MS || '45000'),
+      dbName: process.env.MONGODB_DB_NAME || 'mz-exploration',
     });
 
     cachedConnection = conn.connection;
