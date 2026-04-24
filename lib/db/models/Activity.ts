@@ -161,11 +161,8 @@ activitySchema.index(
 activitySchema.index(
   { activityId: 1 },
   {
-    unique: true,
-    name: 'uniq_activityId_raw',
-    partialFilterExpression: {
-      activityId: { $exists: true, $type: 'number' },
-    },
+    name: 'idx_activityId_raw',
+    sparse: true,
   }
 );
 

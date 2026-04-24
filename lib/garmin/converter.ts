@@ -342,20 +342,28 @@ export function convertGarminRaw(raw: GarminRawActivity): NormalizedActivity {
 
   const pace_min_per_km = firstNumber(raw.pace_min_per_km, raw.avg_pace) ?? calcPace(avg_speed_mps);
 
-  // Elevazione: raw Garmin in cm, schema normalizzato in metri
-  const gainRaw = firstNumber(raw.elevation_gain_m, raw.elevationGain, raw.elevation_gain);
-  const lossRaw = firstNumber(raw.elevation_loss_m, raw.elevationLoss, raw.elevation_loss);
+  // Elevazione: raw Garmin (elevationGain/elevationLoss) in centimetri → dividi per 100.
+  // I campi normalizzati (elevation_gain_m, elevation_gain) sono già in metri.
+  // PRIORITÀ:
+  //   1. Se esiste il campo raw Garmin (elevationGain), è sempre in cm → /100
+  //   2. Altrimenti usa elevation_gain_m o elevation_gain (già in metri)
+  const elevation_gain_m =
+    n(raw.elevationGain) !== null
+      ? Math.round((n(raw.elevationGain)! / 100) * 10) / 10
+      : firstNumber(raw.elevation_gain_m, raw.elevation_gain) !== null
+        ? Math.round(firstNumber(raw.elevation_gain_m, raw.elevation_gain)! * 10) / 10
+        : null;
+
+  const elevation_loss_m =
+    n(raw.elevationLoss) !== null
+      ? Math.round((n(raw.elevationLoss)! / 100) * 10) / 10
+      : firstNumber(raw.elevation_loss_m, raw.elevation_loss) !== null
+        ? Math.round(firstNumber(raw.elevation_loss_m, raw.elevation_loss)! * 10) / 10
+        : null;
+
+  // minElevation/maxElevation raw Garmin in cm → /100
   const minElevRaw = firstNumber(raw.minElevation);
   const maxElevRaw = firstNumber(raw.maxElevation);
-
-  const elevation_gain_m =
-    gainRaw !== null
-      ? Math.round((fromRaw && raw.elevation_gain === undefined && raw.elevation_gain_m === undefined ? gainRaw / 100 : gainRaw) * 10) / 10
-      : null;
-  const elevation_loss_m =
-    lossRaw !== null
-      ? Math.round((fromRaw && raw.elevation_loss === undefined && raw.elevation_loss_m === undefined ? lossRaw / 100 : lossRaw) * 10) / 10
-      : null;
   const min_elevation_m = minElevRaw !== null ? Math.round((fromRaw ? minElevRaw / 100 : minElevRaw) * 10) / 10 : null;
   const max_elevation_m = maxElevRaw !== null ? Math.round((fromRaw ? maxElevRaw / 100 : maxElevRaw) * 10) / 10 : null;
 
