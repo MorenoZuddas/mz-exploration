@@ -5,6 +5,7 @@ import { convertGarminRaw, GarminRawActivity } from '@/lib/garmin/converter';
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'crypto';
 import { removeDuplicateActivitiesNow } from '@/lib/db/maintenance';
+import { getAssetsByActivityIds } from '@/lib/cloudinary/server';
 
 // Estrae le attività dal wrapper Garmin (summarizedActivitiesExport) o da array flat
 function extractActivities(payload: unknown): GarminRawActivity[] {
@@ -284,11 +285,32 @@ function isObjectRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+function resolveNumericActivityId(activity: GarminRawActivity, sourceId: string): number | null {
+  if (typeof activity.activityId === 'number' && Number.isFinite(activity.activityId)) {
+    return activity.activityId;
+  }
+
+  if (/^\d+$/.test(sourceId)) {
+    return Number(sourceId);
+  }
+
+  return null;
+}
+
 // GET: legge i raw dal DB e li converte con convertGarminRaw prima di mandarli al FE
 export async function GET(): Promise<NextResponse> {
+  const traceId = crypto.randomUUID();
+
   try {
+    console.log(`[garmin:get:${traceId}] start`);
     await connectToDatabase();
-    await removeDuplicateActivitiesNow();
+
+    try {
+      await removeDuplicateActivitiesNow();
+      console.log(`[garmin:get:${traceId}] maintenance ok`);
+    } catch (maintenanceError) {
+      console.error(`[garmin:get:${traceId}] maintenance failed`, maintenanceError);
+    }
 
     const rawActivities = (await Activity.find()
       .sort({ date: -1, startTimeLocal: -1, startTimeGmt: -1, beginTimestamp: -1 })
@@ -296,8 +318,8 @@ export async function GET(): Promise<NextResponse> {
       .lean()) as GarminRawActivity[];
 
     const totalCount = await Activity.countDocuments();
+    console.log(`[garmin:get:${traceId}] db read ok`, { fetched: rawActivities.length, totalCount });
 
-    // Protezione FE: evita di mostrare doppioni residui inseriti manualmente nel DB.
     const seen = new Set<string>();
     const uniqueRaw = rawActivities.filter((activity) => {
       const key = buildReadDedupKey(activity);
@@ -306,8 +328,7 @@ export async function GET(): Promise<NextResponse> {
       return true;
     });
 
-    // Conversione raw/canonico -> payload FE
-    const normalized = uniqueRaw.map((activity) => {
+    const convertedRows = uniqueRaw.map((activity) => {
       const payloadSource = isObjectRecord(activity.raw_payload)
         ? ({ ...(activity as Record<string, unknown>), ...(activity.raw_payload as Record<string, unknown>) } as GarminRawActivity)
         : activity;
@@ -316,12 +337,41 @@ export async function GET(): Promise<NextResponse> {
       const resolvedType = resolveActivityType(payloadSource, converted.type);
       const rawId = (activity as { _id?: unknown })._id;
       const serializedId = rawId !== undefined && rawId !== null ? String(rawId) : undefined;
+      const numericActivityId = resolveNumericActivityId(payloadSource, converted.source_id);
+      const location = !converted.location && typeof activity.description === 'string'
+        ? activity.description
+        : converted.location;
 
-      if (!converted.location && typeof activity.description === 'string') {
-        return { ...converted, type: resolvedType, _id: serializedId, location: activity.description };
-      }
-      return { ...converted, type: resolvedType, _id: serializedId };
+      return {
+        ...converted,
+        type: resolvedType,
+        _id: serializedId,
+        location,
+        activityId: numericActivityId,
+      };
     });
+
+    const activityIds = Array.from(
+      new Set(
+        convertedRows
+          .map((row) => row.activityId)
+          .filter((id): id is number => typeof id === 'number' && Number.isFinite(id))
+      )
+    );
+
+    console.log(`[garmin:get:${traceId}] cloudinary fetch start`, { ids: activityIds.length });
+    const cloudinaryMap = await getAssetsByActivityIds(activityIds);
+    console.log(`[garmin:get:${traceId}] cloudinary fetch done`, { matched: cloudinaryMap.size });
+
+    const normalized = convertedRows.map((row) => {
+      const photo = row.activityId ? cloudinaryMap.get(row.activityId) ?? null : null;
+      return {
+        ...row,
+        photo,
+      };
+    });
+
+    console.log(`[garmin:get:${traceId}] merge complete`, { items: normalized.length });
 
     return NextResponse.json({
       status: 'success',
@@ -332,9 +382,16 @@ export async function GET(): Promise<NextResponse> {
       },
     });
   } catch (error) {
-    console.error('❌ Errore lettura:', error);
+    const details = error instanceof Error ? error.message : 'Unknown error';
+    console.error(`[garmin:get:${traceId}] failed`, details);
+
     return NextResponse.json(
-      { status: 'error', message: '❌ Errore durante la lettura', error: error instanceof Error ? error.message : 'Unknown error' },
+      {
+        status: 'error',
+        message: '❌ Errore durante la lettura',
+        details,
+        traceId,
+      },
       { status: 500 }
     );
   }

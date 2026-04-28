@@ -6,6 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ActivityPhotos } from '@/components/ActivityPhotos';
 
+export interface ApiPhoto {
+  publicId: string;
+  secureUrl: string;
+  width?: number;
+  height?: number;
+}
+
 export interface ActivityDetail {
   _id?: string;
   source_id?: string;
@@ -30,6 +37,7 @@ interface Props {
   isOpen: boolean;
   onClose: () => void;
   detailsPageUrl: string;
+  photo?: ApiPhoto | null;
 }
 
 function formatDuration(durationSec: number | null): string {
@@ -58,7 +66,7 @@ function formatPace(pace: number | undefined): string {
   return `${min}:${String(sec).padStart(2, '0')}`;
 }
 
-export function ActivityDetailModal({ activityId, isOpen, onClose, detailsPageUrl }: Props) {
+export function ActivityDetailModal({ activityId, isOpen, onClose, detailsPageUrl, photo }: Props) {
   const [activity, setActivity] = useState<ActivityDetail | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -76,7 +84,19 @@ export function ActivityDetailModal({ activityId, isOpen, onClose, detailsPageUr
         }
         const data = await response.json();
         if (data.status === 'success' && data.data?.activity) {
-          setActivity(data.data.activity);
+          let activity = data.data.activity;
+          // Se abbiamo ricevuto una foto dalla prop, aggiungila come array photos
+          if (photo && (!activity.photos || activity.photos.length === 0)) {
+            activity.photos = [
+              {
+                public_id: photo.publicId,
+                secure_url: photo.secureUrl,
+                width: photo.width,
+                height: photo.height,
+              },
+            ];
+          }
+          setActivity(activity);
         } else {
           setError('Errore nel caricamento');
         }
@@ -88,7 +108,7 @@ export function ActivityDetailModal({ activityId, isOpen, onClose, detailsPageUr
     };
 
     void fetchActivity();
-  }, [isOpen, activityId]);
+  }, [isOpen, activityId, photo]);
 
   if (!isOpen) return null;
 

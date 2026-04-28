@@ -4,10 +4,30 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { ActivityDetailModal } from '@/components/ActivityDetailModal';
+import Image from 'next/image';
+import { thumbnailUrl } from '@/lib/cloudinary';
+import { getCachedActivities, setCachedActivities } from '@/lib/cache/activities';
+
+interface ApiPhoto {
+  activityId: number;
+  publicId: string;
+  secureUrl: string;
+  width?: number;
+  height?: number;
+}
+
+interface GarminApiActivity {
+  _id?: string;
+  name: string;
+  type: string;
+  date: string | null;
+  distance_m: number | null;
+  duration_sec: number | null;
+  calories_kcal?: number | null;
+  location?: string | null;
+  photo?: ApiPhoto | null;
+}
 
 interface Activity {
   id: string;
@@ -21,6 +41,7 @@ interface Activity {
   duration_formatted: string;
   calories_kcal: number;
   location?: string;
+  photo?: ApiPhoto | null;
 }
 
 function formatDistance(distanceM: number | null): string {
@@ -54,6 +75,7 @@ export default function TrekkingPage() {
   const [loading, setLoading] = useState(true);
   const [selectedActivityId, setSelectedActivityId] = useState<string | null>(null);
   const [isDesktop, setIsDesktop] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Determina se desktop
   useEffect(() => {
@@ -75,19 +97,31 @@ export default function TrekkingPage() {
   useEffect(() => {
     const fetchActivities = async () => {
       try {
-        const response = await fetch('/api/activities/garmin');
-        const data = await response.json();
+        const cached = getCachedActivities<Activity[]>('trekking');
+        if (cached && cached.length > 0) {
+          setActivities(cached);
+          setLoading(false);
+          return;
+        }
 
+        const response = await fetch('/api/activities/garmin');
+        if (!response.ok) {
+          const raw = await response.text();
+          console.error('GET /api/activities/garmin failed', response.status, raw);
+          throw new Error('Impossibile caricare le attività trekking in questo momento.');
+        }
+
+        const data: { status?: string; data?: { recent_activities?: GarminApiActivity[] } } = await response.json();
         if (data.status === 'success') {
-          const source = data?.data?.recent_activities ?? [];
+          const source: GarminApiActivity[] = data?.data?.recent_activities ?? [];
 
           const trekkingActivities = source
-            .filter((act: any) => {
+            .filter((act) => {
               const type = (act.type || '').toLowerCase();
               return type.includes('hik') || type.includes('trek') || type.includes('walk');
             })
-            .map((act: any) => ({
-              id: act._id ?? `${act.name}-${act.date}-${act.distance_m}`,
+            .map((act, index) => ({
+              id: act._id ?? `${act.name}-${act.date}-${act.distance_m}-${index}`,
               name: act.name,
               type: act.type,
               date: new Date(act.date || 0).toLocaleDateString('it-IT'),
@@ -97,14 +131,28 @@ export default function TrekkingPage() {
               duration_min: Math.round((act.duration_sec ?? 0) / 60),
               duration_formatted: formatDurationFromSeconds(act.duration_sec ?? 0),
               calories_kcal: act.calories_kcal ?? 0,
-              location: act.location,
+              location: act.location ?? undefined,
+              photo: act.photo ?? null,
             }))
             .sort((a: Activity, b: Activity) => safeTimestamp(b.originalDate) - safeTimestamp(a.originalDate));
 
           setActivities(trekkingActivities);
+          setCachedActivities(trekkingActivities, 'trekking');
+          setError(null);
+          return;
         }
-      } catch (error) {
-        console.error('Error fetching activities:', error);
+
+        throw new Error('Formato risposta API non valido.');
+      } catch (fetchError) {
+        console.error('Error fetching activities:', fetchError);
+
+        const cached = getCachedActivities<Activity[]>('trekking');
+        if (cached && cached.length > 0) {
+          setActivities(cached);
+          setError('Connessione instabile: sto mostrando dati recenti dalla cache.');
+        } else {
+          setError('Impossibile caricare le attività trekking.');
+        }
       } finally {
         setLoading(false);
       }
@@ -152,6 +200,11 @@ export default function TrekkingPage() {
       {/* Trekking Activities */}
       <section className="px-4 py-12 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
+          {error && (
+            <div className="mb-6 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-200">
+              {error}
+            </div>
+          )}
           {activities.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-lg text-slate-600 dark:text-slate-300">
@@ -170,6 +223,23 @@ export default function TrekkingPage() {
                     className="p-6 hover:shadow-lg hover:scale-[1.02] transition-all"
                     dataName={`card ${index + 1}`}
                   >
+                    <div className="mb-4">
+                      {activity.photo ? (
+                        <div className="relative h-44 w-full overflow-hidden rounded-lg">
+                          <Image
+                            src={thumbnailUrl(activity.photo.publicId) || activity.photo.secureUrl}
+                            alt={activity.name}
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 768px) 100vw, 50vw"
+                          />
+                        </div>
+                      ) : (
+                        <div className="flex h-44 w-full items-center justify-center rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-300">
+                          Nessuna foto
+                        </div>
+                      )}
+                    </div>
                     <div className="flex justify-between items-start mb-4">
                       <h3 className="text-xl font-bold text-slate-900 dark:text-white">
                         {activity.name}
@@ -215,9 +285,9 @@ export default function TrekkingPage() {
           isOpen={true}
           onClose={() => setSelectedActivityId(null)}
           detailsPageUrl={`/exploration/trekking/${selectedActivityId}`}
+          photo={activities.find(a => a.id === selectedActivityId)?.photo ?? null}
         />
       )}
     </main>
   );
 }
-
