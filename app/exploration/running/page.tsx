@@ -29,6 +29,17 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { ActivityDetailModal } from '@/components/ActivityDetailModal';
+import Image from 'next/image';
+import { thumbnailUrl } from '@/lib/cloudinary';
+import { getCachedActivities, setCachedActivities } from '@/lib/cache/activities';
+
+interface ApiPhoto {
+  activityId: number;
+  publicId: string;
+  secureUrl: string;
+  width?: number;
+  height?: number;
+}
 
 interface GarminApiActivity {
   _id?: string;
@@ -39,6 +50,7 @@ interface GarminApiActivity {
   duration_sec: number | null;
   calories_kcal?: number | null;
   pace_min_per_km?: number | null;
+  photo?: ApiPhoto | null;
 }
 
 interface Activity {
@@ -53,6 +65,7 @@ interface Activity {
   duration_formatted: string;
   calories_kcal: number;
   pace_min_per_km?: number;
+  photo?: ApiPhoto | null;
 }
 
 function safeTimestamp(value: string | null | undefined): number {
@@ -115,6 +128,7 @@ export default function RunningPage() {
     minDistance: undefined as number | undefined,
     maxDistance: undefined as number | undefined,
   });
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(min-width: 1024px)');
@@ -147,21 +161,34 @@ export default function RunningPage() {
   useEffect(() => {
     const fetchActivities = async () => {
       try {
+        const cached = getCachedActivities<Activity[]>('running');
+        if (cached && cached.length > 0) {
+          setActivities(cached);
+          setLoading(false);
+          return;
+        }
+
         const response = await fetch('/api/activities/garmin');
-        const data = await response.json();
+        if (!response.ok) {
+          const raw = await response.text();
+          console.error('GET /api/activities/garmin failed', response.status, raw);
+          throw new Error('Impossibile caricare le attività in questo momento.');
+        }
+
+        const data: { status?: string; data?: { recent_activities?: GarminApiActivity[] } } = await response.json();
 
         if (data.status === 'success') {
           const source: GarminApiActivity[] = data?.data?.recent_activities ?? [];
 
           const runningActivities = source
-            .map((act) => {
+            .map((act, index) => {
               const resolvedType = inferRunningType(act.name, act.type);
               const distanceM = act.distance_m ?? 0;
               const durationSec = act.duration_sec ?? 0;
               const dateIso = act.date ?? new Date(0).toISOString();
 
               return {
-                id: act._id ?? `${act.name}-${dateIso}-${distanceM}`,
+                id: act._id ?? `${act.name}-${dateIso}-${distanceM}-${index}`,
                 name: act.name,
                 type: resolvedType,
                 date: new Date(dateIso).toLocaleDateString('it-IT'),
@@ -172,15 +199,29 @@ export default function RunningPage() {
                 duration_formatted: formatDurationFromSeconds(durationSec),
                 calories_kcal: act.calories_kcal ?? 0,
                 pace_min_per_km: act.pace_min_per_km ?? undefined,
+                photo: act.photo ?? null,
               };
             })
             .filter((act) => act.type === 'running' || act.type === 'track_running')
             .sort((a, b) => safeTimestamp(b.originalDate) - safeTimestamp(a.originalDate));
 
           setActivities(runningActivities);
+          setCachedActivities(runningActivities, 'running');
+          setError(null);
+          return;
         }
-      } catch (error) {
-        console.error('Error fetching activities:', error);
+
+        throw new Error('Formato risposta API non valido.');
+      } catch (fetchError) {
+        console.error('Error fetching activities:', fetchError);
+
+        const cached = getCachedActivities<Activity[]>('running');
+        if (cached && cached.length > 0) {
+          setActivities(cached);
+          setError('Connessione instabile: sto mostrando dati recenti dalla cache.');
+        } else {
+          setError('Impossibile caricare le attività. Controlla la connessione al database.');
+        }
       } finally {
         setLoading(false);
       }
@@ -239,6 +280,11 @@ export default function RunningPage() {
       {/* Running Activities Grid */}
       <section className="px-4 py-12 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
+          {error && (
+            <div className="mb-6 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-200">
+              {error}
+            </div>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {displayedActivities.map((activity, index) => (
               <Card
@@ -247,6 +293,23 @@ export default function RunningPage() {
                 dataName={`card ${index + 1}`}
                 onClick={() => handleActivityClick(activity.id)}
               >
+                <div className="mb-4">
+                  {activity.photo ? (
+                    <div className="relative h-44 w-full overflow-hidden rounded-lg">
+                      <Image
+                        src={thumbnailUrl(activity.photo.publicId) || activity.photo.secureUrl}
+                        alt={activity.name}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex h-44 w-full items-center justify-center rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-300">
+                      Nessuna foto
+                    </div>
+                  )}
+                </div>
                 <div className="flex justify-between items-start mb-4">
                   <h3 className="text-xl font-bold text-slate-900 dark:text-white">
                     {activity.name}
@@ -424,6 +487,7 @@ export default function RunningPage() {
           isOpen={true}
           onClose={() => setSelectedActivityId(null)}
           detailsPageUrl={`/exploration/running/${selectedActivityId}`}
+          photo={activities.find(a => a.id === selectedActivityId)?.photo ?? null}
         />
       )}
     </main>

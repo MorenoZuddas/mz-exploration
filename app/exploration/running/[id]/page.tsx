@@ -68,10 +68,13 @@ export default function RunningActivityDetailPage() {
         const response = await fetch(`/api/activities/${activityId}`);
         const data = await response.json();
 
+        console.log('API Response:', data); // DEBUG
+
         if (!response.ok || data.status !== 'success' || !data.data?.activity) {
           throw new Error(data.message || 'Attività non trovata');
         }
 
+        console.log('Activity data:', data.data.activity); // DEBUG
         setActivity(data.data.activity as ActivityDetail);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Errore durante il caricamento');

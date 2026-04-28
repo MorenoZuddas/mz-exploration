@@ -58,9 +58,35 @@ export async function GET(request: NextRequest, context: RouteContext): Promise<
         } as GarminRawActivity)
       : rawActivity;
 
+    // Estrai la photo prima della conversione
+    const photoFromDb = (rawActivity as any).photo;
+    console.log('DEBUG - photoFromDb:', photoFromDb);
+
     const converted = convertGarminRaw(payloadSource);
     const rawId = (rawActivity as { _id?: unknown })._id;
     const serializedId = rawId !== undefined && rawId !== null ? String(rawId) : undefined;
+
+    // Unifica la logica delle foto: se esiste una singola photo, aggiungila come array photos
+    let photos = (rawActivity as { photos?: unknown[] }).photos ?? [];
+
+    // Verifica il formato della singola photo dal database
+    if ((!photos || photos.length === 0) && photoFromDb) {
+      const p = photoFromDb;
+      if (p && (p.publicId || p.public_id || p.secureUrl || p.secure_url)) {
+        photos = [
+          {
+            public_id: p.publicId || p.public_id || 'photo',
+            secure_url: p.secureUrl || p.secure_url || '',
+            width: p.width,
+            height: p.height,
+          },
+        ];
+      }
+    }
+
+    console.log('DEBUG - photos before filter:', photos);
+    const finalPhotos = photos.filter((p: any) => p?.secure_url);
+    console.log('DEBUG - photos after filter:', finalPhotos);
 
     return NextResponse.json({
       status: 'success',
@@ -68,7 +94,7 @@ export async function GET(request: NextRequest, context: RouteContext): Promise<
         activity: {
           ...converted,
           _id: serializedId,
-          photos: (rawActivity as { photos?: unknown[] }).photos ?? [],
+          photos: finalPhotos,
         },
       },
     });
