@@ -3,6 +3,7 @@ import { Types } from 'mongoose';
 import { connectToDatabase } from '@/lib/db/connection';
 import { Activity } from '@/lib/db/models/Activity';
 import { convertGarminRaw, type GarminRawActivity } from '@/lib/garmin/converter';
+import { getAssetsByActivityIds } from '@/lib/cloudinary/server';
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -10,6 +11,89 @@ interface RouteContext {
 
 function isObjectRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+interface NormalizedPhoto {
+  public_id: string;
+  secure_url: string;
+  width?: number;
+  height?: number;
+}
+
+function toNumber(value: unknown): number | undefined {
+  return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
+}
+
+function getString(record: Record<string, unknown>, keys: string[]): string | undefined {
+  for (const key of keys) {
+    const value = record[key];
+    if (typeof value === 'string' && value.trim().length > 0) {
+      return value.trim();
+    }
+  }
+  return undefined;
+}
+
+function normalizePhoto(value: unknown): NormalizedPhoto | null {
+  if (!isObjectRecord(value)) {
+    return null;
+  }
+
+  const secureUrl = getString(value, ['secure_url', 'secureUrl']);
+  if (!secureUrl) {
+    return null;
+  }
+
+  const publicId =
+    getString(value, ['public_id', 'publicId']) ??
+    secureUrl.split('/').pop()?.split('.')[0] ??
+    'photo';
+
+  return {
+    public_id: publicId,
+    secure_url: secureUrl,
+    width: toNumber(value.width),
+    height: toNumber(value.height),
+  };
+}
+
+function normalizePhotosFromDb(rawActivity: GarminRawActivity): NormalizedPhoto[] {
+  const bucket: NormalizedPhoto[] = [];
+
+  const rawPhotos = isObjectRecord(rawActivity) ? rawActivity.photos : undefined;
+  if (Array.isArray(rawPhotos)) {
+    for (const entry of rawPhotos) {
+      const normalized = normalizePhoto(entry);
+      if (normalized) {
+        bucket.push(normalized);
+      }
+    }
+  }
+
+  const singlePhoto = isObjectRecord(rawActivity) ? rawActivity.photo : undefined;
+  const normalizedSingle = normalizePhoto(singlePhoto);
+  if (normalizedSingle) {
+    bucket.push(normalizedSingle);
+  }
+
+  const unique = new Map<string, NormalizedPhoto>();
+  for (const photo of bucket) {
+    unique.set(photo.public_id, photo);
+  }
+
+  return Array.from(unique.values());
+}
+
+function resolveNumericActivityId(rawActivity: GarminRawActivity, sourceId: string): number | null {
+  if (typeof rawActivity.activityId === 'number' && Number.isFinite(rawActivity.activityId)) {
+    return rawActivity.activityId;
+  }
+
+  if (/^\d+$/.test(sourceId)) {
+    return Number(sourceId);
+  }
+
+  return null;
 }
 
 export async function GET(request: NextRequest, context: RouteContext): Promise<NextResponse> {
@@ -58,35 +142,30 @@ export async function GET(request: NextRequest, context: RouteContext): Promise<
         } as GarminRawActivity)
       : rawActivity;
 
-    // Estrai la photo prima della conversione
-    const photoFromDb = (rawActivity as any).photo;
-    console.log('DEBUG - photoFromDb:', photoFromDb);
-
     const converted = convertGarminRaw(payloadSource);
     const rawId = (rawActivity as { _id?: unknown })._id;
     const serializedId = rawId !== undefined && rawId !== null ? String(rawId) : undefined;
 
-    // Unifica la logica delle foto: se esiste una singola photo, aggiungila come array photos
-    let photos = (rawActivity as { photos?: unknown[] }).photos ?? [];
+    const dbPhotos = normalizePhotosFromDb(rawActivity);
+    const numericActivityId = resolveNumericActivityId(payloadSource, converted.source_id);
 
-    // Verifica il formato della singola photo dal database
-    if ((!photos || photos.length === 0) && photoFromDb) {
-      const p = photoFromDb;
-      if (p && (p.publicId || p.public_id || p.secureUrl || p.secure_url)) {
-        photos = [
+    let cloudPhotos: NormalizedPhoto[] = [];
+    if (numericActivityId) {
+      const cloudMap = await getAssetsByActivityIds([numericActivityId]);
+      const cloudPhoto = cloudMap.get(numericActivityId);
+      if (cloudPhoto) {
+        cloudPhotos = [
           {
-            public_id: p.publicId || p.public_id || 'photo',
-            secure_url: p.secureUrl || p.secure_url || '',
-            width: p.width,
-            height: p.height,
+            public_id: cloudPhoto.publicId,
+            secure_url: cloudPhoto.secureUrl,
+            width: cloudPhoto.width,
+            height: cloudPhoto.height,
           },
         ];
       }
     }
 
-    console.log('DEBUG - photos before filter:', photos);
-    const finalPhotos = photos.filter((p: any) => p?.secure_url);
-    console.log('DEBUG - photos after filter:', finalPhotos);
+    const finalPhotos = dbPhotos.length > 0 ? dbPhotos : cloudPhotos;
 
     return NextResponse.json({
       status: 'success',
@@ -94,6 +173,7 @@ export async function GET(request: NextRequest, context: RouteContext): Promise<
         activity: {
           ...converted,
           _id: serializedId,
+          activityId: numericActivityId,
           photos: finalPhotos,
         },
       },

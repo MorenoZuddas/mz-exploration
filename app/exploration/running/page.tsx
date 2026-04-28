@@ -293,23 +293,17 @@ export default function RunningPage() {
                 dataName={`card ${index + 1}`}
                 onClick={() => handleActivityClick(activity.id)}
               >
-                <div className="mb-4">
-                  {activity.photo ? (
-                    <div className="relative h-44 w-full overflow-hidden rounded-lg">
-                      <Image
-                        src={thumbnailUrl(activity.photo.publicId) || activity.photo.secureUrl}
-                        alt={activity.name}
-                        fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 100vw, 50vw"
-                      />
-                    </div>
-                  ) : (
-                    <div className="flex h-44 w-full items-center justify-center rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-300">
-                      Nessuna foto
-                    </div>
-                  )}
-                </div>
+                {activity.photo && (
+                  <div className="mb-4 relative h-44 w-full overflow-hidden rounded-lg">
+                    <Image
+                      src={thumbnailUrl(activity.photo.publicId) || activity.photo.secureUrl}
+                      alt={activity.name}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 50vw"
+                    />
+                  </div>
+                )}
                 <div className="flex justify-between items-start mb-4">
                   <h3 className="text-xl font-bold text-slate-900 dark:text-white">
                     {activity.name}

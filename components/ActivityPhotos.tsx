@@ -46,26 +46,36 @@ export function ActivityPhotos({ photos }: ActivityPhotosProps) {
 
       {selectedPhoto && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+          className="fixed inset-0 z-50 bg-black/80 p-3 md:p-6"
           onClick={() => setSelectedPhoto(null)}
         >
-          <div className="relative max-w-[90vw] max-h-[90vh]">
-            <Image
-              src={selectedPhoto.secure_url}
-              alt=""
-              width={selectedPhoto.width || 800}
-              height={selectedPhoto.height || 600}
-              className="object-contain max-w-full max-h-full"
-            />
+          <div className="relative mx-auto h-full w-full max-w-6xl">
             <button
-              className="absolute top-4 right-4 text-white text-2xl bg-black bg-opacity-50 rounded-full w-10 h-10 flex items-center justify-center"
+              className="absolute right-2 top-2 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-black/60 text-2xl text-white"
               onClick={(e) => {
                 e.stopPropagation();
                 setSelectedPhoto(null);
               }}
+              aria-label="Chiudi anteprima"
             >
               ×
             </button>
+
+            <div
+              className="h-full w-full overflow-auto rounded-xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex min-h-full items-center justify-center p-4">
+                <Image
+                  src={selectedPhoto.secure_url}
+                  alt="Foto attività"
+                  width={selectedPhoto.width || 1600}
+                  height={selectedPhoto.height || 1200}
+                  className="h-auto w-auto max-h-[88vh] max-w-full object-contain"
+                  sizes="95vw"
+                />
+              </div>
+            </div>
           </div>
         </div>
       )}
