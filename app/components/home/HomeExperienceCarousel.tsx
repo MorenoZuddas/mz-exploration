@@ -52,7 +52,34 @@ const slides: SlideItem[] = [
   },
 ];
 
-export function HomeExperienceCarousel() {
+type TextColorVariant = 'current' | 'blue' | 'purple' | 'black';
+
+interface HomeExperienceCarouselProps {
+  titleColor?: TextColorVariant;
+  subtitleColor?: TextColorVariant;
+}
+
+const carouselTitleColorVariants: Record<TextColorVariant, string> = {
+  current: 'text-white',
+  blue: 'text-blue-300',
+  purple: 'text-violet-300',
+  black: 'text-black dark:text-slate-200',
+};
+
+const carouselSubtitleColorVariants: Record<TextColorVariant, string> = {
+  current: 'text-blue-200',
+  blue: 'text-blue-200',
+  purple: 'text-violet-200',
+  black: 'text-black/80 dark:text-slate-300',
+};
+
+export function HomeExperienceCarousel({
+  titleColor = 'current',
+  subtitleColor = 'current',
+}: HomeExperienceCarouselProps) {
+  const titleColorClass = carouselTitleColorVariants[titleColor];
+  const subtitleColorClass = carouselSubtitleColorVariants[subtitleColor];
+
   return (
     <section className="px-4 py-8 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto">
@@ -74,11 +101,11 @@ export function HomeExperienceCarousel() {
 
                     <div className="absolute inset-0 flex items-end p-6 sm:p-8">
                       <div className="max-w-xl text-white space-y-2">
-                        <p className="text-xs sm:text-sm uppercase tracking-[0.2em] text-blue-200">
+                        <p className={`text-xs sm:text-sm uppercase tracking-[0.2em] ${subtitleColorClass}`}>
                           {slide.subtitle}
                         </p>
                         <CardHeader className="p-0 pb-1">
-                          <CardTitle className="text-3xl sm:text-4xl text-white">{slide.title}</CardTitle>
+                          <CardTitle className={`text-3xl sm:text-4xl ${titleColorClass}`}>{slide.title}</CardTitle>
                         </CardHeader>
                         <CardContent className="p-0 space-y-4">
                           <p className="text-white/90 text-sm sm:text-base">{slide.description}</p>

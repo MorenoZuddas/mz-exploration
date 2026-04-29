@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export type CardGridType = 'running' | 'trekking' | 'trip';
+export type CardGridColor = 'current' | 'blue' | 'purple' | 'black';
 
 export interface CardGridItem {
   id: string;
@@ -25,6 +26,8 @@ interface CardGridProps {
   showDate?: boolean;
   showDescription?: boolean;
   sectionClassName?: string;
+  titleColor?: CardGridColor;
+  subtitleColor?: CardGridColor;
 }
 
 const defaultItems: CardGridItem[] = [
@@ -66,6 +69,25 @@ const typeEmojis: Record<CardGridType, string> = {
   trip: '✈️',
 };
 
+const textColorVariants: Record<CardGridColor, { title: string; subtitle: string }> = {
+  current: {
+    title: 'text-slate-900 dark:text-white',
+    subtitle: 'text-slate-600 dark:text-slate-400',
+  },
+  blue: {
+    title: 'text-blue-700 dark:text-blue-300',
+    subtitle: 'text-blue-600 dark:text-blue-400',
+  },
+  purple: {
+    title: 'text-violet-800 dark:text-violet-300',
+    subtitle: 'text-violet-700 dark:text-violet-400',
+  },
+  black: {
+    title: 'text-black dark:text-slate-200',
+    subtitle: 'text-black/80 dark:text-slate-300',
+  },
+};
+
 export function CardGrid({
   title = 'Ultime Avventure',
   subtitle = 'I momenti piu recenti dalle mie attivita',
@@ -74,7 +96,12 @@ export function CardGrid({
   showDate = true,
   showDescription = false,
   sectionClassName = 'px-4 py-16 sm:px-6 lg:px-8 bg-white dark:bg-slate-900',
+  titleColor = 'current',
+  subtitleColor = 'current',
 }: CardGridProps) {
+  const titleColorClass = textColorVariants[titleColor].title;
+  const subtitleColorClass = textColorVariants[subtitleColor].subtitle;
+
   return (
     <section className={sectionClassName}>
       <div className="max-w-6xl mx-auto">
@@ -85,8 +112,8 @@ export function CardGrid({
           viewport={{ once: true }}
           className="mb-12"
         >
-          <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white mb-2">{title}</h2>
-          {subtitle && <p className="text-slate-600 dark:text-slate-400">{subtitle}</p>}
+          <h2 className={`text-3xl sm:text-4xl font-bold mb-2 ${titleColorClass}`}>{title}</h2>
+          {subtitle && <p className={subtitleColorClass}>{subtitle}</p>}
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
