@@ -1,32 +1,43 @@
+import { HeroVideoSection } from './components/home/HeroVideoSection';
 import { HomeExperienceCarousel } from './components/home/HomeExperienceCarousel';
+import { LatestAdventures } from './components/home/LatestAdventures';
+import { AnimatedSection } from './components/home/AnimatedSection';
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-slate-900 dark:to-slate-800">
-      <section className="px-4 pt-12 pb-6 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
-          <p className="text-sm uppercase tracking-wider text-blue-600 dark:text-blue-300 mb-3">
-            MZ Exploration
-          </p>
-          <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-white leading-tight">
-            Corro, esploro e trasformo ogni attivita in una storia da condividere.
-          </h1>
-        </div>
-      </section>
+    <main className="w-full">
+      {/* Hero Video Section */}
+      <HeroVideoSection />
 
-      <HomeExperienceCarousel />
+      {/* Carousel Section (Running, Trekking, Trips) */}
+      <div id="categories" className="bg-white dark:bg-slate-900 scroll-mt-20">
+        <AnimatedSection className="px-4 py-12 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mb-8">
+              Esploriamo assieme
+            </h2>
+            <HomeExperienceCarousel />
+          </div>
+        </AnimatedSection>
+      </div>
 
-      <section className="px-4 py-8 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto rounded-xl border border-dashed border-slate-300 dark:border-slate-600 bg-white/80 dark:bg-slate-800/80 p-6 text-center">
+      {/* Latest Adventures Section */}
+      <LatestAdventures />
+
+      {/* Coming Soon Section */}
+      <AnimatedSection className="px-4 py-16 sm:px-6 lg:px-8 bg-white dark:bg-slate-900">
+        <div className="max-w-4xl mx-auto rounded-xl border border-dashed border-slate-300 dark:border-slate-600 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 p-8 text-center">
           <p className="text-xs font-semibold tracking-[0.2em] uppercase text-slate-500 dark:text-slate-400">
             Coming Soon
           </p>
-          <h2 className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">Sezione Libri Foto Musica</h2>
-          <p className="mt-2 text-slate-600 dark:text-slate-300">
-            Qui inseriro una raccolta di libri, foto e musica che raccontano mindset, performance e avventura.
+          <h2 className="mt-3 text-3xl font-bold text-slate-900 dark:text-white">
+            Sezione Libri, Foto, Musica
+          </h2>
+          <p className="mt-4 text-slate-600 dark:text-slate-300 text-lg">
+            Una raccolta che raconta mindset, performance e avventura attraverso diverse forme di media.
           </p>
         </div>
-      </section>
+      </AnimatedSection>
     </main>
   );
 }
