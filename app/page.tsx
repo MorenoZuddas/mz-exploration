@@ -1,8 +1,8 @@
-import { Hero } from './components/home/Hero';
-import { HomeExperienceCarousel } from './components/home/HomeExperienceCarousel';
-import { CardGrid } from './components/home/CardGrid';
-import { AnimatedSection } from './components/home/AnimatedSection';
-import { Divider } from './components/home/Divider';
+import { Hero } from '@/components/home/Hero';
+import { ExperienceCarousel } from '@/components/home/ExperienceCarousel';
+import { CardGrid } from '@/components/home/CardGrid';
+import { AnimatedSection } from '@/components/home/AnimatedSection';
+import { Divider } from '@/components/home/Divider';
 
 export default function Home() {
   return (
@@ -16,7 +16,7 @@ export default function Home() {
         subtitleClassName="text-sm sm:text-base lg:text-lg"
       />
 
-      <Divider className="py-2" color="current" />
+      <Divider color="current" size="md" />
 
       {/* Carousel Section (Running, Trekking, Trips) */}
       <div id="categories" className="bg-white dark:bg-slate-900 scroll-mt-20">
@@ -25,17 +25,21 @@ export default function Home() {
             <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-5">
               Esploriamo assieme
             </h2>
-            <HomeExperienceCarousel />
+            <ExperienceCarousel titleColor="current" subtitleColor="current" />
           </div>
         </AnimatedSection>
       </div>
 
-      <Divider className="py-1" color="blue" />
+      <Divider color="blue" size="sm" />
 
       {/* Latest Adventures Section */}
-      <CardGrid sectionClassName="px-4 py-8 sm:px-6 lg:px-8 bg-white dark:bg-slate-900" />
+      <CardGrid
+        sectionClassName="px-4 py-8 sm:px-6 lg:px-8 bg-white dark:bg-slate-900"
+        titleColor="current"
+        subtitleColor="current"
+      />
 
-      <Divider className="py-1" color="purple" />
+      <Divider color="purple" size="sm" />
 
       {/* Coming Soon Section */}
       <AnimatedSection className="px-4 py-10 sm:px-6 lg:px-8 bg-white dark:bg-slate-900">

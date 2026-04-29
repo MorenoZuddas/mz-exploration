@@ -11,8 +11,8 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel';
 
-interface SlideItem {
-  id: 'running' | 'trekking' | 'trips';
+export interface ExperienceSlideItem {
+  id: string;
   title: string;
   subtitle: string;
   description: string;
@@ -22,7 +22,15 @@ interface SlideItem {
   externalLabel?: string;
 }
 
-const slides: SlideItem[] = [
+type TextColorVariant = 'current' | 'blue' | 'purple' | 'black';
+
+interface ExperienceCarouselProps {
+  slides?: ExperienceSlideItem[];
+  titleColor?: TextColorVariant;
+  subtitleColor?: TextColorVariant;
+}
+
+const defaultSlides: ExperienceSlideItem[] = [
   {
     id: 'running',
     title: 'Running',
@@ -52,13 +60,6 @@ const slides: SlideItem[] = [
   },
 ];
 
-type TextColorVariant = 'current' | 'blue' | 'purple' | 'black';
-
-interface HomeExperienceCarouselProps {
-  titleColor?: TextColorVariant;
-  subtitleColor?: TextColorVariant;
-}
-
 const carouselTitleColorVariants: Record<TextColorVariant, string> = {
   current: 'text-white',
   blue: 'text-blue-300',
@@ -73,10 +74,11 @@ const carouselSubtitleColorVariants: Record<TextColorVariant, string> = {
   black: 'text-black/80 dark:text-slate-300',
 };
 
-export function HomeExperienceCarousel({
+export function ExperienceCarousel({
+  slides = defaultSlides,
   titleColor = 'current',
   subtitleColor = 'current',
-}: HomeExperienceCarouselProps) {
+}: ExperienceCarouselProps) {
   const titleColorClass = carouselTitleColorVariants[titleColor];
   const subtitleColorClass = carouselSubtitleColorVariants[subtitleColor];
 

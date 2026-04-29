@@ -1,4 +1,4 @@
-import { CardGrid, type CardGridItem } from '@/app/components/home/CardGrid';
+import { CardGrid, type CardGridItem } from '@/components/home/CardGrid';
 
 const explorationCards: CardGridItem[] = [
 	{
