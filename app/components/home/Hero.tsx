@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-export function HeroVideoSection() {
+export function Hero() {
   return (
     <section className="relative w-full h-[50vh] overflow-hidden">
       {/* Video Background */}

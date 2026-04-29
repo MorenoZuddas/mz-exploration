@@ -53,7 +53,7 @@ const typeEmojis: Record<string, string> = {
   trip: '✈️',
 };
 
-export function LatestAdventures() {
+export function CardGrid() {
   const adventures = baseAdventures;
 
   return (

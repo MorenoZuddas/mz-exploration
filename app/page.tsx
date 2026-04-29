@@ -1,13 +1,13 @@
-import { HeroVideoSection } from './components/home/HeroVideoSection';
+import { Hero } from './components/home/Hero';
 import { HomeExperienceCarousel } from './components/home/HomeExperienceCarousel';
-import { LatestAdventures } from './components/home/LatestAdventures';
+import { CardGrid } from './components/home/CardGrid';
 import { AnimatedSection } from './components/home/AnimatedSection';
 
 export default function Home() {
   return (
     <main className="w-full">
       {/* Hero Video Section */}
-      <HeroVideoSection />
+      <Hero />
 
       {/* Carousel Section (Running, Trekking, Trips) */}
       <div id="categories" className="bg-white dark:bg-slate-900 scroll-mt-20">
@@ -22,7 +22,7 @@ export default function Home() {
       </div>
 
       {/* Latest Adventures Section */}
-      <LatestAdventures />
+      <CardGrid />
 
       {/* Coming Soon Section */}
       <AnimatedSection className="px-4 py-16 sm:px-6 lg:px-8 bg-white dark:bg-slate-900">
