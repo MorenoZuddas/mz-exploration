@@ -19,14 +19,14 @@ export type FilterType =
 
 type FilterTone = 'current' | 'blue' | 'purple' | 'black';
 
-interface FilterConfig {
+export interface FilterConfig {
   type: FilterType;
   label: string;
   placeholder?: string;
   options?: Array<{ value: string; label: string }>;
 }
 
-interface FilterState {
+export interface FilterState {
   [key: string]: string;
 }
 
@@ -37,6 +37,7 @@ interface FilterProps {
   resetLabel?: string;
   applyLabel?: string;
   tone?: FilterTone;
+  syncChannel?: string;
   disabled?: boolean;
   className?: string;
 }
@@ -91,6 +92,7 @@ export function Filter({
   resetLabel = 'Reset',
   applyLabel = 'Applica',
   tone = 'current',
+  syncChannel,
   disabled = false,
   className = '',
 }: FilterProps) {
@@ -107,6 +109,9 @@ export function Filter({
 
   const handleApply = () => {
     onFilterChange(filterState);
+    if (syncChannel) {
+      window.dispatchEvent(new CustomEvent(`mz-filter:${syncChannel}`, { detail: filterState }));
+    }
   };
 
   const handleReset = () => {
@@ -114,6 +119,9 @@ export function Filter({
     setFilterState(resetState);
     onReset?.();
     onFilterChange(resetState);
+    if (syncChannel) {
+      window.dispatchEvent(new CustomEvent(`mz-filter:${syncChannel}`, { detail: resetState }));
+    }
   };
 
   const renderFilterInput = (config: FilterConfig) => {

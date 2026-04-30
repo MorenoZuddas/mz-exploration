@@ -9,7 +9,6 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  StatsCard,
 } from "@/components/ui/card"
 import {
   Carousel,
@@ -19,16 +18,9 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+import { Filter, type FilterConfig, type FilterState } from '@/components/Filter';
 import { ActivityDetailModal } from '@/components/ActivityDetailModal';
+import { Statistics, type StatisticsMetricKey } from '@/components/Statistics';
 import Image from 'next/image';
 import { thumbnailUrl } from '@/lib/cloudinary';
 import { getCachedActivities, setCachedActivities } from '@/lib/cache/activities';
@@ -156,6 +148,49 @@ export default function RunningPage() {
     const min = Math.floor(pace);
     const sec = Math.round((pace % 1) * 60);
     return `${min}:${String(sec).padStart(2, '0')}`;
+  };
+
+  const runningFilterConfig: FilterConfig[] = [
+    {
+      type: 'dateStart',
+      label: 'Data inizio',
+    },
+    {
+      type: 'dateEnd',
+      label: 'Data fine',
+    },
+    {
+      type: 'activityType',
+      label: 'Tipo attività',
+      options: [
+        { value: 'running', label: 'Running' },
+        { value: 'track_running', label: 'Track Running' },
+      ],
+    },
+    {
+      type: 'distanceMin',
+      label: 'Distanza minima',
+      placeholder: 'Distanza minima (m)',
+    },
+    {
+      type: 'distanceMax',
+      label: 'Distanza massima',
+      placeholder: 'Distanza massima (m)',
+    },
+  ];
+
+  const handleFilterChange = (state: FilterState) => {
+    setFilters({
+      dateFrom: state.dateStart ? new Date(state.dateStart) : undefined,
+      dateTo: state.dateEnd ? new Date(state.dateEnd) : undefined,
+      types: state.activityType ? [state.activityType] : [],
+      minDistance: state.distanceMin ? Number.parseFloat(state.distanceMin) : undefined,
+      maxDistance: state.distanceMax ? Number.parseFloat(state.distanceMax) : undefined,
+    });
+  };
+
+  const resetRunningFilters = () => {
+    setFilters({ dateFrom: undefined, dateTo: undefined, types: [], minDistance: undefined, maxDistance: undefined });
   };
 
   useEffect(() => {
@@ -401,76 +436,45 @@ export default function RunningPage() {
             Statistiche Running
           </h2>
 
-          {/* Filters */}
-          <div className="bg-white dark:bg-slate-800 rounded-lg p-6 mb-6">
-            <h3 className="text-lg font-semibold mb-4">Filtri</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              <div>
-                <Label htmlFor="dateFrom">Da data</Label>
-                <Input
-                  id="dateFrom"
-                  type="date"
-                  value={filters.dateFrom ? filters.dateFrom.toISOString().split('T')[0] : ''}
-                  onChange={(e) => setFilters((prev) => ({ ...prev, dateFrom: e.target.value ? new Date(e.target.value) : undefined }))}
-                />
-              </div>
-              <div>
-                <Label htmlFor="dateTo">A data</Label>
-                <Input
-                  id="dateTo"
-                  type="date"
-                  value={filters.dateTo ? filters.dateTo.toISOString().split('T')[0] : ''}
-                  onChange={(e) => setFilters((prev) => ({ ...prev, dateTo: e.target.value ? new Date(e.target.value) : undefined }))}
-                />
-              </div>
-              <div>
-                <Label htmlFor="types">Tipo</Label>
-                <Select value={filters.types.join(',')} onValueChange={(value) => setFilters((prev) => ({ ...prev, types: value ? value.split(',') : [] }))}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Seleziona tipi" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="running">Running</SelectItem>
-                    <SelectItem value="track_running">Track Running</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="minDistance">Distanza min (m)</Label>
-                <Input
-                  id="minDistance"
-                  type="number"
-                  value={filters.minDistance || ''}
-                  onChange={(e) => setFilters((prev) => ({ ...prev, minDistance: e.target.value ? parseFloat(e.target.value) : undefined }))}
-                />
-              </div>
-              <div>
-                <Label htmlFor="maxDistance">Distanza max (m)</Label>
-                <Input
-                  id="maxDistance"
-                  type="number"
-                  value={filters.maxDistance || ''}
-                  onChange={(e) => setFilters((prev) => ({ ...prev, maxDistance: e.target.value ? parseFloat(e.target.value) : undefined }))}
-                />
-              </div>
-              <div className="flex items-end">
-                <Button
-                  onClick={() =>
-                    setFilters({ dateFrom: undefined, dateTo: undefined, types: [], minDistance: undefined, maxDistance: undefined })
-                  }
-                >
-                  Reset Filtri
-                </Button>
-              </div>
-            </div>
-          </div>
+           {/* Filters */}
+           <div className="bg-white dark:bg-slate-800 rounded-lg p-6 mb-6">
+             <h3 className="text-lg font-semibold mb-4">Filtri</h3>
+             <Filter
+               filters={runningFilterConfig}
+               tone="blue"
+               onFilterChange={handleFilterChange}
+               onReset={resetRunningFilters}
+               resetLabel="Reset Filtri"
+               applyLabel="Applica Filtri"
+             />
+           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <StatsCard type="total_runs" activities={activities} filters={filters} dataName="stats-total-runs" />
-            <StatsCard type="total_distance" activities={activities} filters={filters} dataName="stats-total-distance" />
-            <StatsCard type="longest_run" activities={activities} filters={filters} dataName="stats-longest-run" />
-            <StatsCard type="total_hours" activities={activities} filters={filters} dataName="stats-total-hours" />
-          </div>
+           {/* Statistics Component */}
+           <div className="bg-white dark:bg-slate-800 rounded-lg p-6">
+             <Statistics
+               metrics={['total_runs', 'total_distance_runs', 'longest_run', 'total_running_hours'] as StatisticsMetricKey[]}
+               activities={activities.map(a => ({
+                 id: a.id,
+                 type: a.type,
+                 date: a.date,
+                 originalDate: a.originalDate,
+                 distance_m: Number.parseFloat(a.distance_km) * 1000,
+                 distance_km: a.distance_km,
+                 duration_sec: a.duration_min * 60,
+                 duration_min: a.duration_min,
+               }))}
+               filters={{
+                 dateFrom: filters.dateFrom,
+                 dateTo: filters.dateTo,
+                 types: filters.types,
+                 minDistance: filters.minDistance,
+                 maxDistance: filters.maxDistance,
+               }}
+               tone="blue"
+               backgroundColor="white"
+               columns={4}
+             />
+           </div>
         </div>
       </section>
 

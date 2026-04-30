@@ -23,11 +23,13 @@ import { Modal } from "@/components/Modal"
 import { BadgeChip, type BadgeChipType } from "@/components/BadgeChip"
 import { ActivityPhotos } from "@/components/ActivityPhotos"
 import { ActivityClickHandler } from "@/components/ActivityClickWrapper"
-import { Filter, type FilterType } from "@/components/Filter"
+import { Filter, type FilterConfig, type FilterType } from "@/components/Filter"
+import { Statistics, type StatisticsMetricKey } from "@/components/Statistics"
 import { AnimatedSection } from "@/components/generic/AnimatedSection"
 import { CardGrid, type CardGridItem } from "@/components/generic/CardGrid"
 import { Divider } from "@/components/generic/Divider"
 import { Hero } from "@/components/generic/Hero"
+import { Text } from "@/components/generic/Text"
 
 type Tone = "current" | "blue" | "purple" | "black"
 type HeroAlign = "center" | "left" | "right"
@@ -65,6 +67,34 @@ const BG_OPTIONS = {
 type BgKey = keyof typeof BG_OPTIONS
 const DIVIDER_ICON_TYPES = ["running", "trekking", "trip", "books", "photo", "music", "default"] as const
 const FILTER_TYPES: FilterType[] = ["dateStart", "dateEnd", "activityType", "distanceMin", "distanceMax", "durationMin", "durationMax", "location", "pace"]
+const TEXT_TONES = ["current", "blue", "purple", "black", "navy", "white"] as const
+const TEXT_VARIANTS = ["title", "subtitle", "body", "caption", "overline"] as const
+const TEXT_SIZES = ["xs", "sm", "md", "lg", "xl", "2xl", "3xl", "4xl"] as const
+const TEXT_WEIGHTS = ["normal", "medium", "semibold", "bold", "extrabold"] as const
+const TEXT_TAGS = ["h1", "h2", "h3", "h4", "h5", "p", "span", "div"] as const
+const TEXT_ALIGNS = ["left", "center", "right", "justify"] as const
+const TEXT_POSITIONS = ["left", "center", "right"] as const
+const STAT_METRICS_ALL: StatisticsMetricKey[] = [
+  "pb_100",
+  "pb_200",
+  "pb_400",
+  "pb_800",
+  "pb_1000",
+  "pb_1500",
+  "pb_2000",
+  "pb_5000",
+  "pb_10000",
+  "pb_half",
+  "pb_marathon",
+  "total_activities",
+  "total_runs",
+  "total_trekkings",
+  "total_distance",
+  "total_distance_runs",
+  "longest_run",
+  "total_running_hours",
+  "total_trekking_hours",
+]
 
 const MOCK_PHOTOS = [
   {
@@ -169,6 +199,9 @@ const STORYBOOK_NAV = [
   { id: "input-select", label: "Input + Select" },
   { id: "loader", label: "Loader" },
   { id: "modal", label: "Modal" },
+  { id: "statistics-single", label: "Statistics - Single Test" },
+  { id: "statistics", label: "Statistics + Filter Sync" },
+  { id: "text", label: "Text" },
 ]
 
 function StorybookSidebar() {
@@ -319,26 +352,34 @@ function HeroSection() {
 
 function makeItems(total: number): CardGridItem[] {
   const kind: Array<"running" | "trekking" | "trip"> = ["running", "trekking", "trip"]
-  return Array.from({ length: total }).map((_, i) => ({
-    id: `item-${i + 1}`,
-    title: `Item ${i + 1}`,
-    href: "#",
-    type: kind[i % 3],
-    date: `2026-04-${String((i % 28) + 1).padStart(2, "0")}`,
-    description: `Descrizione card ${i + 1}`,
-    image:
-      i % 3 === 0
-        ? "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=800&q=80"
-        : i % 3 === 1
-          ? "https://images.pexels.com/photos/355465/pexels-photo-355465.jpeg?auto=compress&cs=tinysrgb&w=800"
-          : "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=800&q=80",
-  }))
+  return Array.from({ length: total }).map((_, i) => {
+    const day = ((i % 28) + 1)
+    const dateObj = new Date(2026, 3, day)
+    const dateStr = dateObj.toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric' })
+    return {
+      id: `item-${i + 1}`,
+      title: `Item ${i + 1}`,
+      href: "#",
+      type: kind[i % 3],
+      date: dateStr,
+      description: `Descrizione card ${i + 1}`,
+      image:
+        i % 3 === 0
+          ? "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=800&q=80"
+          : i % 3 === 1
+            ? "https://images.pexels.com/photos/355465/pexels-photo-355465.jpeg?auto=compress&cs=tinysrgb&w=800"
+            : "https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=800&q=80",
+    }
+  })
 }
 
 function CardGridSection() {
   const [total, setTotal] = useState("8")
   const [visible, setVisible] = useState("4")
   const [tone, setTone] = useState<Tone>("current")
+  const [showDate, setShowDate] = useState(true)
+  const [showBadge, setShowBadge] = useState(true)
+  const [showDesc, setShowDesc] = useState(false)
   const items = useMemo(() => makeItems(Number(total)), [total])
 
   return (
@@ -349,6 +390,9 @@ function CardGridSection() {
             <Ctl label="tone" value={tone} options={CARD_TONES} onChange={setTone} />
             <Ctl label="total cards" value={total} options={["3", "4", "6", "8", "10", "12"]} onChange={setTotal} />
             <Ctl label="visible cards" value={visible} options={["3", "4", "6", "8", "10", "12"]} onChange={setVisible} />
+            <Toggle label="show date" checked={showDate} onChange={setShowDate} />
+            <Toggle label="show badge" checked={showBadge} onChange={setShowBadge} />
+            <Toggle label="show desc" checked={showDesc} onChange={setShowDesc} />
           </div>
         </Panel>
         <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
@@ -362,16 +406,30 @@ function CardGridSection() {
             showMoreLabel="Mostra tutte"
             showLessLabel="Mostra meno"
             useMotion={false}
+            showDate={showDate}
+            showTypeBadge={showBadge}
+            showDescription={showDesc}
             sectionClassName="px-6 py-8 bg-white dark:bg-slate-900"
           />
         </div>
       </div>
+
+      <Panel>
+        <div className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
+          <p className="font-semibold uppercase tracking-wider">📅 Data attività:</p>
+          <p>Le card mostrano la data dell'attività nel formato italiano (es: "1 aprile 2026"). Utilizza il toggle <span className="font-medium">"show date"</span> per mostrare o nascondere le date sulle card.</p>
+        </div>
+      </Panel>
+
       <div className="mt-4">
         <PropsLegend
           items={[
             { prop: "tone", values: [...CARD_TONES] },
             { prop: "total cards", values: ["3", "4", "6", "8", "10", "12"] },
             { prop: "visible cards", values: ["3", "4", "6", "8", "10", "12"] },
+            { prop: "showDate", values: ["true", "false"] },
+            { prop: "showTypeBadge", values: ["true", "false"] },
+            { prop: "showDescription", values: ["true", "false"] },
           ]}
         />
       </div>
@@ -994,6 +1052,264 @@ function FilterSection() {
   )
 }
 
+function TextSection() {
+  const [variant, setVariant] = useState<typeof TEXT_VARIANTS[number]>("title")
+  const [tag, setTag] = useState<typeof TEXT_TAGS[number]>("h2")
+  const [tone, setTone] = useState<typeof TEXT_TONES[number]>("current")
+  const [size, setSize] = useState<typeof TEXT_SIZES[number]>("xl")
+  const [weight, setWeight] = useState<typeof TEXT_WEIGHTS[number]>("bold")
+  const [align, setAlign] = useState<typeof TEXT_ALIGNS[number]>("left")
+  const [position, setPosition] = useState<typeof TEXT_POSITIONS[number]>("left")
+
+  return (
+    <Section id="text" title="Text">
+      <div className="grid lg:grid-cols-[320px_1fr] gap-4 mb-4">
+        <Panel>
+          <div className="grid gap-2">
+            <Ctl label="variant" value={variant} options={[...TEXT_VARIANTS]} onChange={setVariant} />
+            <Ctl label="tag" value={tag} options={[...TEXT_TAGS]} onChange={setTag} />
+            <Ctl label="tone" value={tone} options={[...TEXT_TONES]} onChange={setTone} />
+            <Ctl label="size" value={size} options={[...TEXT_SIZES]} onChange={setSize} />
+            <Ctl label="weight" value={weight} options={[...TEXT_WEIGHTS]} onChange={setWeight} />
+            <Ctl label="align" value={align} options={[...TEXT_ALIGNS]} onChange={setAlign} />
+            <Ctl label="position" value={position} options={[...TEXT_POSITIONS]} onChange={setPosition} />
+          </div>
+        </Panel>
+        <Panel>
+          <div className="min-h-[140px] flex w-full">
+            <Text variant={variant} as={tag} tone={tone} size={size} weight={weight} align={align} position={position}>
+              Testo demo: variant {variant}, tag {tag}
+            </Text>
+          </div>
+          <div className="mt-4 space-y-2">
+            {TEXT_VARIANTS.map((v) => (
+              <Text key={v} variant={v} tone="current">
+                Variante {v}
+              </Text>
+            ))}
+          </div>
+        </Panel>
+      </div>
+      <PropsLegend
+        items={[
+          { prop: "variant", values: [...TEXT_VARIANTS] },
+          { prop: "as/tag", values: [...TEXT_TAGS] },
+          { prop: "tone", values: [...TEXT_TONES] },
+          { prop: "size", values: [...TEXT_SIZES] },
+          { prop: "weight", values: [...TEXT_WEIGHTS] },
+          { prop: "align", values: [...TEXT_ALIGNS] },
+          { prop: "position", values: [...TEXT_POSITIONS] },
+        ]}
+      />
+    </Section>
+  )
+}
+
+function StatisticsSingleTestSection() {
+  const [backgroundColor, setBackgroundColor] = useState<"white" | "blue" | "purple" | "navy" | "slate">("white")
+  const [tone, setTone] = useState<"current" | "blue" | "purple" | "black">("blue")
+  const [columns, setColumns] = useState<"2" | "3" | "4">("4")
+  const [metrics, setMetrics] = useState<StatisticsMetricKey[]>([
+    "pb_1000",
+    "pb_5000",
+    "total_runs",
+    "longest_run",
+    "total_distance_runs",
+    "total_running_hours",
+  ])
+
+  const toggleMetric = (metric: StatisticsMetricKey, enabled: boolean) => {
+    if (enabled) {
+      setMetrics((prev) => (prev.includes(metric) ? prev : [...prev, metric]))
+    } else {
+      setMetrics((prev) => prev.filter((m) => m !== metric))
+    }
+  }
+
+  return (
+    <Section id="statistics-single" title="Statistics - Single Component Test">
+      <div className="grid lg:grid-cols-[320px_1fr] gap-4 mb-4">
+        <Panel>
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">Display Options</p>
+          <div className="grid gap-2 mb-4">
+            <Ctl label="background color" value={backgroundColor} options={["white", "blue", "purple", "navy", "slate"]} onChange={(v) => setBackgroundColor(v as any)} />
+            <Ctl label="tone" value={tone} options={CARD_TONES} onChange={setTone} />
+            <Ctl label="columns" value={columns} options={["2", "3", "4"]} onChange={(v) => setColumns(v as any)} />
+          </div>
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2 border-t border-slate-200 dark:border-slate-700 pt-3">Metrics</p>
+          <div className="space-y-1.5 max-h-[220px] overflow-auto pr-1">
+            {STAT_METRICS_ALL.map((metric) => (
+              <label key={metric} className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={metrics.includes(metric)}
+                  onChange={(e) => toggleMetric(metric, e.target.checked)}
+                  className="w-4 h-4"
+                />
+                <span className="text-sm">{metric}</span>
+              </label>
+            ))}
+          </div>
+        </Panel>
+
+        <div className="space-y-4">
+          <Panel>
+            <p className="text-xs text-slate-500 mb-3">✨ <span className="font-semibold">NUOVO:</span> Prova il componente Statistics singolo</p>
+            <ul className="text-xs text-slate-600 dark:text-slate-300 space-y-1.5 list-disc list-inside">
+              <li>Modifica background, tone e colonne a sinistra</li>
+              <li>Aggiungi/rimuovi metriche tramite checkbox</li>
+              <li>Clicca su un PB o "Run Più Lunga" per navigare all'attività</li>
+              <li>Vedi la data dell'attività sopra la metrica</li>
+            </ul>
+          </Panel>
+
+          <Panel>
+            <Statistics
+              metrics={metrics}
+              tone={tone}
+              backgroundColor={backgroundColor}
+              columns={Number(columns) as 2 | 3 | 4}
+              fetchIfMissing
+              endpoint="/api/activities/all"
+            />
+          </Panel>
+        </div>
+      </div>
+
+      <div className="mt-4">
+        <PropsLegend
+          items={[
+            { prop: "metrics", values: ["StatisticsMetricKey[]"] },
+            { prop: "backgroundColor", values: ["white", "blue", "purple", "navy", "slate"] },
+            { prop: "tone", values: [...CARD_TONES] },
+            { prop: "columns", values: ["2", "3", "4"] },
+            { prop: "fetchIfMissing", values: ["true | false"] },
+            { prop: "endpoint", values: ["string (URL API)"] },
+          ]}
+        />
+      </div>
+    </Section>
+  )
+}
+
+function StatisticsSection() {
+  const [channel] = useState("storybook-running")
+  const [metrics, setMetrics] = useState<StatisticsMetricKey[]>([
+    "total_runs",
+    "longest_run",
+    "total_distance_runs",
+    "total_running_hours",
+  ])
+  const [backgroundColor, setBackgroundColor] = useState<"white" | "blue" | "purple" | "navy" | "slate">("white")
+  const [tone, setTone] = useState<"current" | "blue" | "purple" | "black">("blue")
+  const [columns, setColumns] = useState<"2" | "3" | "4">("4")
+
+  const toggleMetric = (metric: StatisticsMetricKey, enabled: boolean) => {
+    if (enabled) {
+      setMetrics((prev) => (prev.includes(metric) ? prev : [...prev, metric]))
+    } else {
+      setMetrics((prev) => prev.filter((m) => m !== metric))
+    }
+  }
+
+  const filterConfig: FilterConfig[] = [
+    { type: "dateStart", label: "Data inizio" },
+    { type: "dateEnd", label: "Data fine" },
+    {
+      type: "activityType",
+      label: "Tipo attivita",
+      options: [
+        { value: "running", label: "Running" },
+        { value: "track_running", label: "Track Running" },
+        { value: "trekking", label: "Trekking" },
+      ],
+    },
+    { type: "distanceMin", label: "Distanza minima" },
+    { type: "distanceMax", label: "Distanza massima" },
+  ]
+
+  return (
+    <Section id="statistics" title="Statistics">
+      <div className="grid lg:grid-cols-[320px_1fr] gap-4 mb-4">
+        <Panel>
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">Controlli</p>
+          <div className="grid gap-2 mb-4">
+            <Ctl label="background color" value={backgroundColor} options={["white", "blue", "purple", "navy", "slate"]} onChange={(v) => setBackgroundColor(v as any)} />
+            <Ctl label="tone" value={tone} options={CARD_TONES} onChange={setTone} />
+            <Ctl label="columns" value={columns} options={["2", "3", "4"]} onChange={(v) => setColumns(v as any)} />
+          </div>
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2 border-t border-slate-200 dark:border-slate-700 pt-3">Metriche visibili</p>
+          <div className="space-y-1.5 max-h-[220px] overflow-auto pr-1">
+            {STAT_METRICS_ALL.map((metric) => (
+              <label key={metric} className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={metrics.includes(metric)}
+                  onChange={(e) => toggleMetric(metric, e.target.checked)}
+                  className="w-4 h-4"
+                />
+                <span className="text-sm">{metric}</span>
+              </label>
+            ))}
+          </div>
+        </Panel>
+        <Panel>
+          <p className="text-xs text-slate-500 mb-3">Modalita con comunicazione Filter {'->'} Statistics</p>
+          <Filter
+            filters={filterConfig}
+            tone="blue"
+            syncChannel={channel}
+            onFilterChange={() => {}}
+            resetLabel="Reset"
+            applyLabel="Applica"
+          />
+        </Panel>
+      </div>
+
+      <Panel>
+        <div className="space-y-3 text-xs text-slate-600 dark:text-slate-300">
+          <p className="font-semibold uppercase tracking-wider mb-2">✨ Nuove Funzionalità:</p>
+          <ul className="space-y-2 list-disc list-inside">
+            <li><span className="font-medium">Colore sfondo adaptivo:</span> Scegli lo sfondo e il testo si adatterà automaticamente</li>
+            <li><span className="font-medium">Formato tempo intelligente:</span> Durate &lt;1h: mm:ss | Durate ≥1h: hh:mm:ss</li>
+            <li><span className="font-medium">Click su PB/Run:</span> Clicca su un PB o sulla "Run Piu Lunga" per navigare all'attività (solo su dati reali)</li>
+            <li><span className="font-medium">Data attività:</span> Mostra la data di quando è stata registrata la metrica</li>
+            <li><span className="font-medium">Sync Filter:</span> Il componente Statistical si aggiorna dinamicamente quando modifichi i filtri</li>
+          </ul>
+        </div>
+      </Panel>
+
+      <Panel>
+        <Statistics
+          metrics={metrics}
+          syncChannel={channel}
+          tone={tone}
+          backgroundColor={backgroundColor}
+          columns={Number(columns) as 2 | 3 | 4}
+          fetchIfMissing
+          endpoint="/api/activities/all"
+        />
+      </Panel>
+
+      <div className="mt-4">
+        <PropsLegend
+          items={[
+            { prop: "metrics", values: ["PBs + totals + distance + hours"] },
+            { prop: "backgroundColor", values: ["white", "blue", "purple", "navy", "slate"] },
+            { prop: "tone", values: [...CARD_TONES] },
+            { prop: "columns", values: ["2", "3", "4"] },
+            { prop: "activities", values: ["RawActivity[] (optional)"] },
+            { prop: "filters", values: ["StatisticsFilters (optional)"] },
+            { prop: "syncChannel", values: ["string (opzionale per sync con Filter)"] },
+            { prop: "fetchIfMissing", values: ["true | false"] },
+            { prop: "endpoint", values: ["/api/activities/all"] },
+          ]}
+        />
+      </div>
+    </Section>
+  )
+}
+
 function AnimatedSectionDemo() {
   const [disabled, setDisabled] = useState(false)
   return (
@@ -1031,10 +1347,13 @@ export default function StorybookPage() {
           <CardGridSection />
           <CarouselSection />
           <DividerSection />
-          <FilterSection />
-          <HeaderFooterSection />
-          <HeroSection />
-          <ModalSection />
+           <FilterSection />
+           <HeaderFooterSection />
+           <HeroSection />
+           <ModalSection />
+           <StatisticsSingleTestSection />
+           <StatisticsSection />
+           <TextSection />
         </main>
       </div>
     </div>
