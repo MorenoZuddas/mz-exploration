@@ -1,8 +1,53 @@
-import { Hero } from '@/components/home/Hero';
-import { ExperienceCarousel } from '@/components/home/ExperienceCarousel';
-import { CardGrid } from '@/components/home/CardGrid';
-import { AnimatedSection } from '@/components/home/AnimatedSection';
-import { Divider } from '@/components/home/Divider';
+import Image from 'next/image';
+import Link from 'next/link';
+import {
+  AnimatedSection,
+  CardGrid,
+  Divider,
+  Hero,
+} from '@/components/generic';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CarouselCards } from '@/components/ui/carousel';
+
+interface HomeCarouselItem {
+  id: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  href: string;
+  imageSrc: string;
+}
+
+const homeCarouselItems: HomeCarouselItem[] = [
+  {
+    id: 'running',
+    title: 'Running',
+    subtitle: 'Road to Marathon',
+    description: 'Corse su strada, pista e allenamenti per raccontare progressi, numeri ed emozioni.',
+    href: '/exploration/running',
+    imageSrc:
+      'https://res.cloudinary.com/derbnvxif/image/upload/q_auto/f_auto/v1777450410/running_Large_zorzw2.jpg',
+  },
+  {
+    id: 'trekking',
+    title: 'Trekking',
+    subtitle: 'Natura e dislivello',
+    description: 'Escursioni, panorami, salite e percorsi da ricordare con dati, foto e dettagli utili.',
+    href: '/exploration/trekking',
+    imageSrc:
+      'https://res.cloudinary.com/derbnvxif/image/upload/q_auto/f_auto/v1777450410/trekking_h2lev5.jpg',
+  },
+  {
+    id: 'trips',
+    title: 'Trips',
+    subtitle: 'Esperienze e cultura',
+    description: 'Una raccolta di viaggi, idee e luoghi che meritano una storia dedicata.',
+    href: '/exploration/trips',
+    imageSrc:
+      'https://res.cloudinary.com/derbnvxif/image/upload/q_auto/f_auto/v1777450410/trips_exvdmu.avif',
+  },
+];
 
 export default function Home() {
   return (
@@ -25,7 +70,49 @@ export default function Home() {
             <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-5">
               Esploriamo assieme
             </h2>
-            <ExperienceCarousel titleColor="current" subtitleColor="current" />
+            <CarouselCards
+              horizontal
+              carouselCard={1}
+              gap="md"
+              className="w-full"
+              previousButtonProps={{ className: 'left-2 sm:-left-10', tone: 'blue' }}
+              nextButtonProps={{ className: 'right-2 sm:-right-10', tone: 'blue' }}
+            >
+              {homeCarouselItems.map((slide) => (
+                <Card key={slide.id} className="relative overflow-hidden border-slate-200 dark:border-slate-700">
+                  <div className="relative h-[23rem] sm:h-[26rem] w-full">
+                    <Image
+                      src={slide.imageSrc}
+                      alt={slide.title}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 980px"
+                      priority={slide.id === 'running'}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/25" />
+
+                    <div className="absolute inset-0 flex items-end p-6 sm:p-8">
+                      <div className="max-w-xl text-white space-y-2">
+                        <p className="text-xs uppercase tracking-[0.2em] text-blue-200 sm:text-sm">
+                          {slide.subtitle}
+                        </p>
+                        <CardHeader className="p-0 pb-1">
+                          <CardTitle className="text-3xl text-white sm:text-4xl">
+                            {slide.title}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4 p-0">
+                          <p className="text-sm text-white/90 sm:text-base">{slide.description}</p>
+                          <Button asChild tone="white" size="lg" radius="lg">
+                            <Link href={slide.href}>Vai a {slide.title}</Link>
+                          </Button>
+                        </CardContent>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </CarouselCards>
           </div>
         </AnimatedSection>
       </div>

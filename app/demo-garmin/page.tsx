@@ -678,13 +678,16 @@ export default function DemoGarminPage() {
                 />
               </div>
               <div className="flex items-end">
-                <Button onClick={() => setFilters({
+                <Button
+                  variant="destructive"
+                  onClick={() => setFilters({
                   dateFrom: undefined,
                   dateTo: undefined,
                   types: [],
                   minDistance: undefined,
                   maxDistance: undefined,
-                })} className="bg-red-600 hover:bg-red-700">
+                  })}
+                >
                   Reset Filtri
                 </Button>
               </div>

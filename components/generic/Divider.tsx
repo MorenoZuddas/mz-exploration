@@ -1,11 +1,14 @@
 interface DividerProps {
   className?: string;
+  containerClassName?: string;
+  tone?: 'current' | 'blue' | 'purple' | 'black';
   color?: 'current' | 'blue' | 'purple' | 'black';
   size?: 'sm' | 'md' | 'lg';
   symbol?: string;
+  backgroundClassName?: string;
 }
 
-const colorVariants: Record<NonNullable<DividerProps['color']>, { line: string; symbol: string }> = {
+const toneVariants: Record<NonNullable<DividerProps['tone']>, { line: string; symbol: string }> = {
   current: {
     line: 'bg-gradient-to-r from-transparent via-slate-300 to-transparent dark:via-slate-700',
     symbol: 'text-slate-500 dark:text-slate-400',
@@ -42,13 +45,22 @@ const sizeVariants: Record<NonNullable<DividerProps['size']>, { wrapper: string;
   },
 };
 
-export function Divider({ className = '', color = 'current', size = 'md', symbol = '✦' }: DividerProps) {
-  const variant = colorVariants[color];
+export function Divider({
+  className = '',
+  containerClassName = '',
+  tone,
+  color,
+  size = 'md',
+  symbol = '✦',
+  backgroundClassName = 'bg-white dark:bg-slate-900',
+}: DividerProps) {
+  const resolvedTone = tone ?? color ?? 'current';
+  const variant = toneVariants[resolvedTone];
   const sizing = sizeVariants[size];
 
   return (
-    <div className={`bg-white dark:bg-slate-900 px-4 ${sizing.wrapper} ${className}`} aria-hidden="true">
-      <div className="mx-auto max-w-6xl flex items-center gap-3">
+    <div className={`${backgroundClassName} px-4 ${sizing.wrapper} ${containerClassName}`} aria-hidden="true">
+      <div className={`mx-auto max-w-6xl flex items-center gap-3 ${className}`}>
         <div className={`${sizing.line} flex-1 ${variant.line}`} />
         <span className={`${variant.symbol} ${sizing.symbol}`}>{symbol}</span>
         <div className={`${sizing.line} flex-1 ${variant.line}`} />
@@ -56,3 +68,4 @@ export function Divider({ className = '', color = 'current', size = 'md', symbol
     </div>
   );
 }
+

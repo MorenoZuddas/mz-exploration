@@ -1,89 +1,160 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import type { ReactNode } from 'react';
 
-export default function Footer() {
+export interface FooterNavLink {
+  label: string;
+  href: string;
+}
+
+export interface FooterSocialLink {
+  label: string;
+  href: string;
+  icon: ReactNode;
+}
+
+interface FooterProps {
+  className?: string;
+  backgroundClassName?: string;
+  tone?: 'current' | 'blue' | 'purple' | 'black';
+  logoSrc?: string;
+  logoAlt?: string;
+  logoWidth?: number;
+  logoHeight?: number;
+  navLinks?: FooterNavLink[];
+  socialLinks?: FooterSocialLink[];
+  copyrightText?: string;
+}
+
+const footerToneClasses: Record<NonNullable<FooterProps['tone']>, { link: string; separator: string; border: string }> = {
+  current: {
+    link: 'text-gray-400 hover:text-blue-400',
+    separator: 'text-gray-600',
+    border: 'border-slate-700',
+  },
+  blue: {
+    link: 'text-blue-300 hover:text-blue-100',
+    separator: 'text-blue-700',
+    border: 'border-blue-900/60',
+  },
+  purple: {
+    link: 'text-violet-300 hover:text-violet-100',
+    separator: 'text-violet-700',
+    border: 'border-violet-900/60',
+  },
+  black: {
+    link: 'text-slate-300 hover:text-white',
+    separator: 'text-slate-600',
+    border: 'border-slate-600',
+  },
+};
+
+const defaultNavLinks: FooterNavLink[] = [
+  { label: 'Chi Sono', href: '/about' },
+  { label: 'Exploration', href: '/exploration' },
+  { label: 'Contatti', href: '/contact' },
+];
+
+const defaultSocialLinks: FooterSocialLink[] = [
+  {
+    label: 'LinkedIn',
+    href: 'https://www.linkedin.com/in/moreno-zuddas-12321a128/',
+    icon: (
+      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+      </svg>
+    ),
+  },
+  {
+    label: 'GitHub',
+    href: 'https://github.com/MorenoZuddas7',
+    icon: (
+      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+      </svg>
+    ),
+  },
+  {
+    label: 'Strava',
+    href: 'https://www.strava.com',
+    icon: (
+      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M15.387 1.395c-.967.715-1.334 2.618-1.334 5.289 0 2.671.367 4.574 1.334 5.289.967.715 2.335.715 3.302 0 .967-.715 1.334-2.618 1.334-5.289 0-2.671-.367-4.574-1.334-5.289-.967-.715-2.335-.715-3.302 0zm-4.899 5.289c0-2.671-.367-4.574-1.334-5.289-.967-.715-2.335-.715-3.302 0-.967.715-1.334 2.618-1.334 5.289 0 2.671.367 4.574 1.334 5.289.967.715 2.335.715 3.302 0 .967-.715 1.334-2.618 1.334-5.289z"/>
+      </svg>
+    ),
+  },
+  {
+    label: 'Email',
+    href: 'mailto:moreno@example.com',
+    icon: (
+      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+      </svg>
+    ),
+  },
+];
+
+export default function Footer({
+  className = '',
+  backgroundClassName = 'bg-slate-900 dark:bg-slate-950',
+  tone = 'current',
+  logoSrc = '/logo/hp-logo.svg',
+  logoAlt = 'mz-exploration logo',
+  logoWidth = 150,
+  logoHeight = 150,
+  navLinks = defaultNavLinks,
+  socialLinks = defaultSocialLinks,
+  copyrightText = '© 2026 Moreno Zuddas. All rights reserved.',
+}: FooterProps) {
+  const toneClasses = footerToneClasses[tone];
+
   return (
-    <footer className="bg-slate-900 dark:bg-slate-950 text-white py-4 mt-12">
+    <footer className={`${backgroundClassName} text-white py-4 mt-12 ${className}`}>
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           {/* Logo + Brand - Left */}
           <div className="flex items-center gap-3">
             <Image
-              src="/logo/hp-logo.svg"
-              alt="mz-exploration logo"
-              width={150}
-              height={150}
+              src={logoSrc}
+              alt={logoAlt}
+              width={logoWidth}
+              height={logoHeight}
               className="opacity-75"
             />
           </div>
 
           {/* Links - Center */}
           <div className="flex flex-wrap justify-center gap-4 text-xs md:text-sm">
-            <Link href="/about" className="text-gray-400 hover:text-blue-400 transition">
-              Chi Sono
-            </Link>
-            <span className="text-gray-600">•</span>
-            <Link href="/exploration" className="text-gray-400 hover:text-blue-400 transition">
-              Exploration
-            </Link>
-            <span className="text-gray-600">•</span>
-            <Link href="/contact" className="text-gray-400 hover:text-blue-400 transition">
-              Contatti
-            </Link>
+            {navLinks.map((link, index) => (
+              <div key={`${link.href}-${link.label}`} className="flex items-center gap-4">
+                <Link href={link.href} className={`${toneClasses.link} transition`}>
+                  {link.label}
+                </Link>
+                {index < navLinks.length - 1 ? <span className={toneClasses.separator}>•</span> : null}
+              </div>
+            ))}
           </div>
 
           {/* Social Icons - Right */}
           <div className="flex gap-4">
-            <a
-              href="https://www.linkedin.com/in/moreno-zuddas-12321a128/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-400 hover:text-blue-400 transition"
-              aria-label="LinkedIn"
-            >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-              </svg>
-            </a>
-            <a
-              href="https://github.com/MorenoZuddas7"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-400 hover:text-blue-400 transition"
-              aria-label="GitHub"
-            >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-              </svg>
-            </a>
-
-            <a
-              href="https://www.strava.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-400 hover:text-blue-400 transition"
-              aria-label="Strava"
-            >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M15.387 1.395c-.967.715-1.334 2.618-1.334 5.289 0 2.671.367 4.574 1.334 5.289.967.715 2.335.715 3.302 0 .967-.715 1.334-2.618 1.334-5.289 0-2.671-.367-4.574-1.334-5.289-.967-.715-2.335-.715-3.302 0zm-4.899 5.289c0-2.671-.367-4.574-1.334-5.289-.967-.715-2.335-.715-3.302 0-.967.715-1.334 2.618-1.334 5.289 0 2.671.367 4.574 1.334 5.289.967.715 2.335.715 3.302 0 .967-.715 1.334-2.618 1.334-5.289z"/>
-              </svg>
-            </a>
-
-            <a
-              href="mailto:moreno@example.com"
-              className="text-gray-400 hover:text-blue-400 transition"
-              aria-label="Email"
-            >
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
-              </svg>
-            </a>
+            {socialLinks.map((link) => (
+              <a
+                key={`${link.label}-${link.href}`}
+                href={link.href}
+                target={link.href.startsWith('mailto:') ? undefined : '_blank'}
+                rel={link.href.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
+                className={`${toneClasses.link} transition`}
+                aria-label={link.label}
+              >
+                {link.icon}
+              </a>
+            ))}
           </div>
         </div>
 
         {/* Copyright - Bottom */}
-        <div className="text-center text-gray-500 text-xs mt-4 pt-4 border-t border-slate-700">
-          <p>© 2026 Moreno Zuddas. All rights reserved.</p>
+        <div className={`text-center text-gray-500 text-xs mt-4 pt-4 border-t ${toneClasses.border}`}>
+          <p>{copyrightText}</p>
         </div>
       </div>
     </footer>

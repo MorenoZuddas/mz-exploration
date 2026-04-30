@@ -38,7 +38,17 @@ interface Props {
   onClose: () => void;
   detailsPageUrl: string;
   photo?: ApiPhoto | null;
+  className?: string;
+  contentClassName?: string;
+  tone?: 'current' | 'blue' | 'purple' | 'black';
 }
+
+const modalMetricToneClasses: Record<NonNullable<Props['tone']>, string> = {
+  current: 'text-blue-600 dark:text-blue-400',
+  blue: 'text-blue-600 dark:text-blue-300',
+  purple: 'text-violet-700 dark:text-violet-300',
+  black: 'text-slate-900 dark:text-slate-100',
+};
 
 function formatDuration(durationSec: number | null): string {
   if (!durationSec || durationSec <= 0) return '—';
@@ -66,7 +76,16 @@ function formatPace(pace: number | undefined): string {
   return `${min}:${String(sec).padStart(2, '0')}`;
 }
 
-export function ActivityDetailModal({ activityId, isOpen, onClose, detailsPageUrl, photo }: Props) {
+export function ActivityDetailModal({
+  activityId,
+  isOpen,
+  onClose,
+  detailsPageUrl,
+  photo,
+  className = '',
+  contentClassName = '',
+  tone = 'current',
+}: Props) {
   const [activity, setActivity] = useState<ActivityDetail | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -121,7 +140,7 @@ export function ActivityDetailModal({ activityId, isOpen, onClose, detailsPageUr
       />
 
       {/* Modale */}
-      <div className="fixed inset-4 md:inset-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[90vw] md:max-w-2xl md:max-h-[90vh] bg-white dark:bg-slate-800 rounded-lg shadow-2xl z-50 overflow-y-auto">
+      <div className={`fixed inset-4 md:inset-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[90vw] md:max-w-2xl md:max-h-[90vh] bg-white dark:bg-slate-800 rounded-lg shadow-2xl z-50 overflow-y-auto ${className}`}>
         {/* Header */}
         <div className="sticky top-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-6 flex justify-between items-start">
           <div>
@@ -134,16 +153,13 @@ export function ActivityDetailModal({ activityId, isOpen, onClose, detailsPageUr
               </p>
             )}
           </div>
-          <button
-            onClick={onClose}
-            className="text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 text-2xl font-light"
-          >
+          <Button variant="ghost" tone="black" size="icon" onClick={onClose} className="text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">
             ✕
-          </button>
+          </Button>
         </div>
 
         {/* Contenuto */}
-        <div className="p-6 space-y-6">
+        <div className={`p-6 space-y-6 ${contentClassName}`}>
           {loading && (
             <div className="text-center py-8">
               <p className="text-slate-600 dark:text-slate-400">Caricamento...</p>
@@ -160,33 +176,33 @@ export function ActivityDetailModal({ activityId, isOpen, onClose, detailsPageUr
             <>
               {/* Metriche principali */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <Card className="p-4">
+                <Card className="p-4" tone={tone}>
                   <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">Distanza</p>
-                  <p className="text-lg md:text-xl font-bold text-blue-600 dark:text-blue-400">
+                  <p className={`text-lg md:text-xl font-bold ${modalMetricToneClasses[tone]}`}>
                     {formatDistance(activity.distance_m)}
                   </p>
                 </Card>
 
-                <Card className="p-4">
+                <Card className="p-4" tone={tone}>
                   <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">Tempo</p>
-                  <p className="text-lg md:text-xl font-bold text-blue-600 dark:text-blue-400">
+                  <p className={`text-lg md:text-xl font-bold ${modalMetricToneClasses[tone]}`}>
                     {formatDuration(activity.duration_sec)}
                   </p>
                 </Card>
 
                 {activity.pace_min_per_km && (
-                  <Card className="p-4">
+                  <Card className="p-4" tone={tone}>
                     <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">Pace</p>
-                    <p className="text-lg md:text-xl font-bold text-green-600 dark:text-green-400">
+                    <p className={`text-lg md:text-xl font-bold ${modalMetricToneClasses[tone]}`}>
                       {formatPace(activity.pace_min_per_km)}
                     </p>
                   </Card>
                 )}
 
                 {activity.calories_kcal && (
-                  <Card className="p-4">
+                  <Card className="p-4" tone={tone}>
                     <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">Kcal</p>
-                    <p className="text-lg md:text-xl font-bold text-orange-600 dark:text-orange-400">
+                    <p className={`text-lg md:text-xl font-bold ${modalMetricToneClasses[tone]}`}>
                       {activity.calories_kcal}
                     </p>
                   </Card>
@@ -197,7 +213,7 @@ export function ActivityDetailModal({ activityId, isOpen, onClose, detailsPageUr
               {activity.photos && activity.photos.length > 0 && (
                 <div>
                   <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">📸 Foto</h3>
-                  <ActivityPhotos photos={activity.photos} />
+                  <ActivityPhotos photos={activity.photos} tone={tone} />
                 </div>
               )}
 
@@ -236,19 +252,19 @@ export function ActivityDetailModal({ activityId, isOpen, onClose, detailsPageUr
 
               {/* Azioni */}
               <div className="flex gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
-                <button
+                <Button
                   onClick={onClose}
-                  className="flex-1 px-4 py-2 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-600 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition"
+                  variant="outline"
+                  tone="black"
+                  width="full"
                 >
                   Chiudi
-                </button>
-                <Link
-                  href={detailsPageUrl}
-                  onClick={onClose}
-                  className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-center font-semibold"
-                >
-                  Vedi Più Dettagli →
-                </Link>
+                </Button>
+                <Button asChild tone={tone} width="full">
+                  <Link href={detailsPageUrl} onClick={onClose}>
+                    Vedi Più Dettagli →
+                  </Link>
+                </Button>
               </div>
             </>
           )}

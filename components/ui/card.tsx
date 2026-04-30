@@ -2,17 +2,38 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
+type CardVariant = 'default' | 'horizontal' | 'vertical' | 'stats'
+type CardTone = 'current' | 'blue' | 'purple' | 'black'
+type CardSize = 'sm' | 'md' | 'lg'
+
+const cardToneClasses: Record<CardTone, string> = {
+  current: 'border-border bg-card text-card-foreground',
+  blue: 'border-blue-200 bg-blue-50/60 text-slate-900 dark:border-blue-800/50 dark:bg-blue-950/30 dark:text-slate-100',
+  purple: 'border-violet-200 bg-violet-50/60 text-slate-900 dark:border-violet-800/50 dark:bg-violet-950/30 dark:text-slate-100',
+  black: 'border-slate-800 bg-slate-900 text-slate-100 dark:border-slate-200 dark:bg-slate-100 dark:text-slate-900',
+}
+
+const cardSizeClasses: Record<CardSize, string> = {
+  sm: 'text-sm',
+  md: 'text-base',
+  lg: 'text-lg',
+}
+
 const Card = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement> & {
     dataName?: string;
-    variant?: 'default' | 'horizontal' | 'vertical' | 'stats';
+    variant?: CardVariant;
+    tone?: CardTone;
+    size?: CardSize;
   }
->(({ className, dataName, variant = 'default', ...props }, ref) => (
+>(({ className, dataName, variant = 'default', tone = 'current', size = 'md', ...props }, ref) => (
   <div
     ref={ref}
     className={cn(
-      "rounded-lg border border-border bg-card text-card-foreground shadow-sm",
+      "rounded-lg border shadow-sm",
+      cardToneClasses[tone],
+      cardSizeClasses[size],
       variant === 'horizontal' && "flex flex-row",
       variant === 'vertical' && "flex flex-col",
       variant === 'stats' && "text-center p-6",

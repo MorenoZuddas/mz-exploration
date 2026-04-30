@@ -22,9 +22,18 @@ interface CardGridProps {
   title?: string;
   subtitle?: string;
   items?: CardGridItem[];
+  className?: string;
+  containerClassName?: string;
+  gridClassName?: string;
+  cardClassName?: string;
+  imageClassName?: string;
+  columnsClassName?: string;
+  fallbackImage?: string;
   showTypeBadge?: boolean;
   showDate?: boolean;
   showDescription?: boolean;
+  useMotion?: boolean;
+  tone?: CardGridColor;
   sectionClassName?: string;
   titleColor?: CardGridColor;
   subtitleColor?: CardGridColor;
@@ -92,47 +101,63 @@ export function CardGrid({
   title = 'Ultime Avventure',
   subtitle = 'I momenti piu recenti dalle mie attivita',
   items = defaultItems,
+  className = '',
+  containerClassName = '',
+  gridClassName = '',
+  cardClassName = '',
+  imageClassName = '',
+  columnsClassName = 'grid grid-cols-1 md:grid-cols-3 gap-6',
+  fallbackImage = 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=800&q=80',
   showTypeBadge = true,
   showDate = true,
   showDescription = false,
+  useMotion = true,
+  tone,
   sectionClassName = 'px-4 py-16 sm:px-6 lg:px-8 bg-white dark:bg-slate-900',
   titleColor = 'current',
   subtitleColor = 'current',
 }: CardGridProps) {
-  const titleColorClass = textColorVariants[titleColor].title;
-  const subtitleColorClass = textColorVariants[subtitleColor].subtitle;
+  const resolvedTitleColor = tone ?? titleColor;
+  const resolvedSubtitleColor = tone ?? subtitleColor;
+  const titleColorClass = textColorVariants[resolvedTitleColor].title;
+  const subtitleColorClass = textColorVariants[resolvedSubtitleColor].subtitle;
+  const headerAnimation = useMotion
+    ? {
+        initial: { opacity: 0, y: 20 },
+        whileInView: { opacity: 1, y: 0 },
+        transition: { duration: 0.6 },
+        viewport: { once: true },
+      }
+    : {};
 
   return (
-    <section className={sectionClassName}>
-      <div className="max-w-6xl mx-auto">
+    <section className={`${sectionClassName} ${className}`}>
+      <div className={`max-w-6xl mx-auto ${containerClassName}`}>
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
+          {...headerAnimation}
           className="mb-12"
         >
           <h2 className={`text-3xl sm:text-4xl font-bold mb-2 ${titleColorClass}`}>{title}</h2>
           {subtitle && <p className={subtitleColorClass}>{subtitle}</p>}
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className={`${columnsClassName} ${gridClassName}`}>
           {items.map((item, index) => (
             <motion.div
               key={item.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              viewport={{ once: true }}
+              initial={useMotion ? { opacity: 0, y: 30 } : undefined}
+              whileInView={useMotion ? { opacity: 1, y: 0 } : undefined}
+              transition={useMotion ? { duration: 0.5, delay: index * 0.1 } : undefined}
+              viewport={useMotion ? { once: true } : undefined}
             >
               <Link href={item.href} className="block group h-full">
-                <Card className="overflow-hidden hover:shadow-lg transition-shadow h-full cursor-pointer group-hover:scale-[1.02] duration-300">
+                <Card className={`overflow-hidden hover:shadow-lg transition-shadow h-full cursor-pointer group-hover:scale-[1.02] duration-300 ${cardClassName}`}>
                   <div className="relative h-48 w-full overflow-hidden bg-slate-200 dark:bg-slate-700">
                     <Image
-                      src={item.image}
+                      src={item.image || fallbackImage}
                       alt={item.title}
                       fill
-                      className="object-cover group-hover:scale-110 transition-transform duration-300"
+                      className={`object-cover group-hover:scale-110 transition-transform duration-300 ${imageClassName}`}
                       sizes="(max-width: 768px) 100vw, 33vw"
                     />
                   </div>
@@ -167,3 +192,4 @@ export function CardGrid({
     </section>
   );
 }
+
