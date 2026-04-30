@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Loader from "@/components/Loader";
-import Header from "./components/Header";
-import Footer from "./components/Footer";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 export default function LayoutClient({
   children,
@@ -29,4 +29,3 @@ export default function LayoutClient({
     </>
   );
 }
-

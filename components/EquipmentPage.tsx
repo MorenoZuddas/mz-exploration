@@ -20,9 +20,44 @@ interface EquipmentPageProps {
   title: string;
   backUrl: string;
   items: EquipmentItem[];
+  subtitle?: string;
+  className?: string;
+  tone?: 'current' | 'blue' | 'purple' | 'black';
+  backLabel?: string;
+  conditionClassMap?: Partial<Record<EquipmentItem['condition'], string>>;
 }
 
-export default function EquipmentPage({ title, backUrl, items }: EquipmentPageProps) {
+const defaultConditionClassMap: Record<EquipmentItem['condition'], string> = {
+  Nuovo: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+  Buono: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
+  Usurato: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
+};
+
+const toneTitleClassMap: Record<NonNullable<EquipmentPageProps['tone']>, string> = {
+  current: 'text-slate-900 dark:text-white',
+  blue: 'text-blue-700 dark:text-blue-300',
+  purple: 'text-violet-800 dark:text-violet-300',
+  black: 'text-black dark:text-slate-100',
+};
+
+const toneLinkClassMap: Record<NonNullable<EquipmentPageProps['tone']>, string> = {
+  current: 'text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300',
+  blue: 'text-blue-600 dark:text-blue-300 hover:text-blue-700 dark:hover:text-blue-200',
+  purple: 'text-violet-700 dark:text-violet-300 hover:text-violet-800 dark:hover:text-violet-200',
+  black: 'text-slate-900 dark:text-slate-200 hover:text-black dark:hover:text-white',
+};
+
+export default function EquipmentPage({
+  title,
+  backUrl,
+  items,
+  subtitle = "L'attrezzatura che utilizzo per le mie avventure",
+  className = '',
+  tone = 'current',
+  backLabel = '← Torna Indietro',
+  conditionClassMap,
+}: EquipmentPageProps) {
+  const resolvedConditionClassMap = { ...defaultConditionClassMap, ...conditionClassMap };
   const groupedByCategory = items.reduce((acc, item) => {
     if (!acc[item.category]) {
       acc[item.category] = [];
@@ -32,21 +67,21 @@ export default function EquipmentPage({ title, backUrl, items }: EquipmentPagePr
   }, {} as Record<string, EquipmentItem[]>);
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800">
+    <main className={`min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 ${className}`}>
       {/* Header */}
       <section className="px-4 py-12 sm:px-6 lg:px-8 border-b border-slate-200 dark:border-slate-700">
         <div className="max-w-4xl mx-auto">
           <Link
             href={backUrl}
-            className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 mb-6 font-semibold"
+            className={`inline-flex items-center mb-6 font-semibold ${toneLinkClassMap[tone]}`}
           >
-            ← Torna Indietro
+            {backLabel}
           </Link>
-          <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 dark:text-white mb-4">
+          <h1 className={`text-4xl sm:text-5xl font-bold mb-4 ${toneTitleClassMap[tone]}`}>
             🎽 {title}
           </h1>
           <p className="text-lg text-slate-600 dark:text-slate-300">
-            L'attrezzatura che utilizzo per le mie avventure
+            {subtitle}
           </p>
         </div>
       </section>
@@ -56,12 +91,12 @@ export default function EquipmentPage({ title, backUrl, items }: EquipmentPagePr
         <div className="max-w-6xl mx-auto">
           {Object.entries(groupedByCategory).map(([category, categoryItems]) => (
             <div key={category} className="mb-12">
-              <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-6">
+              <h2 className={`text-2xl font-bold mb-6 ${toneTitleClassMap[tone]}`}>
                 {category}
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {categoryItems.map((item) => (
-                  <Card key={item.id} className="hover:shadow-lg transition-shadow">
+                  <Card key={item.id} className="hover:shadow-lg transition-shadow" tone={tone}>
                     <CardHeader>
                       <div className="flex items-start justify-between">
                         <div>
@@ -73,14 +108,7 @@ export default function EquipmentPage({ title, backUrl, items }: EquipmentPagePr
                             {item.brand} {item.model}
                           </CardDescription>
                         </div>
-                        <span className="px-2 py-1 text-xs font-semibold rounded-full"
-                          style={{
-                            backgroundColor: item.condition === 'Nuovo' ? '#d4edda' :
-                                            item.condition === 'Buono' ? '#fff3cd' : '#f8d7da',
-                            color: item.condition === 'Nuovo' ? '#155724' :
-                                   item.condition === 'Buono' ? '#856404' : '#721c24'
-                          }}
-                        >
+                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${resolvedConditionClassMap[item.condition]}`}>
                           {item.condition}
                         </span>
                       </div>

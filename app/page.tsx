@@ -1,132 +1,147 @@
+import Image from 'next/image';
 import Link from 'next/link';
+import {
+  AnimatedSection,
+  CardGrid,
+  Divider,
+  Hero,
+} from '@/components/generic';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CarouselCards } from '@/components/ui/carousel';
+
+interface HomeCarouselItem {
+  id: string;
+  title: string;
+  subtitle: string;
+  description: string;
+  href: string;
+  imageSrc: string;
+}
+
+const homeCarouselItems: HomeCarouselItem[] = [
+  {
+    id: 'running',
+    title: 'Running',
+    subtitle: 'Road to Marathon',
+    description: 'Corse su strada, pista e allenamenti per raccontare progressi, numeri ed emozioni.',
+    href: '/exploration/running',
+    imageSrc:
+      'https://res.cloudinary.com/derbnvxif/image/upload/q_auto/f_auto/v1777450410/running_Large_zorzw2.jpg',
+  },
+  {
+    id: 'trekking',
+    title: 'Trekking',
+    subtitle: 'Natura e dislivello',
+    description: 'Escursioni, panorami, salite e percorsi da ricordare con dati, foto e dettagli utili.',
+    href: '/exploration/trekking',
+    imageSrc:
+      'https://res.cloudinary.com/derbnvxif/image/upload/q_auto/f_auto/v1777450410/trekking_h2lev5.jpg',
+  },
+  {
+    id: 'trips',
+    title: 'Trips',
+    subtitle: 'Esperienze e cultura',
+    description: 'Una raccolta di viaggi, idee e luoghi che meritano una storia dedicata.',
+    href: '/exploration/trips',
+    imageSrc:
+      'https://res.cloudinary.com/derbnvxif/image/upload/q_auto/f_auto/v1777450410/trips_exvdmu.avif',
+  },
+];
 
 export default function Home() {
-  const previewSections = [
-    {
-      title: 'Chi Sono',
-      description: 'Scopri la mia storia, i miei obiettivi e la mia passione per il running e l\'avventura.',
-      icon: '👤',
-      href: '/about',
-      color: 'from-blue-500 to-blue-600',
-    },
-    {
-      title: 'Exploration',
-      description: 'Esplora le mie avventure: running, trekking e viaggi intorno al mondo.',
-      icon: '🗺️',
-      href: '/exploration',
-      color: 'from-green-500 to-green-600',
-    },
-    {
-      title: 'Contatti',
-      description: 'Mettiti in contatto con me. Sono sempre disponibile per nuove collaborazioni e amicizie.',
-      icon: '📧',
-      href: '/contact',
-      color: 'from-purple-500 to-purple-600',
-    },
-  ];
-
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white dark:from-slate-900 dark:to-slate-800">
-      {/* Hero Section */}
-      <div className="max-w-6xl mx-auto py-20 px-4 text-center">
-        <h1 className="text-6xl font-bold mb-4 text-slate-900 dark:text-white">
-          🏃 mz-grm
-        </h1>
-        <p className="text-2xl text-gray-600 dark:text-gray-300 mb-8">
-          Scopri le mie avventure di running, trekking e viaggi intorno al mondo
-        </p>
+    <main className="w-full">
+      {/* Hero Video Section */}
+      <Hero
+        title="MZ EXPLORATION"
+        subtitle="Un mondo oltre la pista e il sentiero."
+        heightClassName="h-[34vh] sm:h-[38vh]"
+        titleClassName="text-3xl sm:text-4xl lg:text-5xl"
+        subtitleClassName="text-sm sm:text-base lg:text-lg"
+      />
 
-        <div className="flex gap-4 justify-center mb-16 flex-wrap">
-          <Link
-            href="/exploration"
-            className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition font-bold"
-          >
-            Esplora le Avventure →
-          </Link>
-          <Link
-            href="/about"
-            className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white px-8 py-3 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition font-bold"
-          >
-            Scopri Chi Sono
-          </Link>
-        </div>
-      </div>
+      <Divider color="current" size="md" />
 
-      {/* Preview Sections */}
-      <div className="max-w-6xl mx-auto py-16 px-4">
-        <h2 className="text-4xl font-bold text-center mb-12 text-slate-900 dark:text-white">
-          Esplora il Sito
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {previewSections.map((section) => (
-            <Link
-              key={section.title}
-              href={section.href}
-              className="group relative overflow-hidden rounded-lg bg-white dark:bg-slate-800 shadow-lg hover:shadow-xl transition"
+      {/* Carousel Section (Running, Trekking, Trips) */}
+      <div id="categories" className="bg-white dark:bg-slate-900 scroll-mt-20">
+        <AnimatedSection className="px-4 py-8 sm:px-6 lg:px-8">
+          <div className="max-w-6xl mx-auto">
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-5">
+              Esploriamo assieme
+            </h2>
+            <CarouselCards
+              horizontal
+              carouselCard={1}
+              gap="md"
+              className="w-full"
+              previousButtonProps={{ className: 'left-2 sm:-left-10', tone: 'blue' }}
+              nextButtonProps={{ className: 'right-2 sm:-right-10', tone: 'blue' }}
             >
-              {/* Background Gradient */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${section.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`} />
+              {homeCarouselItems.map((slide) => (
+                <Card key={slide.id} className="relative overflow-hidden border-slate-200 dark:border-slate-700">
+                  <div className="relative h-[23rem] sm:h-[26rem] w-full">
+                    <Image
+                      src={slide.imageSrc}
+                      alt={slide.title}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 980px"
+                      priority={slide.id === 'running'}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/35 to-black/25" />
 
-              {/* Content */}
-              <div className="relative p-8">
-                <div className="text-5xl mb-4">{section.icon}</div>
-                <h3 className="text-2xl font-bold mb-3 text-slate-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                  {section.title}
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400 mb-6 leading-relaxed">
-                  {section.description}
-                </p>
-                <div className="inline-flex items-center text-blue-600 dark:text-blue-400 font-semibold group-hover:translate-x-2 transition-transform">
-                  Scopri di più →
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </div>
-
-      {/* Stats Section */}
-      <div className="bg-blue-600 dark:bg-blue-900 text-white py-16">
-        <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-12">Statistiche Generali</h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
-            <div>
-              <p className="text-5xl font-bold">150+</p>
-              <p className="text-blue-100 mt-2">Corse</p>
-            </div>
-            <div>
-              <p className="text-5xl font-bold">45+</p>
-              <p className="text-blue-100 mt-2">Escursioni</p>
-            </div>
-            <div>
-              <p className="text-5xl font-bold">25+</p>
-              <p className="text-blue-100 mt-2">Paesi Visitati</p>
-            </div>
-            <div>
-              <p className="text-5xl font-bold">2000+</p>
-              <p className="text-blue-100 mt-2">km Percorsi</p>
-            </div>
+                    <div className="absolute inset-0 flex items-end p-6 sm:p-8">
+                      <div className="max-w-xl text-white space-y-2">
+                        <p className="text-xs uppercase tracking-[0.2em] text-blue-200 sm:text-sm">
+                          {slide.subtitle}
+                        </p>
+                        <CardHeader className="p-0 pb-1">
+                          <CardTitle className="text-3xl text-white sm:text-4xl">
+                            {slide.title}
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4 p-0">
+                          <p className="text-sm text-white/90 sm:text-base">{slide.description}</p>
+                          <Button asChild tone="white" size="lg" radius="lg">
+                            <Link href={slide.href}>Vai a {slide.title}</Link>
+                          </Button>
+                        </CardContent>
+                      </div>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+            </CarouselCards>
           </div>
-        </div>
+        </AnimatedSection>
       </div>
 
-      {/* CTA Section */}
-      <div className="max-w-6xl mx-auto py-16 px-4 text-center">
-        <h2 className="text-4xl font-bold mb-8 text-slate-900 dark:text-white">
-          Pronto a Scoprire le Mie Avventure?
-        </h2>
-        <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
-          Inizia a esplorare le mie storie, metriche e esperienze
-        </p>
-        <Link
-          href="/exploration"
-          className="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition font-bold text-lg"
-        >
-          Esplora Ora →
-        </Link>
-      </div>
-    </div>
+      <Divider color="blue" size="sm" />
+
+      {/* Latest Adventures Section */}
+      <CardGrid
+        sectionClassName="px-4 py-8 sm:px-6 lg:px-8 bg-white dark:bg-slate-900"
+        titleColor="current"
+        subtitleColor="current"
+      />
+
+      <Divider color="purple" size="sm" />
+
+      {/* Coming Soon Section */}
+      <AnimatedSection className="px-4 py-10 sm:px-6 lg:px-8 bg-white dark:bg-slate-900">
+        <div className="max-w-4xl mx-auto rounded-xl border border-dashed border-slate-300 dark:border-slate-600 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 p-6 text-center">
+          <p className="text-xs font-semibold tracking-[0.2em] uppercase text-slate-500 dark:text-slate-400">
+            Coming Soon
+          </p>
+          <h2 className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
+            Sezione Libri, Foto, Musica
+          </h2>
+          <p className="mt-3 text-slate-600 dark:text-slate-300">
+            Una raccolta che raconta mindset, performance e avventura attraverso diverse forme di media.
+          </p>
+        </div>
+      </AnimatedSection>
+    </main>
   );
 }
