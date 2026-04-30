@@ -1,9 +1,9 @@
 "use client"
 
-import React, { useMemo, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import type { ButtonTone, ButtonVariant } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, StatsCard } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardMedia, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -20,6 +20,7 @@ import Loader from "@/components/Loader"
 import Header from "@/components/Header"
 import Footer from "@/components/Footer"
 import { Modal } from "@/components/Modal"
+import type { ApiPhoto } from "@/components/Modal"
 import { BadgeChip, type BadgeChipType } from "@/components/BadgeChip"
 import { ActivityPhotos } from "@/components/ActivityPhotos"
 import { ActivityClickHandler } from "@/components/ActivityClickWrapper"
@@ -33,12 +34,12 @@ import { Text } from "@/components/generic/Text"
 
 type Tone = "current" | "blue" | "purple" | "black"
 type HeroAlign = "center" | "left" | "right"
-type CardVariant = "default" | "horizontal" | "vertical" | "stats"
+type CardVariant = "default" | "horizontal" | "vertical"
 type CardSize = "sm" | "md" | "lg"
 
 const BTN_VARIANTS: ButtonVariant[] = ["default", "destructive", "outline", "secondary", "ghost", "link"]
 const BTN_TONES: ButtonTone[] = ["current", "blue", "purple", "black", "navy", "white", "transparent-white"]
-const CARD_VARIANTS: CardVariant[] = ["default", "horizontal", "vertical", "stats"]
+const CARD_VARIANTS: CardVariant[] = ["default", "horizontal", "vertical"]
 const CARD_TONES: Tone[] = ["current", "blue", "purple", "black"]
 const CARD_SIZES: CardSize[] = ["sm", "md", "lg"]
 const HERO_ALIGNS: HeroAlign[] = ["center", "left", "right"]
@@ -236,33 +237,38 @@ function CardSection() {
   const [b1t, setB1t] = useState<ButtonTone>("blue")
   const [b2v, setB2v] = useState<ButtonVariant>("ghost")
   const [b2t, setB2t] = useState<ButtonTone>("current")
-
-  const body =
-    variant === "stats" ? (
-      <StatsCard type="total_runs" activities={[{ type: "running" }, { type: "running" }, { type: "trekking" }]} />
-    ) : (
-      <Card variant={variant} tone={tone} size={size} className={withImage && imagePos === "left" ? "overflow-hidden" : ""}>
-        {withImage && imagePos === "top" ? <div className="h-28 bg-gradient-to-r from-blue-600 to-violet-600" /> : null}
-        {withImage && imagePos === "left" ? <div className="w-24 bg-gradient-to-b from-blue-600 to-violet-600" /> : null}
-        <div className={withImage && imagePos === "left" ? "flex-1" : ""}>
-          <CardHeader>
-            <CardTitle>Card demo</CardTitle>
-            <CardDescription>Con immagine, animazione e footer configurabile.</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm">Variant {variant} - Tone {tone} - Size {size}</p>
-          </CardContent>
-          <CardFooter className="gap-2">
-            <Button variant={b1v} tone={b1t} size="sm">
-              Primaria
-            </Button>
-            <Button variant={b2v} tone={b2t} size="sm">
-              Secondaria
-            </Button>
-          </CardFooter>
-        </div>
-      </Card>
-    )
+  const [dataName, setDataName] = useState("storybook-card")
+  const [customClass, setCustomClass] = useState("")
+  const body = (
+    <Card
+      variant={variant}
+      tone={tone}
+      size={size}
+      dataName={dataName || undefined}
+      className={`${variant === "horizontal" && withImage ? "overflow-hidden" : ""} ${customClass}`.trim()}
+    >
+      {withImage && variant !== "horizontal" && imagePos === "top" ? <div className="h-28 bg-gradient-to-r from-blue-600 to-violet-600" /> : null}
+      {withImage && variant === "horizontal" ? <CardMedia className="w-28 bg-gradient-to-b from-blue-600 to-violet-600" /> : null}
+      {withImage && variant !== "horizontal" && imagePos === "left" ? <div className="w-24 bg-gradient-to-b from-blue-600 to-violet-600" /> : null}
+      <div className={withImage && (variant === "horizontal" || imagePos === "left") ? "flex-1" : ""}>
+        <CardHeader>
+          <CardTitle>Card demo</CardTitle>
+          <CardDescription>Con immagine, animazione e footer configurabile.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-sm">Variant {variant} - Tone {tone} - Size {size}</p>
+        </CardContent>
+        <CardFooter className="gap-2">
+          <Button variant={b1v} tone={b1t} size="sm">
+            Primaria
+          </Button>
+          <Button variant={b2v} tone={b2t} size="sm">
+            Secondaria
+          </Button>
+        </CardFooter>
+      </div>
+    </Card>
+  )
 
   return (
     <Section id="card" title="Card">
@@ -272,13 +278,21 @@ function CardSection() {
             <Ctl label="variant" value={variant} options={CARD_VARIANTS} onChange={setVariant} />
             <Ctl label="tone" value={tone} options={CARD_TONES} onChange={setTone} />
             <Ctl label="size" value={size} options={CARD_SIZES} onChange={setSize} />
-            <Ctl label="image position" value={imagePos} options={["top", "left"]} onChange={setImagePos} />
+            {variant !== "horizontal" ? <Ctl label="image position" value={imagePos} options={["top", "left"]} onChange={setImagePos} /> : null}
             <Toggle label="show image" checked={withImage} onChange={setWithImage} />
             <Toggle label="animated section" checked={animated} onChange={setAnimated} />
             <Ctl label="btn1 variant" value={b1v} options={BTN_VARIANTS} onChange={setB1v} />
             <Ctl label="btn1 tone" value={b1t} options={BTN_TONES} onChange={setB1t} />
             <Ctl label="btn2 variant" value={b2v} options={BTN_VARIANTS} onChange={setB2v} />
             <Ctl label="btn2 tone" value={b2t} options={BTN_TONES} onChange={setB2t} />
+            <label className="flex flex-col gap-1 text-xs">
+              <span className="uppercase tracking-wider text-slate-400 font-semibold">dataName</span>
+              <input value={dataName} onChange={(e) => setDataName(e.target.value)} className="h-8 px-2 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800" />
+            </label>
+            <label className="flex flex-col gap-1 text-xs">
+              <span className="uppercase tracking-wider text-slate-400 font-semibold">className</span>
+              <input value={customClass} onChange={(e) => setCustomClass(e.target.value)} className="h-8 px-2 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800" />
+            </label>
           </div>
         </Panel>
         <Panel>
@@ -294,8 +308,11 @@ function CardSection() {
             { prop: "tone", values: [...CARD_TONES] },
             { prop: "size", values: [...CARD_SIZES] },
             { prop: "imagePos", values: ["top", "left"] },
+            { prop: "CardMedia", values: ["slot immagine per horizontal"] },
             { prop: "button.variant", values: [...BTN_VARIANTS] },
             { prop: "button.tone", values: [...BTN_TONES] },
+            { prop: "dataName", values: ["string"] },
+            { prop: "className", values: ["string"] },
           ]}
         />
       </div>
@@ -819,8 +836,48 @@ function ActivityComponentsSection() {
 function ModalSection() {
   const [isOpen, setIsOpen] = useState(false)
   const [tone, setTone] = useState<Tone>("current")
-  const [activityId, setActivityId] = useState("storybook-demo-id")
+  const [activityId, setActivityId] = useState("")
   const [detailsUrl, setDetailsUrl] = useState("/exploration/running")
+  const [className, setClassName] = useState("")
+  const [contentClassName, setContentClassName] = useState("")
+  const [withFallbackPhoto, setWithFallbackPhoto] = useState(false)
+  const [availableIds, setAvailableIds] = useState<string[]>([])
+
+  useEffect(() => {
+    let cancelled = false
+    const loadIds = async () => {
+      try {
+        const response = await fetch("/api/activities/all")
+        if (!response.ok) return
+        const payload = await response.json()
+        const activities = Array.isArray(payload?.data?.activities) ? payload.data.activities : []
+        const ids = activities
+          .map((item: { _id?: string; id?: string | number }) => String(item?._id ?? item?.id ?? ""))
+          .filter((id: string) => id.length > 0)
+          .slice(0, 30)
+        if (cancelled) return
+        setAvailableIds(ids)
+        if (!activityId && ids.length > 0) {
+          setActivityId(ids[0])
+        }
+      } catch {
+        if (!cancelled) setAvailableIds([])
+      }
+    }
+    void loadIds()
+    return () => {
+      cancelled = true
+    }
+  }, [activityId])
+
+  const fallbackPhoto: ApiPhoto | null = withFallbackPhoto
+    ? {
+        publicId: "storybook/modal-fallback",
+        secureUrl: "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=1200&q=80",
+        width: 1200,
+        height: 800,
+      }
+    : null
 
   return (
     <Section id="modal" title="Modal">
@@ -828,6 +885,7 @@ function ModalSection() {
         <Panel>
           <div className="grid gap-2">
             <Ctl label="tone" value={tone} options={CARD_TONES} onChange={setTone} />
+            {availableIds.length > 0 ? <Ctl label="activityId preset" value={activityId} options={availableIds} onChange={setActivityId} /> : null}
             <label className="flex flex-col gap-1 text-xs">
               <span className="uppercase tracking-wider text-slate-400 font-semibold">activityId</span>
               <input value={activityId} onChange={(e) => setActivityId(e.target.value)} className="h-8 px-2 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800" />
@@ -836,9 +894,20 @@ function ModalSection() {
               <span className="uppercase tracking-wider text-slate-400 font-semibold">detailsPageUrl</span>
               <input value={detailsUrl} onChange={(e) => setDetailsUrl(e.target.value)} className="h-8 px-2 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800" />
             </label>
+            <label className="flex flex-col gap-1 text-xs">
+              <span className="uppercase tracking-wider text-slate-400 font-semibold">className</span>
+              <input value={className} onChange={(e) => setClassName(e.target.value)} className="h-8 px-2 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800" />
+            </label>
+            <label className="flex flex-col gap-1 text-xs">
+              <span className="uppercase tracking-wider text-slate-400 font-semibold">contentClassName</span>
+              <input value={contentClassName} onChange={(e) => setContentClassName(e.target.value)} className="h-8 px-2 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800" />
+            </label>
+            <Toggle label="fallback photo" checked={withFallbackPhoto} onChange={setWithFallbackPhoto} />
+            <Toggle label="isOpen" checked={isOpen} onChange={setIsOpen} />
             <Button tone="blue" onClick={() => setIsOpen(true)}>
               Apri modal
             </Button>
+            {availableIds.length === 0 ? <p className="text-[11px] text-amber-600">Nessun preset ID disponibile dall'API. Inserisci activityId manualmente.</p> : null}
           </div>
         </Panel>
         <Panel>
@@ -865,6 +934,9 @@ function ModalSection() {
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
         detailsPageUrl={detailsUrl}
+        photo={fallbackPhoto}
+        className={className}
+        contentClassName={contentClassName}
         tone={tone}
       />
     </Section>

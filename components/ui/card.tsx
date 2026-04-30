@@ -2,7 +2,7 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
-type CardVariant = 'default' | 'horizontal' | 'vertical' | 'stats'
+type CardVariant = 'default' | 'horizontal' | 'vertical'
 type CardTone = 'current' | 'blue' | 'purple' | 'black'
 type CardSize = 'sm' | 'md' | 'lg'
 
@@ -36,7 +36,6 @@ const Card = React.forwardRef<
       cardSizeClasses[size],
       variant === 'horizontal' && "flex flex-row",
       variant === 'vertical' && "flex flex-col",
-      variant === 'stats' && "text-center p-6",
       className
     )}
     data-name={dataName}
@@ -44,6 +43,18 @@ const Card = React.forwardRef<
   />
 ))
 Card.displayName = "Card"
+
+const CardMedia = React.forwardRef<
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className, ...props }, ref) => (
+  <div
+    ref={ref}
+    className={cn("shrink-0 overflow-hidden rounded-l-lg", className)}
+    {...props}
+  />
+))
+CardMedia.displayName = "CardMedia"
 
 const CardHeader = React.forwardRef<
   HTMLDivElement,
@@ -278,8 +289,7 @@ const StatsCard = React.forwardRef<HTMLDivElement, StatsCardProps>(
     return (
       <Card
         ref={ref}
-        variant="stats"
-        className={cn(className, isClickable && "cursor-pointer hover:bg-accent hover:text-accent-foreground transition-colors")}
+        className={cn("text-center p-6", className, isClickable && "cursor-pointer hover:bg-accent hover:text-accent-foreground transition-colors")}
         dataName={dataName}
         onClick={handleClick}
       >
@@ -291,4 +301,4 @@ const StatsCard = React.forwardRef<HTMLDivElement, StatsCardProps>(
 );
 StatsCard.displayName = "StatsCard";
 
-export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent, StatsCard }
+export { Card, CardMedia, CardHeader, CardFooter, CardTitle, CardDescription, CardContent, StatsCard }
