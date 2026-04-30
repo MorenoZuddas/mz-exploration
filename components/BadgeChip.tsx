@@ -1,6 +1,6 @@
 'use client';
 
-import { Music2, BookOpen, Camera, Plane, Mountain, PersonStanding } from 'lucide-react';
+import { ListMusic, Library, Camera, PlaneTakeoff, Mountain, SportShoe } from 'lucide-react';
 import { cloneElement, isValidElement, type ReactNode } from 'react';
 
 export type BadgeChipType = 'running' | 'trekking' | 'trip' | 'books' | 'photo' | 'music';
@@ -36,7 +36,7 @@ const chipStyles: Record<BadgeChipType, { wrapper: string; text: string; default
     wrapper: 'bg-sky-100',
     text: 'text-sky-800',
     defaultText: 'Running',
-    icon: <PersonStanding className="h-3.5 w-3.5" />,
+    icon: <SportShoe className="h-3.5 w-3.5" strokeWidth={2.25} />,
   },
   trekking: {
     wrapper: 'bg-emerald-100',
@@ -48,13 +48,13 @@ const chipStyles: Record<BadgeChipType, { wrapper: string; text: string; default
     wrapper: 'bg-orange-100',
     text: 'text-orange-800',
     defaultText: 'Trip',
-    icon: <Plane className="h-3.5 w-3.5" />,
+    icon: <PlaneTakeoff className="h-3.5 w-3.5" />,
   },
   books: {
     wrapper: 'bg-slate-100 dark:bg-slate-800',
     text: 'text-slate-800 dark:text-slate-200',
     defaultText: 'Books',
-    icon: <BookOpen className="h-3.5 w-3.5" />,
+    icon: <Library className="h-3.5 w-3.5" />,
   },
   photo: {
     wrapper: 'bg-slate-100 dark:bg-slate-800',
@@ -66,7 +66,7 @@ const chipStyles: Record<BadgeChipType, { wrapper: string; text: string; default
     wrapper: 'bg-slate-100 dark:bg-slate-800',
     text: 'text-slate-800 dark:text-slate-200',
     defaultText: 'Music',
-    icon: <Music2 className="h-3.5 w-3.5" />,
+    icon: <ListMusic className="h-3.5 w-3.5" />,
   },
 };
 
@@ -88,7 +88,9 @@ export function BadgeChip({
   const iconNode = icon ?? style.icon;
 
   const iconWithSize = isValidElement<{ className?: string }>(iconNode)
-    ? cloneElement(iconNode, { className: sizing.icon })
+    ? cloneElement(iconNode, {
+        className: `${iconNode.props.className ?? ''} ${sizing.icon}`.trim(),
+      })
     : iconNode;
 
   return (

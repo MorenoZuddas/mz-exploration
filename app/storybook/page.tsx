@@ -23,6 +23,7 @@ import { Modal } from "@/components/Modal"
 import { BadgeChip, type BadgeChipType } from "@/components/BadgeChip"
 import { ActivityPhotos } from "@/components/ActivityPhotos"
 import { ActivityClickHandler } from "@/components/ActivityClickWrapper"
+import { Filter, type FilterType } from "@/components/Filter"
 import { AnimatedSection } from "@/components/generic/AnimatedSection"
 import { CardGrid, type CardGridItem } from "@/components/generic/CardGrid"
 import { Divider } from "@/components/generic/Divider"
@@ -62,7 +63,8 @@ const BG_OPTIONS = {
   white: "bg-white",
 } as const
 type BgKey = keyof typeof BG_OPTIONS
-const DIVIDER_SYMBOLS = ["🏃", "🥾", "✈️", "📚", "📷", "🎵", "🧭", "🗺️", "🏔️", "🎒"]
+const DIVIDER_ICON_TYPES = ["running", "trekking", "trip", "books", "photo", "music", "default"] as const
+const FILTER_TYPES: FilterType[] = ["dateStart", "dateEnd", "activityType", "distanceMin", "distanceMax", "durationMin", "durationMax", "location", "pace"]
 
 const MOCK_PHOTOS = [
   {
@@ -161,6 +163,7 @@ const STORYBOOK_NAV = [
   { id: "cardgrid", label: "CardGrid" },
   { id: "carousel", label: "Carousel" },
   { id: "divider", label: "Divider" },
+  { id: "filter", label: "Filter" },
   { id: "header-footer", label: "Header + Footer" },
   { id: "hero", label: "Hero" },
   { id: "input-select", label: "Input + Select" },
@@ -474,22 +477,27 @@ function CarouselSection() {
 }
 
 function DividerSection() {
-  const [symbol, setSymbol] = useState("✦")
   const [tone, setTone] = useState<Tone>("current")
   const [size, setSize] = useState<"sm" | "md" | "lg">("md")
+  const [iconType, setIconType] = useState<typeof DIVIDER_ICON_TYPES[number]>("running")
 
   return (
     <Section id="divider" title="Divider">
       <div className="grid lg:grid-cols-[320px_1fr] gap-4">
         <Panel>
           <div className="grid gap-2">
-            <Ctl label="symbol" value={symbol} options={DIVIDER_SYMBOLS} onChange={setSymbol} />
+            <Ctl label="icon type" value={iconType} options={[...DIVIDER_ICON_TYPES]} onChange={setIconType} />
             <Ctl label="tone" value={tone} options={CARD_TONES} onChange={setTone} />
             <Ctl label="size" value={size} options={["sm", "md", "lg"]} onChange={setSize} />
           </div>
         </Panel>
         <Panel>
-          <Divider symbol={symbol} tone={tone} size={size} backgroundClassName="bg-white dark:bg-slate-900" />
+          <Divider
+            iconType={iconType}
+            tone={tone}
+            size={size}
+            backgroundClassName="bg-white dark:bg-slate-900"
+          />
         </Panel>
       </div>
       <div className="mt-4">
@@ -497,7 +505,7 @@ function DividerSection() {
           items={[
             { prop: "tone", values: [...CARD_TONES] },
             { prop: "size", values: ["sm", "md", "lg"] },
-            { prop: "symbol", values: [...DIVIDER_SYMBOLS] },
+            { prop: "iconType", values: [...DIVIDER_ICON_TYPES] },
           ]}
         />
       </div>
@@ -860,6 +868,132 @@ function BadgeChipSection() {
   )
 }
 
+function FilterSection() {
+  const [selectedFilters, setSelectedFilters] = useState<FilterType[]>(["dateStart", "activityType"])
+  const [tone, setTone] = useState<Tone>("current")
+  const [demoState, setDemoState] = useState<{ [key: string]: string }>({})
+
+  const availableFilters: Array<{ type: FilterType; label: string; placeholder?: string; options?: Array<{ value: string; label: string }> }> = [
+    {
+      type: "dateStart",
+      label: "Data inizio",
+      placeholder: "Seleziona una data",
+    },
+    {
+      type: "dateEnd",
+      label: "Data fine",
+      placeholder: "Seleziona una data",
+    },
+    {
+      type: "activityType",
+      label: "Tipo attività",
+      options: [
+        { value: "running", label: "Running" },
+        { value: "trekking", label: "Trekking" },
+        { value: "trip", label: "Trip" },
+      ],
+    },
+    {
+      type: "distanceMin",
+      label: "Distanza minima (km)",
+      placeholder: "Es. 5",
+    },
+    {
+      type: "distanceMax",
+      label: "Distanza massima (km)",
+      placeholder: "Es. 20",
+    },
+    {
+      type: "durationMin",
+      label: "Durata minima (min)",
+      placeholder: "Es. 30",
+    },
+    {
+      type: "durationMax",
+      label: "Durata massima (min)",
+      placeholder: "Es. 120",
+    },
+    {
+      type: "location",
+      label: "Luogo",
+      placeholder: "Es. Sardegna",
+    },
+    {
+      type: "pace",
+      label: "Pace (min/km)",
+      placeholder: "Es. 5",
+    },
+  ]
+
+  const selectedFilterConfigs = availableFilters.filter((f) => selectedFilters.includes(f.type))
+
+  return (
+    <Section id="filter" title="Filter">
+      <div className="grid lg:grid-cols-[320px_1fr] gap-4 mb-4">
+        <Panel>
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Filtri attivi</p>
+          <div className="mb-3">
+            <Ctl label="tone" value={tone} options={CARD_TONES} onChange={setTone} />
+          </div>
+          <div className="space-y-1.5">
+            {FILTER_TYPES.map((type) => (
+              <label key={type} className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={selectedFilters.includes(type)}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedFilters([...selectedFilters, type])
+                    } else {
+                      setSelectedFilters(selectedFilters.filter((t) => t !== type))
+                    }
+                  }}
+                  className="w-4 h-4"
+                />
+                <span className="text-sm">{availableFilters.find((f) => f.type === type)?.label}</span>
+              </label>
+            ))}
+          </div>
+        </Panel>
+        <Panel>
+          <p className="text-xs text-slate-500 mb-3">
+            Componente Filter riusabile: configura quale filtri mostrare tramite prop "filters".
+          </p>
+          <pre className="text-[10px] bg-slate-900 text-slate-100 p-2 rounded overflow-x-auto">
+            {JSON.stringify(demoState, null, 2)}
+          </pre>
+        </Panel>
+      </div>
+
+      {selectedFilterConfigs.length > 0 && (
+        <Panel>
+          <Filter
+            filters={selectedFilterConfigs}
+            tone={tone}
+            onFilterChange={setDemoState}
+            onReset={() => setDemoState({})}
+            resetLabel="Ripristina"
+            applyLabel="Applica filtri"
+          />
+        </Panel>
+      )}
+
+      <div className="mt-4">
+        <PropsLegend
+          items={[
+            { prop: "filters", values: ["Array<FilterConfig>"] },
+            { prop: "onFilterChange", values: ["(state: FilterState) => void"] },
+            { prop: "onReset", values: ["() => void"] },
+            { prop: "FilterType", values: [...FILTER_TYPES] },
+            { prop: "FilterConfig.type", values: [...FILTER_TYPES] },
+            { prop: "FilterConfig.options (optional)", values: ["Array<{value, label}>"] },
+          ]}
+        />
+      </div>
+    </Section>
+  )
+}
+
 function AnimatedSectionDemo() {
   const [disabled, setDisabled] = useState(false)
   return (
@@ -897,6 +1031,7 @@ export default function StorybookPage() {
           <CardGridSection />
           <CarouselSection />
           <DividerSection />
+          <FilterSection />
           <HeaderFooterSection />
           <HeroSection />
           <ModalSection />
