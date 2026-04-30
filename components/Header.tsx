@@ -68,7 +68,15 @@ export default function Header({
   explorationLink = defaultExplorationLink,
   explorationItems = defaultExplorationItems,
 }: HeaderProps) {
-  const toneClasses = headerToneClasses[tone];
+  const isLightBg = backgroundClassName.includes('bg-white');
+  const toneClasses = isLightBg
+    ? {
+        link: 'text-slate-900 hover:text-slate-700',
+        hoverBg: 'hover:bg-slate-100',
+        border: 'border-slate-900/30',
+      }
+    : headerToneClasses[tone];
+  const rootTextClass = isLightBg ? 'text-slate-900' : 'text-white';
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isExplorationOpen, setIsExplorationOpen] = useState(false);
 
@@ -86,7 +94,7 @@ export default function Header({
   };
 
   return (
-    <header className={`sticky top-0 z-50 text-white shadow-lg ${backgroundClassName} ${className}`}>
+    <header className={`sticky top-0 z-50 ${rootTextClass} shadow-lg ${backgroundClassName} ${className}`}>
       <div className="max-w-6xl mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           {/* Logo - Left */}
@@ -132,7 +140,7 @@ export default function Header({
               </Link>
 
               {/* Dropdown Menu */}
-              <div className={`absolute left-0 mt-0 w-48 bg-slate-800 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-2 ${toneClasses.border}`}>
+              <div className={`absolute left-0 mt-0 w-48 ${isLightBg ? 'bg-white' : 'bg-slate-800'} rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-2 ${toneClasses.border}`}>
                 {explorationItems.map((item) => (
                   <Link
                     key={`${item.href}-${item.label}`}
@@ -160,17 +168,17 @@ export default function Header({
             aria-label="Toggle menu"
           >
             <span
-              className={`w-6 h-0.5 bg-white transition-all duration-300 ${
+              className={`w-6 h-0.5 bg-current transition-all duration-300 ${
                 isMenuOpen ? 'rotate-45 translate-y-2' : ''
               }`}
             />
             <span
-              className={`w-6 h-0.5 bg-white transition-all duration-300 ${
+              className={`w-6 h-0.5 bg-current transition-all duration-300 ${
                 isMenuOpen ? 'opacity-0' : ''
               }`}
             />
             <span
-              className={`w-6 h-0.5 bg-white transition-all duration-300 ${
+              className={`w-6 h-0.5 bg-current transition-all duration-300 ${
                 isMenuOpen ? '-rotate-45 -translate-y-2' : ''
               }`}
             />
@@ -220,7 +228,7 @@ export default function Header({
               </button>
 
               {isExplorationOpen && (
-                <div className="bg-slate-800 rounded-lg mt-1 space-y-1 py-2">
+                <div className={`${isLightBg ? 'bg-white' : 'bg-slate-800'} rounded-lg mt-1 space-y-1 py-2`}>
                   <Link
                     href={explorationLink.href}
                     onClick={closeMenu}

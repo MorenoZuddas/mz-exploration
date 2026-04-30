@@ -106,10 +106,18 @@ export default function Footer({
   socialLinks = defaultSocialLinks,
   copyrightText = '© 2026 Moreno Zuddas. All rights reserved.',
 }: FooterProps) {
-  const toneClasses = footerToneClasses[tone];
+  const isLightBg = backgroundClassName.includes('bg-white');
+  const toneClasses = isLightBg
+    ? {
+        link: 'text-slate-800 hover:text-slate-950',
+        separator: 'text-slate-400',
+        border: 'border-slate-300',
+      }
+    : footerToneClasses[tone];
+  const rootTextClass = isLightBg ? 'text-slate-900' : 'text-white';
 
   return (
-    <footer className={`${backgroundClassName} text-white py-4 mt-12 ${className}`}>
+    <footer className={`${backgroundClassName} ${rootTextClass} py-4 mt-12 ${className}`}>
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           {/* Logo + Brand - Left */}
@@ -153,7 +161,7 @@ export default function Footer({
         </div>
 
         {/* Copyright - Bottom */}
-        <div className={`text-center text-gray-500 text-xs mt-4 pt-4 border-t ${toneClasses.border}`}>
+        <div className={`text-center ${isLightBg ? 'text-slate-500' : 'text-gray-500'} text-xs mt-4 pt-4 border-t ${toneClasses.border}`}>
           <p>{copyrightText}</p>
         </div>
       </div>

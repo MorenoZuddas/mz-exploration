@@ -13,10 +13,26 @@ interface HeroProps {
   titleClassName?: string;
   subtitleClassName?: string;
   overlayClassName?: string;
+  contentAlign?: 'center' | 'left' | 'right';
   tone?: 'current' | 'blue' | 'purple' | 'black';
   titleColor?: 'current' | 'blue' | 'purple' | 'black';
   subtitleColor?: 'current' | 'blue' | 'purple' | 'black';
 }
+
+const heroAlignVariants = {
+  center: {
+    wrapper: 'items-center justify-center',
+    content: 'text-center',
+  },
+  left: {
+    wrapper: 'items-start justify-center',
+    content: 'text-left',
+  },
+  right: {
+    wrapper: 'items-end justify-center',
+    content: 'text-right',
+  },
+} as const;
 
 const heroTitleColorVariants = {
   current: 'text-white',
@@ -47,12 +63,14 @@ export function Hero({
   titleClassName = 'text-3xl sm:text-4xl lg:text-5xl',
   subtitleClassName = 'text-base sm:text-lg lg:text-xl',
   overlayClassName = 'bg-black/40',
+  contentAlign = 'center',
   tone,
   titleColor = 'current',
   subtitleColor = 'current',
 }: HeroProps) {
   const resolvedTitleTone = tone ?? titleColor;
   const resolvedSubtitleTone = tone ?? subtitleColor;
+  const alignClass = heroAlignVariants[contentAlign];
 
   return (
     <section className={`relative w-full ${heightClassName} overflow-hidden ${className}`}>
@@ -80,8 +98,8 @@ export function Hero({
       {showOverlay ? <div className={`absolute inset-0 ${overlayClassName}`} /> : null}
 
       {/* Content */}
-      <div className={`absolute inset-0 flex flex-col items-center justify-center px-4 ${contentClassName}`}>
-        <div className="text-center max-w-2xl">
+      <div className={`absolute inset-0 flex flex-col px-4 ${alignClass.wrapper} ${contentClassName}`}>
+        <div className={`max-w-2xl ${alignClass.content}`}>
           <h1 className={`${titleClassName} ${heroTitleColorVariants[resolvedTitleTone]} font-bold mb-2`}>{title}</h1>
           <h2 className={`${subtitleClassName} ${heroSubtitleColorVariants[resolvedSubtitleTone]}`}>{subtitle}</h2>
         </div>
