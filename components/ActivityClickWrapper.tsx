@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ActivityDetailModal } from '@/components/ActivityDetailModal';
+import { Modal } from '@/components/Modal';
 import type { ReactNode } from 'react';
 
 interface Props {
@@ -65,7 +65,7 @@ export function ActivityClickHandler({
 
       {/* Modale (solo su desktop) */}
       {isDesktop && (
-        <ActivityDetailModal
+        <Modal
           activityId={activityId}
           isOpen={showModal}
           onClose={() => setShowModal(false)}

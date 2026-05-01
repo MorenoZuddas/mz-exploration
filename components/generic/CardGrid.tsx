@@ -1,9 +1,12 @@
 'use client';
 
+import { useEffect, useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { BadgeChip } from '@/components/BadgeChip';
 
 export type CardGridType = 'running' | 'trekking' | 'trip';
 export type CardGridColor = 'current' | 'blue' | 'purple' | 'black';
@@ -30,9 +33,15 @@ interface CardGridProps {
   columnsClassName?: string;
   fallbackImage?: string;
   showTypeBadge?: boolean;
+  showBadgeOnImage?: boolean;
   showDate?: boolean;
   showDescription?: boolean;
   useMotion?: boolean;
+  visibleItems?: number;
+  showVisibilityToggle?: boolean;
+  showMoreLabel?: string;
+  showLessLabel?: string;
+  visibilityToggleClassName?: string;
   tone?: CardGridColor;
   sectionClassName?: string;
   titleColor?: CardGridColor;
@@ -66,18 +75,6 @@ const defaultItems: CardGridItem[] = [
   },
 ];
 
-const typeColors: Record<CardGridType, string> = {
-  running: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
-  trekking: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
-  trip: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
-};
-
-const typeEmojis: Record<CardGridType, string> = {
-  running: '🏃',
-  trekking: '🥾',
-  trip: '✈️',
-};
-
 const textColorVariants: Record<CardGridColor, { title: string; subtitle: string }> = {
   current: {
     title: 'text-slate-900 dark:text-white',
@@ -109,9 +106,15 @@ export function CardGrid({
   columnsClassName = 'grid grid-cols-1 md:grid-cols-3 gap-6',
   fallbackImage = 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=800&q=80',
   showTypeBadge = true,
+  showBadgeOnImage = false,
   showDate = true,
   showDescription = false,
   useMotion = true,
+  visibleItems,
+  showVisibilityToggle = true,
+  showMoreLabel = 'Mostra tutte',
+  showLessLabel = 'Mostra meno',
+  visibilityToggleClassName = '',
   tone,
   sectionClassName = 'px-4 py-16 sm:px-6 lg:px-8 bg-white dark:bg-slate-900',
   titleColor = 'current',
@@ -121,6 +124,26 @@ export function CardGrid({
   const resolvedSubtitleColor = tone ?? subtitleColor;
   const titleColorClass = textColorVariants[resolvedTitleColor].title;
   const subtitleColorClass = textColorVariants[resolvedSubtitleColor].subtitle;
+  const normalizedVisibleItems =
+    typeof visibleItems === 'number' && Number.isFinite(visibleItems) && visibleItems > 0
+      ? Math.floor(visibleItems)
+      : null;
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  useEffect(() => {
+    setIsExpanded(false);
+  }, [normalizedVisibleItems, items.length]);
+
+  const displayedItems = useMemo(() => {
+    if (!normalizedVisibleItems || isExpanded) return items;
+    return items.slice(0, normalizedVisibleItems);
+  }, [items, normalizedVisibleItems, isExpanded]);
+
+  const shouldShowToggle =
+    Boolean(showVisibilityToggle) &&
+    Boolean(normalizedVisibleItems) &&
+    items.length > (normalizedVisibleItems ?? 0);
+
   const headerAnimation = useMotion
     ? {
         initial: { opacity: 0, y: 20 },
@@ -142,7 +165,7 @@ export function CardGrid({
         </motion.div>
 
         <div className={`${columnsClassName} ${gridClassName}`}>
-          {items.map((item, index) => (
+          {displayedItems.map((item, index) => (
             <motion.div
               key={item.id}
               initial={useMotion ? { opacity: 0, y: 30 } : undefined}
@@ -160,18 +183,23 @@ export function CardGrid({
                       className={`object-cover group-hover:scale-110 transition-transform duration-300 ${imageClassName}`}
                       sizes="(max-width: 768px) 100vw, 33vw"
                     />
+                    {showTypeBadge && showBadgeOnImage && item.type && (
+                      <BadgeChip
+                        type={item.type}
+                        text={item.type}
+                        floating
+                        position="top-right"
+                        className="z-10"
+                      />
+                    )}
                   </div>
                   <CardHeader>
                     <div className="flex items-start justify-between gap-2">
                       <CardTitle className="text-xl group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                         {item.title}
                       </CardTitle>
-                      {showTypeBadge && item.type && (
-                        <span
-                          className={`px-2 py-1 rounded text-sm font-semibold whitespace-nowrap ${typeColors[item.type]}`}
-                        >
-                          {typeEmojis[item.type]} {item.type}
-                        </span>
+                      {showTypeBadge && !showBadgeOnImage && item.type && (
+                        <BadgeChip type={item.type} text={item.type} className="whitespace-nowrap" />
                       )}
                     </div>
                   </CardHeader>
@@ -188,6 +216,18 @@ export function CardGrid({
             </motion.div>
           ))}
         </div>
+
+        {shouldShowToggle ? (
+          <div className={`mt-8 flex justify-center ${visibilityToggleClassName}`}>
+            <Button
+              variant="outline"
+              tone="blue"
+              onClick={() => setIsExpanded((prev) => !prev)}
+            >
+              {isExpanded ? showLessLabel : showMoreLabel}
+            </Button>
+          </div>
+        ) : null}
       </div>
     </section>
   );
