@@ -396,6 +396,7 @@ function CardGridSection() {
   const [tone, setTone] = useState<Tone>("current")
   const [showDate, setShowDate] = useState(true)
   const [showBadge, setShowBadge] = useState(true)
+  const [showBadgeOnImage, setShowBadgeOnImage] = useState(false)
   const [showDesc, setShowDesc] = useState(false)
   const items = useMemo(() => makeItems(Number(total)), [total])
 
@@ -409,6 +410,7 @@ function CardGridSection() {
             <Ctl label="visible cards" value={visible} options={["3", "4", "6", "8", "10", "12"]} onChange={setVisible} />
             <Toggle label="show date" checked={showDate} onChange={setShowDate} />
             <Toggle label="show badge" checked={showBadge} onChange={setShowBadge} />
+            <Toggle label="badge on image" checked={showBadgeOnImage} onChange={setShowBadgeOnImage} />
             <Toggle label="show desc" checked={showDesc} onChange={setShowDesc} />
           </div>
         </Panel>
@@ -425,6 +427,7 @@ function CardGridSection() {
             useMotion={false}
             showDate={showDate}
             showTypeBadge={showBadge}
+            showBadgeOnImage={showBadgeOnImage}
             showDescription={showDesc}
             sectionClassName="px-6 py-8 bg-white dark:bg-slate-900"
           />
@@ -435,6 +438,7 @@ function CardGridSection() {
         <div className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
           <p className="font-semibold uppercase tracking-wider">📅 Data attività:</p>
           <p>Le card mostrano la data dell'attività nel formato italiano (es: "1 aprile 2026"). Utilizza il toggle <span className="font-medium">"show date"</span> per mostrare o nascondere le date sulle card.</p>
+          <p><span className="font-medium">"badge on image"</span> sposta il BadgeChip dalla riga titolo alla parte alta della foto (overlay).</p>
         </div>
       </Panel>
 
@@ -446,6 +450,7 @@ function CardGridSection() {
             { prop: "visible cards", values: ["3", "4", "6", "8", "10", "12"] },
             { prop: "showDate", values: ["true", "false"] },
             { prop: "showTypeBadge", values: ["true", "false"] },
+            { prop: "showBadgeOnImage", values: ["true", "false"] },
             { prop: "showDescription", values: ["true", "false"] },
           ]}
         />

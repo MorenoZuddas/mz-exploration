@@ -33,6 +33,7 @@ interface CardGridProps {
   columnsClassName?: string;
   fallbackImage?: string;
   showTypeBadge?: boolean;
+  showBadgeOnImage?: boolean;
   showDate?: boolean;
   showDescription?: boolean;
   useMotion?: boolean;
@@ -105,6 +106,7 @@ export function CardGrid({
   columnsClassName = 'grid grid-cols-1 md:grid-cols-3 gap-6',
   fallbackImage = 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=800&q=80',
   showTypeBadge = true,
+  showBadgeOnImage = false,
   showDate = true,
   showDescription = false,
   useMotion = true,
@@ -181,13 +183,22 @@ export function CardGrid({
                       className={`object-cover group-hover:scale-110 transition-transform duration-300 ${imageClassName}`}
                       sizes="(max-width: 768px) 100vw, 33vw"
                     />
+                    {showTypeBadge && showBadgeOnImage && item.type && (
+                      <BadgeChip
+                        type={item.type}
+                        text={item.type}
+                        floating
+                        position="top-right"
+                        className="z-10"
+                      />
+                    )}
                   </div>
                   <CardHeader>
                     <div className="flex items-start justify-between gap-2">
                       <CardTitle className="text-xl group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                         {item.title}
                       </CardTitle>
-                      {showTypeBadge && item.type && (
+                      {showTypeBadge && !showBadgeOnImage && item.type && (
                         <BadgeChip type={item.type} text={item.type} className="whitespace-nowrap" />
                       )}
                     </div>
