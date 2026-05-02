@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BadgeChip } from '@/components/BadgeChip';
 import type { BadgeChipType } from '@/components/BadgeChip';
+import type { BadgeChipSize } from '@/components/BadgeChip';
 
 export type CardGridType = 'running' | 'track_running' | 'trekking' | 'trip';
 export type CardGridColor = 'current' | 'blue' | 'purple' | 'black';
@@ -57,6 +58,9 @@ interface CardGridProps {
   onItemClick?: (item: CardGridItem) => void;
   maxCards?: number;
   activityPhotoBadgePosition?: 'border' | 'date-row'; // 'border' = fuori dal bordo card, 'date-row' = a destra della data
+  activityPhotoBadgeSize?: BadgeChipSize;
+  activityPhotoBadgeRounded?: boolean;
+  activityTextColor?: CardGridColor;
 }
 
 const defaultItems: CardGridItem[] = [
@@ -105,6 +109,33 @@ const textColorVariants: Record<CardGridColor, { title: string; subtitle: string
   },
 };
 
+const activityTextVariants: Record<CardGridColor, { title: string; date: string; label: string; value: string }> = {
+  current: {
+    title: 'text-slate-900 dark:text-white',
+    date: 'text-slate-500 dark:text-slate-400',
+    label: 'text-slate-600 dark:text-slate-400',
+    value: 'text-slate-900 dark:text-white',
+  },
+  blue: {
+    title: 'text-blue-700 dark:text-blue-300',
+    date: 'text-blue-600 dark:text-blue-400',
+    label: 'text-blue-700 dark:text-blue-300',
+    value: 'text-blue-700 dark:text-blue-300',
+  },
+  purple: {
+    title: 'text-violet-800 dark:text-violet-300',
+    date: 'text-violet-700 dark:text-violet-400',
+    label: 'text-violet-700 dark:text-violet-300',
+    value: 'text-violet-800 dark:text-violet-200',
+  },
+  black: {
+    title: 'text-black dark:text-slate-200',
+    date: 'text-black/70 dark:text-slate-300',
+    label: 'text-black/80 dark:text-slate-300',
+    value: 'text-black dark:text-slate-200',
+  },
+};
+
 function toBadgeType(type?: CardGridType): BadgeChipType | null {
   if (!type) return null;
   if (type === 'track_running') return 'running';
@@ -141,6 +172,9 @@ export function CardGrid({
   onItemClick,
   maxCards,
   activityPhotoBadgePosition = 'border',
+  activityPhotoBadgeSize = 'medium',
+  activityPhotoBadgeRounded = false,
+  activityTextColor = 'current',
 }: CardGridProps) {
   const itemsToDisplay = useMemo(() => {
     if (maxCards && maxCards > 0) {
@@ -152,6 +186,7 @@ export function CardGrid({
   const resolvedSubtitleColor = tone ?? subtitleColor;
   const titleColorClass = textColorVariants[resolvedTitleColor].title;
   const subtitleColorClass = textColorVariants[resolvedSubtitleColor].subtitle;
+  const activityTextStyle = activityTextVariants[activityTextColor];
   const normalizedVisibleItems =
     typeof visibleItems === 'number' && Number.isFinite(visibleItems) && visibleItems > 0
       ? Math.floor(visibleItems)
@@ -218,7 +253,13 @@ export function CardGrid({
                     // Wrapper relativo per permettere al badge di stare FUORI dalla card (overflow-visible)
                     <div className={activityPhotoBadgePosition === 'border' ? 'relative pt-3' : 'relative'}>
                       {item.hasPhoto && activityPhotoBadgePosition === 'border' && (
-                        <BadgeChip type="photo" size="small" text="Foto" className="absolute -top-0 right-3 z-20 shadow-sm" />
+                        <BadgeChip
+                          type="photo"
+                          size={activityPhotoBadgeSize}
+                          rounded={activityPhotoBadgeRounded}
+                          text="Foto"
+                          className="absolute -top-0 right-3 z-20 shadow-sm"
+                        />
                       )}
                       <Card className={`overflow-hidden hover:shadow-lg transition-shadow h-full cursor-pointer group-hover:scale-[1.02] duration-300 ${cardClassName}`}>
                         {item.image ? (
@@ -233,24 +274,29 @@ export function CardGrid({
                           </div>
                         ) : null}
                         <CardHeader className="pb-2">
-                          <CardTitle className="text-lg text-slate-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                          <CardTitle className={`text-lg truncate ${activityTextStyle.title}`}>
                             {item.title}
                           </CardTitle>
                           <div className="flex items-center justify-between mt-1">
-                            {showDate && item.date ? <p className="text-xs text-slate-500 dark:text-slate-400">{item.date}</p> : <span />}
+                            {showDate && item.date ? <p className={`text-xs ${activityTextStyle.date}`}>{item.date}</p> : <span />}
                             {item.hasPhoto && activityPhotoBadgePosition === 'date-row' && (
-                              <BadgeChip type="photo" size="small" text="Foto" />
+                              <BadgeChip
+                                type="photo"
+                                size={activityPhotoBadgeSize}
+                                rounded={activityPhotoBadgeRounded}
+                                text="Foto"
+                              />
                             )}
                           </div>
                         </CardHeader>
                         <CardContent className="grid grid-cols-2 gap-4">
                           <div>
-                            <p className="text-xs text-slate-600 dark:text-slate-400">Distanza</p>
-                            <p className="font-bold text-slate-900 dark:text-white">{item.distance || '—'}</p>
+                            <p className={`text-xs ${activityTextStyle.label}`}>Distanza</p>
+                            <p className={`font-bold ${activityTextStyle.value}`}>{item.distance || '—'}</p>
                           </div>
                           <div>
-                            <p className="text-xs text-slate-600 dark:text-slate-400">Tempo</p>
-                            <p className="font-bold text-slate-900 dark:text-white">{item.duration || '—'}</p>
+                            <p className={`text-xs ${activityTextStyle.label}`}>Tempo</p>
+                            <p className={`font-bold ${activityTextStyle.value}`}>{item.duration || '—'}</p>
                           </div>
                         </CardContent>
                       </Card>
@@ -301,7 +347,13 @@ export function CardGrid({
                    {variant === 'activity' ? (
                      <div className={activityPhotoBadgePosition === 'border' ? 'relative pt-3' : 'relative'}>
                        {item.hasPhoto && activityPhotoBadgePosition === 'border' && (
-                         <BadgeChip type="photo" size="small" text="Foto" className="absolute -top-0 right-3 z-20 shadow-sm" />
+                         <BadgeChip
+                           type="photo"
+                           size={activityPhotoBadgeSize}
+                           rounded={activityPhotoBadgeRounded}
+                           text="Foto"
+                           className="absolute -top-0 right-3 z-20 shadow-sm"
+                         />
                        )}
                        <Card className={`overflow-hidden hover:shadow-lg transition-shadow h-full cursor-pointer group-hover:scale-[1.02] duration-300 ${cardClassName}`}>
                          {item.image ? (
@@ -316,24 +368,29 @@ export function CardGrid({
                            </div>
                          ) : null}
                          <CardHeader className="pb-2">
-                           <CardTitle className="text-lg text-slate-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                           <CardTitle className={`text-lg truncate ${activityTextStyle.title}`}>
                              {item.title}
                            </CardTitle>
                            <div className="flex items-center justify-between mt-1">
-                             {showDate && item.date ? <p className="text-xs text-slate-500 dark:text-slate-400">{item.date}</p> : <span />}
+                             {showDate && item.date ? <p className={`text-xs ${activityTextStyle.date}`}>{item.date}</p> : <span />}
                              {item.hasPhoto && activityPhotoBadgePosition === 'date-row' && (
-                               <BadgeChip type="photo" size="small" text="Foto" />
+                               <BadgeChip
+                                 type="photo"
+                                 size={activityPhotoBadgeSize}
+                                 rounded={activityPhotoBadgeRounded}
+                                 text="Foto"
+                               />
                              )}
                            </div>
                          </CardHeader>
                          <CardContent className="grid grid-cols-2 gap-4">
                            <div>
-                             <p className="text-xs text-slate-600 dark:text-slate-400">Distanza</p>
-                             <p className="font-bold text-slate-900 dark:text-white">{item.distance || '—'}</p>
+                             <p className={`text-xs ${activityTextStyle.label}`}>Distanza</p>
+                             <p className={`font-bold ${activityTextStyle.value}`}>{item.distance || '—'}</p>
                            </div>
                            <div>
-                             <p className="text-xs text-slate-600 dark:text-slate-400">Tempo</p>
-                             <p className="font-bold text-slate-900 dark:text-white">{item.duration || '—'}</p>
+                             <p className={`text-xs ${activityTextStyle.label}`}>Tempo</p>
+                             <p className={`font-bold ${activityTextStyle.value}`}>{item.duration || '—'}</p>
                            </div>
                          </CardContent>
                        </Card>

@@ -4,7 +4,7 @@ import { ListMusic, Library, Camera, PlaneTakeoff, Mountain, SportShoe } from 'l
 import { cloneElement, isValidElement, type ReactNode } from 'react';
 
 export type BadgeChipType = 'running' | 'trekking' | 'trip' | 'books' | 'photo' | 'music';
-type BadgeChipSize = 'small' | 'medium' | 'large';
+export type BadgeChipSize = 'small' | 'medium' | 'large';
 type BadgeChipPosition = 'top-left' | 'top-center' | 'top-right';
 
 interface BadgeChipProps {

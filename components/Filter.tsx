@@ -40,6 +40,8 @@ interface FilterProps {
   syncChannel?: string;
   disabled?: boolean;
   className?: string;
+  density?: 'default' | 'compact';
+  variant?: 'default' | 'minimal';
 }
 
 const filterTypeIcons: Record<FilterType, React.ComponentType<{ className?: string }>> = {
@@ -95,6 +97,8 @@ export function Filter({
   syncChannel,
   disabled = false,
   className = '',
+  density = 'default',
+  variant = 'default',
 }: FilterProps) {
   const style = toneStyles[tone];
   const dateInputRefs = useRef<Record<string, HTMLInputElement | null>>({});
@@ -129,6 +133,18 @@ export function Filter({
     const fieldLabel = (config.label || config.placeholder || '').toUpperCase();
     const Icon = filterTypeIcons[config.type] ?? CalendarDays;
 
+    const isCompact = density === 'compact';
+    const isMinimal = variant === 'minimal';
+    const fieldHeight = isCompact ? 'h-9' : 'h-10';
+    const fieldPadding = isCompact ? 'px-2.5' : 'px-3';
+    const iconSize = isCompact ? 'w-3.5 h-3.5' : 'w-4 h-4';
+    const labelSize = isCompact ? 'text-[11px]' : 'text-xs';
+    const minimalFieldClass = isMinimal
+      ? 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100'
+      : '';
+    const minimalIconClass = isMinimal ? 'text-slate-500 dark:text-slate-400' : style.icon;
+    const resolvedFieldClass = isMinimal ? minimalFieldClass : style.field;
+
     if (config.type === 'dateStart' || config.type === 'dateEnd') {
       return (
         <div
@@ -141,12 +157,12 @@ export function Filter({
               dateInputRefs.current[config.type]?.showPicker?.();
             }
           }}
-          className={`rounded-lg border px-3 h-10 flex items-center justify-between gap-2 cursor-pointer ${style.field}`}
+          className={`rounded-lg border ${fieldPadding} ${fieldHeight} flex items-center justify-between gap-2 cursor-pointer ${resolvedFieldClass}`}
           aria-label={`Apri calendario ${fieldLabel}`}
         >
           <div className="flex items-center gap-2 min-w-0">
-            <Icon className={`w-4 h-4 shrink-0 ${style.icon}`} />
-            <span className={`text-xs font-semibold tracking-wide truncate ${style.icon}`}>
+            <Icon className={`${iconSize} shrink-0 ${minimalIconClass}`} />
+            <span className={`${labelSize} font-semibold tracking-wide truncate ${minimalIconClass}`}>
               {value || fieldLabel}
             </span>
           </div>
@@ -167,9 +183,9 @@ export function Filter({
     if (config.options) {
       return (
         <Select value={value} onValueChange={(v) => handleChange(config.type, v)} disabled={disabled}>
-          <SelectTrigger className={`h-10 ${style.field} ${style.text}`}>
+          <SelectTrigger className={`${fieldHeight} ${resolvedFieldClass} ${isMinimal ? 'text-slate-900 dark:text-slate-100' : style.text}`}>
             <div className="flex items-center gap-2">
-              <Icon className={`w-4 h-4 ${style.icon}`} />
+              <Icon className={`${iconSize} ${minimalIconClass}`} />
               <SelectValue placeholder={fieldLabel} />
             </div>
           </SelectTrigger>
@@ -192,23 +208,23 @@ export function Filter({
           : 'text';
 
     return (
-      <div className={`rounded-lg border px-3 h-10 flex items-center gap-2 ${style.field}`}>
-        <Icon className={`w-4 h-4 shrink-0 ${style.icon}`} />
+      <div className={`rounded-lg border ${fieldPadding} ${fieldHeight} flex items-center gap-2 ${resolvedFieldClass}`}>
+        <Icon className={`${iconSize} shrink-0 ${minimalIconClass}`} />
         <Input
           type={inputType}
           placeholder={fieldLabel}
           value={value}
           onChange={(e) => handleChange(config.type, e.target.value)}
           disabled={disabled}
-          className={`border-0 bg-transparent shadow-none px-0 h-auto ${style.text}`}
+          className={`border-0 bg-transparent shadow-none px-0 h-auto ${isMinimal ? 'text-slate-900 dark:text-slate-100' : style.text}`}
         />
       </div>
     );
   };
 
   return (
-    <div className={`flex flex-col gap-4 p-4 rounded-lg border ${style.wrapper} ${className}`}>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+    <div className={`flex flex-col ${variant === 'minimal' ? 'gap-2 p-0 rounded-none border-0 bg-transparent' : density === 'compact' ? 'gap-3 p-3 rounded-lg border' : 'gap-4 p-4 rounded-lg border'} ${variant === 'minimal' ? '' : style.wrapper} ${className}`}>
+      <div className={variant === 'minimal' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2' : density === 'compact' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2' : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3'}>
         {filters.map((filter) => (
           <div key={filter.type}>
             {renderFilterInput(filter)}
@@ -217,10 +233,10 @@ export function Filter({
       </div>
 
       <div className="flex gap-2 justify-end">
-        <Button variant="outline" tone="black" onClick={handleReset} disabled={disabled}>
+        <Button variant="outline" tone="black" onClick={handleReset} disabled={disabled} size={density === 'compact' ? 'sm' : 'default'}>
           {resetLabel}
         </Button>
-        <Button tone={style.buttonTone} onClick={handleApply} disabled={disabled}>
+        <Button tone={variant === 'minimal' ? 'black' : style.buttonTone} onClick={handleApply} disabled={disabled} size={density === 'compact' ? 'sm' : 'default'}>
           {applyLabel}
         </Button>
       </div>

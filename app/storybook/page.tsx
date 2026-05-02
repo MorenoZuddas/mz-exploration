@@ -421,6 +421,9 @@ function CardGridSection() {
    const [tone, setTone] = useState<Tone>("current")
    const [variant, setVariant] = useState<"default" | "activity">("default")
    const [badgePos, setBadgePos] = useState<"border" | "date-row">("border")
+   const [badgeSize, setBadgeSize] = useState<"small" | "medium" | "large">("small")
+   const [badgeRounded, setBadgeRounded] = useState(true)
+   const [activityTextColor, setActivityTextColor] = useState<Tone>("current")
    const [showDate, setShowDate] = useState(true)
    const [showBadge, setShowBadge] = useState(true)
    const [showBadgeOnImage, setShowBadgeOnImage] = useState(false)
@@ -435,7 +438,12 @@ function CardGridSection() {
              <Ctl label="tone" value={tone} options={CARD_TONES} onChange={setTone} />
              <Ctl label="variant" value={variant} options={["default", "activity"]} onChange={setVariant} />
              {variant === "activity" && (
-               <Ctl label="photo badge pos" value={badgePos} options={["border", "date-row"]} onChange={(v) => setBadgePos(v as "border" | "date-row")} />
+               <>
+                 <Ctl label="photo badge pos" value={badgePos} options={["border", "date-row"]} onChange={(v) => setBadgePos(v as "border" | "date-row")} />
+                 <Ctl label="photo badge size" value={badgeSize} options={["small", "medium", "large"]} onChange={(v) => setBadgeSize(v as "small" | "medium" | "large")} />
+                 <Ctl label="activity text color" value={activityTextColor} options={CARD_TONES} onChange={(v) => setActivityTextColor(v as Tone)} />
+                 <Toggle label="photo badge rounded" checked={badgeRounded} onChange={setBadgeRounded} />
+               </>
              )}
              <Ctl label="total cards" value={total} options={["3", "4", "6", "8", "10", "12"]} onChange={setTotal} />
              <Ctl label="visible cards" value={visible} options={["3", "4", "6", "8", "10", "12"]} onChange={setVisible} />
@@ -464,6 +472,9 @@ function CardGridSection() {
              showDescription={variant === "default" ? showDesc : false}
              maxCards={maxCards ? Number(maxCards) : undefined}
              activityPhotoBadgePosition={variant === "activity" ? badgePos : undefined}
+             activityPhotoBadgeSize={variant === "activity" ? badgeSize : undefined}
+             activityPhotoBadgeRounded={variant === "activity" ? badgeRounded : undefined}
+             activityTextColor={variant === "activity" ? activityTextColor : undefined}
              sectionClassName="px-6 py-8 bg-white dark:bg-slate-900"
            />
          </div>
@@ -488,6 +499,10 @@ function CardGridSection() {
              { prop: "total cards", values: ["3", "4", "6", "8", "10", "12"] },
              { prop: "visible cards", values: ["3", "4", "6", "8", "10", "12"] },
              { prop: "maxCards", values: ["", "1", "2", "3", "4", "6", "8"] },
+             { prop: "activityPhotoBadgePosition", values: ["border", "date-row"] },
+             { prop: "activityPhotoBadgeSize", values: ["small", "medium", "large"] },
+             { prop: "activityPhotoBadgeRounded", values: ["true", "false"] },
+             { prop: "activityTextColor", values: [...CARD_TONES] },
              { prop: "showDate", values: ["true", "false"] },
              { prop: "showTypeBadge", values: ["true", "false"] },
              { prop: "showBadgeOnImage", values: ["true", "false"] },
