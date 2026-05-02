@@ -77,14 +77,14 @@ function formatPace(pace: number | undefined): string {
 }
 
 export function ActivityDetailModal({
-  activityId,
-  isOpen,
-  onClose,
-  detailsPageUrl,
-  photo,
-  className = '',
-  contentClassName = '',
-  tone = 'current',
+   activityId,
+   isOpen,
+   onClose,
+   detailsPageUrl,
+   photo,
+   className = '',
+   contentClassName = '',
+   tone = 'current',
 }: Props) {
   const [activity, setActivity] = useState<ActivityDetail | null>(null);
   const [loading, setLoading] = useState(false);

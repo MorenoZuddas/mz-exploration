@@ -13,6 +13,7 @@ export default function LayoutClient({
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const pathname = usePathname();
+  const footerClassName = pathname.startsWith('/exploration') ? '!mt-0' : '';
 
   useEffect(() => {
     setIsLoading(true);
@@ -25,7 +26,7 @@ export default function LayoutClient({
       {isLoading && <Loader />}
       <Header />
       {children}
-      <Footer />
+      <Footer className={footerClassName} />
     </>
   );
 }

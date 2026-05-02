@@ -244,8 +244,9 @@ function parseFilterState(state: Record<string, string>): StatisticsFilters {
     dateFrom: state.dateStart ? new Date(state.dateStart) : undefined,
     dateTo: state.dateEnd ? new Date(state.dateEnd) : undefined,
     types: state.activityType ? [state.activityType] : [],
-    minDistance: state.distanceMin ? Number.parseFloat(state.distanceMin) : undefined,
-    maxDistance: state.distanceMax ? Number.parseFloat(state.distanceMax) : undefined,
+    // Filter espone km, Statistics lavora in metri.
+    minDistance: state.distanceMin ? Number.parseFloat(state.distanceMin) * 1000 : undefined,
+    maxDistance: state.distanceMax ? Number.parseFloat(state.distanceMax) * 1000 : undefined,
   };
 }
 
