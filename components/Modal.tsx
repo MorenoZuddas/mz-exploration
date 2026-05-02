@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ActivityPhotos } from '@/components/ActivityPhotos';
 
 export interface ApiPhoto {
   publicId: string;
@@ -69,7 +69,7 @@ function formatDistance(distanceM: number | null): string {
   return km < 10 ? `${Math.round(distanceM).toLocaleString('it-IT')} m` : `${km.toFixed(2)} km`;
 }
 
-function formatPace(pace: number | undefined): string {
+function formatPace(pace: number | null | undefined): string {
   if (!pace || pace <= 0) return 'N/A';
   const min = Math.floor(pace);
   const sec = Math.round((pace % 1) * 60);
@@ -128,6 +128,19 @@ export function Modal({
     void fetchActivity();
   }, [isOpen, activityId, photo]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (
@@ -162,9 +175,21 @@ export function Modal({
             </div>
           )}
 
-          {activity && !loading && (
-            <>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+           {activity && !loading && (
+              <>
+                {activity.photos && activity.photos.length > 0 && (
+                  <div className="relative h-64 md:h-80 w-full overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-700">
+                    <Image
+                      src={activity.photos[0].secure_url}
+                      alt={activity.name}
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, 80vw"
+                    />
+                  </div>
+                )}
+
+               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <Card className="p-4" tone={tone}>
                   <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">Distanza</p>
                   <p className={`text-lg md:text-xl font-bold ${modalMetricToneClasses[tone]}`}>{formatDistance(activity.distance_m)}</p>
@@ -175,27 +200,18 @@ export function Modal({
                   <p className={`text-lg md:text-xl font-bold ${modalMetricToneClasses[tone]}`}>{formatDuration(activity.duration_sec)}</p>
                 </Card>
 
-                {activity.pace_min_per_km && (
-                  <Card className="p-4" tone={tone}>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">Pace</p>
-                    <p className={`text-lg md:text-xl font-bold ${modalMetricToneClasses[tone]}`}>{formatPace(activity.pace_min_per_km)}</p>
-                  </Card>
-                )}
+                <Card className="p-4" tone={tone}>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">Pace</p>
+                  <p className={`text-lg md:text-xl font-bold ${modalMetricToneClasses[tone]}`}>{formatPace(activity.pace_min_per_km)}</p>
+                </Card>
 
-                {activity.calories_kcal && (
-                  <Card className="p-4" tone={tone}>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">Kcal</p>
-                    <p className={`text-lg md:text-xl font-bold ${modalMetricToneClasses[tone]}`}>{activity.calories_kcal}</p>
-                  </Card>
-                )}
+                <Card className="p-4" tone={tone}>
+                  <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">Kcal</p>
+                  <p className={`text-lg md:text-xl font-bold ${modalMetricToneClasses[tone]}`}>{activity.calories_kcal ?? '—'}</p>
+                </Card>
               </div>
 
-              {activity.photos && activity.photos.length > 0 && (
-                <div>
-                  <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">Foto</h3>
-                  <ActivityPhotos photos={activity.photos} tone={tone} />
-                </div>
-              )}
+
 
               <div className="flex gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
                 <Button onClick={onClose} variant="outline" tone="black" width="full">

@@ -70,12 +70,13 @@ function safeTimestamp(value: string | undefined): number {
 }
 
 export default function TrekkingPage() {
-  const router = useRouter();
-  const [activities, setActivities] = useState<Activity[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedActivityId, setSelectedActivityId] = useState<string | null>(null);
-  const [isDesktop, setIsDesktop] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+   const router = useRouter();
+   const [activities, setActivities] = useState<Activity[]>([]);
+   const [loading, setLoading] = useState(true);
+   const [displayedCount, setDisplayedCount] = useState(8);
+   const [selectedActivityId, setSelectedActivityId] = useState<string | null>(null);
+   const [isDesktop, setIsDesktop] = useState(false);
+   const [error, setError] = useState<string | null>(null);
 
   // Determina se desktop
   useEffect(() => {
@@ -211,70 +212,65 @@ export default function TrekkingPage() {
                 Nessuna attività trekking trovata.
               </p>
             </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {activities.map((activity, index) => (
-                <div
-                  key={activity.id}
-                  onClick={() => handleActivityClick(activity.id)}
-                  className="cursor-pointer"
-                >
-                  <Card
-                    className="p-6 hover:shadow-lg hover:scale-[1.02] transition-all"
-                    dataName={`card ${index + 1}`}
-                  >
-                    <div className="mb-4">
-                      {activity.photo ? (
-                        <div className="relative h-44 w-full overflow-hidden rounded-lg">
-                          <Image
-                            src={thumbnailUrl(activity.photo.publicId) || activity.photo.secureUrl}
-                            alt={activity.name}
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 768px) 100vw, 50vw"
-                          />
-                        </div>
-                      ) : (
-                        <div className="flex h-44 w-full items-center justify-center rounded-lg bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-300">
-                          Nessuna foto
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex justify-between items-start mb-4">
-                      <h3 className="text-xl font-bold text-slate-900 dark:text-white">
-                        {activity.name}
-                      </h3>
-                      <span className="text-sm text-slate-500 dark:text-slate-400">
-                        {activity.date}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <p className="text-sm text-slate-600 dark:text-slate-400">Distanza</p>
-                        <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                          {activity.distance_formatted}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-sm text-slate-600 dark:text-slate-400">Tempo</p>
-                        <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                          {activity.duration_formatted}
-                        </p>
-                      </div>
-                      {activity.location && (
-                        <div className="col-span-2">
-                          <p className="text-sm text-slate-600 dark:text-slate-400">Luogo</p>
-                          <p className="text-lg font-semibold text-slate-900 dark:text-white">
-                            {activity.location}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </Card>
-                </div>
-              ))}
-            </div>
-          )}
+           ) : (
+             <>
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                 {activities.slice(0, displayedCount).map((activity, index) => (
+                   <div
+                     key={activity.id}
+                     onClick={() => handleActivityClick(activity.id)}
+                     className="cursor-pointer"
+                   >
+                     <Card
+                       className="p-6 hover:shadow-lg hover:scale-[1.02] transition-all"
+                       dataName={`card ${index + 1}`}
+                     >
+                       <div className="flex justify-between items-start mb-4">
+                         <h3 className="text-xl font-bold text-slate-900 dark:text-white">
+                           {activity.name}
+                         </h3>
+                         <span className="text-sm text-slate-500 dark:text-slate-400">
+                           {activity.date}
+                         </span>
+                       </div>
+                       <div className="grid grid-cols-2 gap-4">
+                         <div>
+                           <p className="text-sm text-slate-600 dark:text-slate-400">Distanza</p>
+                           <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                             {activity.distance_formatted}
+                           </p>
+                         </div>
+                         <div>
+                           <p className="text-sm text-slate-600 dark:text-slate-400">Tempo</p>
+                           <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                             {activity.duration_formatted}
+                           </p>
+                         </div>
+                         {activity.location && (
+                           <div className="col-span-2">
+                             <p className="text-sm text-slate-600 dark:text-slate-400">Luogo</p>
+                             <p className="text-lg font-semibold text-slate-900 dark:text-white">
+                               {activity.location}
+                             </p>
+                           </div>
+                         )}
+                       </div>
+                     </Card>
+                   </div>
+                 ))}
+               </div>
+               {activities.length > displayedCount && (
+                 <div className="mt-6 text-center">
+                   <button
+                     onClick={() => setDisplayedCount((prev) => prev + 8)}
+                     className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
+                   >
+                     Mostra Altro
+                   </button>
+                 </div>
+               )}
+             </>
+           )}
         </div>
       </section>
 

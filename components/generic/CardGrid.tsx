@@ -7,21 +7,29 @@ import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BadgeChip } from '@/components/BadgeChip';
+import type { BadgeChipType } from '@/components/BadgeChip';
 
-export type CardGridType = 'running' | 'trekking' | 'trip';
+export type CardGridType = 'running' | 'track_running' | 'trekking' | 'trip';
 export type CardGridColor = 'current' | 'blue' | 'purple' | 'black';
+export type CardGridVariant = 'default' | 'activity';
 
 export interface CardGridItem {
   id: string;
   title: string;
   href: string;
-  image: string;
+  image?: string;
   type?: CardGridType;
   date?: string;
   description?: string;
+  distance?: string;
+  duration?: string;
+  pace?: string;
+  kcal?: string;
+  hasPhoto?: boolean; // Se true, mostra il badge "Photo" sulla card activity
 }
 
 interface CardGridProps {
+  variant?: CardGridVariant;
   title?: string;
   subtitle?: string;
   items?: CardGridItem[];
@@ -46,6 +54,9 @@ interface CardGridProps {
   sectionClassName?: string;
   titleColor?: CardGridColor;
   subtitleColor?: CardGridColor;
+  onItemClick?: (item: CardGridItem) => void;
+  maxCards?: number;
+  activityPhotoBadgePosition?: 'border' | 'date-row'; // 'border' = fuori dal bordo card, 'date-row' = a destra della data
 }
 
 const defaultItems: CardGridItem[] = [
@@ -94,7 +105,15 @@ const textColorVariants: Record<CardGridColor, { title: string; subtitle: string
   },
 };
 
+function toBadgeType(type?: CardGridType): BadgeChipType | null {
+  if (!type) return null;
+  if (type === 'track_running') return 'running';
+  if (type === 'running' || type === 'trekking' || type === 'trip') return type;
+  return null;
+}
+
 export function CardGrid({
+  variant = 'default',
   title = 'Ultime Avventure',
   subtitle = 'I momenti piu recenti dalle mie attivita',
   items = defaultItems,
@@ -119,7 +138,16 @@ export function CardGrid({
   sectionClassName = 'px-4 py-16 sm:px-6 lg:px-8 bg-white dark:bg-slate-900',
   titleColor = 'current',
   subtitleColor = 'current',
+  onItemClick,
+  maxCards,
+  activityPhotoBadgePosition = 'border',
 }: CardGridProps) {
+  const itemsToDisplay = useMemo(() => {
+    if (maxCards && maxCards > 0) {
+      return items.slice(0, maxCards);
+    }
+    return items;
+  }, [items, maxCards]);
   const resolvedTitleColor = tone ?? titleColor;
   const resolvedSubtitleColor = tone ?? subtitleColor;
   const titleColorClass = textColorVariants[resolvedTitleColor].title;
@@ -128,21 +156,28 @@ export function CardGrid({
     typeof visibleItems === 'number' && Number.isFinite(visibleItems) && visibleItems > 0
       ? Math.floor(visibleItems)
       : null;
-  const [isExpanded, setIsExpanded] = useState(false);
+
+  // Conta quanti item mostrare (paginazione a gruppi)
+  const [shownCount, setShownCount] = useState<number>(normalizedVisibleItems ?? Infinity);
 
   useEffect(() => {
-    setIsExpanded(false);
+    setShownCount(normalizedVisibleItems ?? Infinity);
   }, [normalizedVisibleItems, items.length]);
 
   const displayedItems = useMemo(() => {
-    if (!normalizedVisibleItems || isExpanded) return items;
-    return items.slice(0, normalizedVisibleItems);
-  }, [items, normalizedVisibleItems, isExpanded]);
+    if (maxCards && maxCards > 0) return items.slice(0, maxCards);
+    if (!normalizedVisibleItems) return items;
+    return items.slice(0, shownCount);
+  }, [items, normalizedVisibleItems, shownCount, maxCards]);
+
+  const hasMore = !maxCards && Boolean(normalizedVisibleItems) && items.length > shownCount;
+  const hasLess = !maxCards && Boolean(normalizedVisibleItems) && shownCount > (normalizedVisibleItems ?? 0);
 
   const shouldShowToggle =
     Boolean(showVisibilityToggle) &&
     Boolean(normalizedVisibleItems) &&
-    items.length > (normalizedVisibleItems ?? 0);
+    (hasMore || hasLess) &&
+    !maxCards;
 
   const headerAnimation = useMotion
     ? {
@@ -173,59 +208,202 @@ export function CardGrid({
               transition={useMotion ? { duration: 0.5, delay: index * 0.1 } : undefined}
               viewport={useMotion ? { once: true } : undefined}
             >
-              <Link href={item.href} className="block group h-full">
-                <Card className={`overflow-hidden hover:shadow-lg transition-shadow h-full cursor-pointer group-hover:scale-[1.02] duration-300 ${cardClassName}`}>
-                  <div className="relative h-48 w-full overflow-hidden bg-slate-200 dark:bg-slate-700">
-                    <Image
-                      src={item.image || fallbackImage}
-                      alt={item.title}
-                      fill
-                      className={`object-cover group-hover:scale-110 transition-transform duration-300 ${imageClassName}`}
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                    />
-                    {showTypeBadge && showBadgeOnImage && item.type && (
-                      <BadgeChip
-                        type={item.type}
-                        text={item.type}
-                        floating
-                        position="top-right"
-                        className="z-10"
-                      />
-                    )}
-                  </div>
-                  <CardHeader>
-                    <div className="flex items-start justify-between gap-2">
-                      <CardTitle className="text-xl group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                        {item.title}
-                      </CardTitle>
-                      {showTypeBadge && !showBadgeOnImage && item.type && (
-                        <BadgeChip type={item.type} text={item.type} className="whitespace-nowrap" />
+              {onItemClick ? (
+                <button
+                  type="button"
+                  onClick={() => onItemClick(item)}
+                  className="block group h-full w-full text-left"
+                >
+                  {variant === 'activity' ? (
+                    // Wrapper relativo per permettere al badge di stare FUORI dalla card (overflow-visible)
+                    <div className={activityPhotoBadgePosition === 'border' ? 'relative pt-3' : 'relative'}>
+                      {item.hasPhoto && activityPhotoBadgePosition === 'border' && (
+                        <BadgeChip type="photo" size="small" text="Foto" className="absolute -top-0 right-3 z-20 shadow-sm" />
                       )}
+                      <Card className={`overflow-hidden hover:shadow-lg transition-shadow h-full cursor-pointer group-hover:scale-[1.02] duration-300 ${cardClassName}`}>
+                        {item.image ? (
+                          <div className="relative h-52 w-full overflow-hidden bg-slate-200 dark:bg-slate-700">
+                            <Image
+                              src={item.image}
+                              alt={item.title}
+                              fill
+                              className={`object-cover group-hover:scale-105 transition-transform duration-300 ${imageClassName}`}
+                              sizes="(max-width: 768px) 100vw, 50vw"
+                            />
+                          </div>
+                        ) : null}
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-lg text-slate-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                            {item.title}
+                          </CardTitle>
+                          <div className="flex items-center justify-between mt-1">
+                            {showDate && item.date ? <p className="text-xs text-slate-500 dark:text-slate-400">{item.date}</p> : <span />}
+                            {item.hasPhoto && activityPhotoBadgePosition === 'date-row' && (
+                              <BadgeChip type="photo" size="small" text="Foto" />
+                            )}
+                          </div>
+                        </CardHeader>
+                        <CardContent className="grid grid-cols-2 gap-4">
+                          <div>
+                            <p className="text-xs text-slate-600 dark:text-slate-400">Distanza</p>
+                            <p className="font-bold text-slate-900 dark:text-white">{item.distance || '—'}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-slate-600 dark:text-slate-400">Tempo</p>
+                            <p className="font-bold text-slate-900 dark:text-white">{item.duration || '—'}</p>
+                          </div>
+                        </CardContent>
+                      </Card>
                     </div>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    {showDescription && item.description && (
-                      <p className="text-sm text-slate-600 dark:text-slate-400">{item.description}</p>
-                    )}
-                    {showDate && item.date && (
-                      <p className="text-sm text-slate-500 dark:text-slate-400">{item.date}</p>
-                    )}
-                  </CardContent>
-                </Card>
-              </Link>
+                  ) : (
+                    <Card className={`overflow-hidden hover:shadow-lg transition-shadow h-full cursor-pointer group-hover:scale-[1.02] duration-300 ${cardClassName}`}>
+                      <div className="relative h-48 w-full overflow-hidden bg-slate-200 dark:bg-slate-700">
+                        <Image
+                          src={item.image || fallbackImage}
+                          alt={item.title}
+                          fill
+                          className={`object-cover group-hover:scale-110 transition-transform duration-300 ${imageClassName}`}
+                          sizes="(max-width: 768px) 100vw, 33vw"
+                        />
+                            {showTypeBadge && showBadgeOnImage && toBadgeType(item.type) && (
+                          <BadgeChip
+                                type={toBadgeType(item.type) as BadgeChipType}
+                            text={item.type}
+                            floating
+                            position="top-right"
+                            className="z-10"
+                          />
+                        )}
+                      </div>
+                      <CardHeader>
+                        <div className="flex items-start justify-between gap-2">
+                          <CardTitle className="text-xl group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                            {item.title}
+                          </CardTitle>
+                          {showTypeBadge && !showBadgeOnImage && toBadgeType(item.type) && (
+                            <BadgeChip type={toBadgeType(item.type) as BadgeChipType} text={item.type} className="whitespace-nowrap" />
+                          )}
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        {showDescription && item.description && (
+                          <p className="text-sm text-slate-600 dark:text-slate-400">{item.description}</p>
+                        )}
+                        {showDate && item.date && (
+                          <p className="text-sm text-slate-500 dark:text-slate-400">{item.date}</p>
+                        )}
+                      </CardContent>
+                    </Card>
+                  )}
+                </button>
+               ) : (
+                 <Link href={item.href} className="block group h-full">
+                   {variant === 'activity' ? (
+                     <div className={activityPhotoBadgePosition === 'border' ? 'relative pt-3' : 'relative'}>
+                       {item.hasPhoto && activityPhotoBadgePosition === 'border' && (
+                         <BadgeChip type="photo" size="small" text="Foto" className="absolute -top-0 right-3 z-20 shadow-sm" />
+                       )}
+                       <Card className={`overflow-hidden hover:shadow-lg transition-shadow h-full cursor-pointer group-hover:scale-[1.02] duration-300 ${cardClassName}`}>
+                         {item.image ? (
+                           <div className="relative h-52 w-full overflow-hidden bg-slate-200 dark:bg-slate-700">
+                             <Image
+                               src={item.image}
+                               alt={item.title}
+                               fill
+                               className={`object-cover group-hover:scale-105 transition-transform duration-300 ${imageClassName}`}
+                               sizes="(max-width: 768px) 100vw, 50vw"
+                             />
+                           </div>
+                         ) : null}
+                         <CardHeader className="pb-2">
+                           <CardTitle className="text-lg text-slate-900 dark:text-white truncate group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                             {item.title}
+                           </CardTitle>
+                           <div className="flex items-center justify-between mt-1">
+                             {showDate && item.date ? <p className="text-xs text-slate-500 dark:text-slate-400">{item.date}</p> : <span />}
+                             {item.hasPhoto && activityPhotoBadgePosition === 'date-row' && (
+                               <BadgeChip type="photo" size="small" text="Foto" />
+                             )}
+                           </div>
+                         </CardHeader>
+                         <CardContent className="grid grid-cols-2 gap-4">
+                           <div>
+                             <p className="text-xs text-slate-600 dark:text-slate-400">Distanza</p>
+                             <p className="font-bold text-slate-900 dark:text-white">{item.distance || '—'}</p>
+                           </div>
+                           <div>
+                             <p className="text-xs text-slate-600 dark:text-slate-400">Tempo</p>
+                             <p className="font-bold text-slate-900 dark:text-white">{item.duration || '—'}</p>
+                           </div>
+                         </CardContent>
+                       </Card>
+                     </div>
+                   ) : (
+                     <Card className={`overflow-hidden hover:shadow-lg transition-shadow h-full cursor-pointer group-hover:scale-[1.02] duration-300 ${cardClassName}`}>
+                       <div className="relative h-48 w-full overflow-hidden bg-slate-200 dark:bg-slate-700">
+                         <Image
+                           src={item.image || fallbackImage}
+                           alt={item.title}
+                           fill
+                           className={`object-cover group-hover:scale-110 transition-transform duration-300 ${imageClassName}`}
+                           sizes="(max-width: 768px) 100vw, 33vw"
+                         />
+                         {showTypeBadge && showBadgeOnImage && toBadgeType(item.type) && (
+                           <BadgeChip
+                             type={toBadgeType(item.type) as BadgeChipType}
+                             text={item.type}
+                             floating
+                             position="top-right"
+                             className="z-10"
+                           />
+                         )}
+                       </div>
+                       <CardHeader>
+                         <div className="flex items-start justify-between gap-2">
+                           <CardTitle className="text-xl group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                             {item.title}
+                           </CardTitle>
+                           {showTypeBadge && !showBadgeOnImage && toBadgeType(item.type) && (
+                             <BadgeChip type={toBadgeType(item.type) as BadgeChipType} text={item.type} className="whitespace-nowrap" />
+                           )}
+                         </div>
+                       </CardHeader>
+                       <CardContent className="space-y-2">
+                         {showDescription && item.description && (
+                           <p className="text-sm text-slate-600 dark:text-slate-400">{item.description}</p>
+                         )}
+                         {showDate && item.date && (
+                           <p className="text-sm text-slate-500 dark:text-slate-400">{item.date}</p>
+                         )}
+                       </CardContent>
+                     </Card>
+                   )}
+                 </Link>
+               )}
             </motion.div>
           ))}
         </div>
 
         {shouldShowToggle ? (
-          <div className={`mt-8 flex justify-center ${visibilityToggleClassName}`}>
-            <Button
-              variant="outline"
-              tone="blue"
-              onClick={() => setIsExpanded((prev) => !prev)}
-            >
-              {isExpanded ? showLessLabel : showMoreLabel}
-            </Button>
+          <div className={`mt-8 flex justify-center gap-3 ${visibilityToggleClassName}`}>
+            {hasMore && (
+              <Button
+                variant="outline"
+                tone="blue"
+                onClick={() => setShownCount((prev) => prev + (normalizedVisibleItems ?? 4))}
+              >
+                {showMoreLabel}
+              </Button>
+            )}
+            {hasLess && (
+              <Button
+                variant="outline"
+                tone="black"
+                onClick={() => setShownCount(normalizedVisibleItems ?? 4)}
+              >
+                {showLessLabel}
+              </Button>
+            )}
           </div>
         ) : null}
       </div>

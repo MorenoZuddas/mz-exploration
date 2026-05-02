@@ -390,71 +390,111 @@ function makeItems(total: number): CardGridItem[] {
   })
 }
 
+function makeActivityItems(total: number): CardGridItem[] {
+   return Array.from({ length: total }).map((_, i) => {
+     const day = (i % 28) + 1
+     const dateObj = new Date(2026, 3, day)
+     const dateStr = dateObj.toLocaleDateString("it-IT", { year: "numeric", month: "long", day: "numeric" })
+     const km = (6 + i * 1.3).toFixed(2)
+     // Nota: Non includiamo 'image' per le activity card poiché la foto viene mostrata solo nella modale
+     // Usiamo 'hasPhoto' per mostrare il badge "Foto" sulla card
+     const withPhoto = i % 3 !== 0
+     return {
+       id: `activity-${i + 1}`,
+       title: `Running Activity ${i + 1}`,
+       href: "#",
+       type: i % 4 === 0 ? "track_running" : "running",
+       date: dateStr,
+       distance: `${km} km`,
+       duration: `${42 + i}:${String((i * 7) % 60).padStart(2, "0")}`,
+       pace: `5:${String((i * 5) % 60).padStart(2, "0")} min/km`,
+       kcal: `${450 + i * 12}`,
+       hasPhoto: withPhoto,
+     }
+   })
+ }
+
 function CardGridSection() {
-  const [total, setTotal] = useState("8")
-  const [visible, setVisible] = useState("4")
-  const [tone, setTone] = useState<Tone>("current")
-  const [showDate, setShowDate] = useState(true)
-  const [showBadge, setShowBadge] = useState(true)
-  const [showBadgeOnImage, setShowBadgeOnImage] = useState(false)
-  const [showDesc, setShowDesc] = useState(false)
-  const items = useMemo(() => makeItems(Number(total)), [total])
+   const [total, setTotal] = useState("8")
+   const [visible, setVisible] = useState("4")
+   const [maxCards, setMaxCards] = useState("")
+   const [tone, setTone] = useState<Tone>("current")
+   const [variant, setVariant] = useState<"default" | "activity">("default")
+   const [badgePos, setBadgePos] = useState<"border" | "date-row">("border")
+   const [showDate, setShowDate] = useState(true)
+   const [showBadge, setShowBadge] = useState(true)
+   const [showBadgeOnImage, setShowBadgeOnImage] = useState(false)
+   const [showDesc, setShowDesc] = useState(false)
+   const items = useMemo(() => (variant === "activity" ? makeActivityItems(Number(total)) : makeItems(Number(total))), [total, variant])
 
   return (
     <Section id="cardgrid" title="CardGrid">
       <div className="grid lg:grid-cols-[320px_1fr] gap-4">
         <Panel>
-          <div className="grid gap-2">
-            <Ctl label="tone" value={tone} options={CARD_TONES} onChange={setTone} />
-            <Ctl label="total cards" value={total} options={["3", "4", "6", "8", "10", "12"]} onChange={setTotal} />
-            <Ctl label="visible cards" value={visible} options={["3", "4", "6", "8", "10", "12"]} onChange={setVisible} />
-            <Toggle label="show date" checked={showDate} onChange={setShowDate} />
-            <Toggle label="show badge" checked={showBadge} onChange={setShowBadge} />
-            <Toggle label="badge on image" checked={showBadgeOnImage} onChange={setShowBadgeOnImage} />
-            <Toggle label="show desc" checked={showDesc} onChange={setShowDesc} />
-          </div>
+           <div className="grid gap-2">
+             <Ctl label="tone" value={tone} options={CARD_TONES} onChange={setTone} />
+             <Ctl label="variant" value={variant} options={["default", "activity"]} onChange={setVariant} />
+             {variant === "activity" && (
+               <Ctl label="photo badge pos" value={badgePos} options={["border", "date-row"]} onChange={(v) => setBadgePos(v as "border" | "date-row")} />
+             )}
+             <Ctl label="total cards" value={total} options={["3", "4", "6", "8", "10", "12"]} onChange={setTotal} />
+             <Ctl label="visible cards" value={visible} options={["3", "4", "6", "8", "10", "12"]} onChange={setVisible} />
+             <Ctl label="maxCards" value={maxCards} options={["", "1", "2", "3", "4", "6", "8"]} onChange={setMaxCards} />
+             <Toggle label="show date" checked={showDate} onChange={setShowDate} />
+             <Toggle label="show badge" checked={showBadge} onChange={setShowBadge} />
+             <Toggle label="badge on image" checked={showBadgeOnImage} onChange={setShowBadgeOnImage} />
+             <Toggle label="show desc" checked={showDesc} onChange={setShowDesc} />
+           </div>
         </Panel>
-        <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
-          <CardGrid
-            title="CardGrid riusabile"
-            subtitle={`Totali ${total}, visibili ${visible}`}
-            items={items}
-            tone={tone}
-            visibleItems={Number(visible)}
-            showVisibilityToggle
-            showMoreLabel="Mostra tutte"
-            showLessLabel="Mostra meno"
-            useMotion={false}
-            showDate={showDate}
-            showTypeBadge={showBadge}
-            showBadgeOnImage={showBadgeOnImage}
-            showDescription={showDesc}
-            sectionClassName="px-6 py-8 bg-white dark:bg-slate-900"
-          />
-        </div>
+         <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
+           <CardGrid
+             title="CardGrid riusabile"
+             subtitle={`Totali ${total}${maxCards ? `, max ${maxCards}` : `, visibili ${visible}`}`}
+             items={items}
+             variant={variant}
+             tone={tone}
+             visibleItems={maxCards ? undefined : Number(visible)}
+             showVisibilityToggle={!maxCards}
+             showMoreLabel="Mostra tutte"
+             showLessLabel="Mostra meno"
+             useMotion={false}
+             showDate={showDate}
+             showTypeBadge={variant === "default" ? showBadge : false}
+             showBadgeOnImage={showBadgeOnImage}
+             showDescription={variant === "default" ? showDesc : false}
+             maxCards={maxCards ? Number(maxCards) : undefined}
+             activityPhotoBadgePosition={variant === "activity" ? badgePos : undefined}
+             sectionClassName="px-6 py-8 bg-white dark:bg-slate-900"
+           />
+         </div>
       </div>
 
-      <Panel>
-        <div className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
-          <p className="font-semibold uppercase tracking-wider">📅 Data attività:</p>
-          <p>Le card mostrano la data dell'attività nel formato italiano (es: "1 aprile 2026"). Utilizza il toggle <span className="font-medium">"show date"</span> per mostrare o nascondere le date sulle card.</p>
-          <p><span className="font-medium">"badge on image"</span> sposta il BadgeChip dalla riga titolo alla parte alta della foto (overlay).</p>
-        </div>
-      </Panel>
+       <Panel>
+         <div className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
+           <p className="font-semibold uppercase tracking-wider">📅 Data attività:</p>
+           <p>Le card mostrano la data dell'attività nel formato italiano (es: "1 aprile 2026"). Utilizza il toggle <span className="font-medium">"show date"</span> per mostrare o nascondere le date sulle card.</p>
+           <p><span className="font-medium">"badge on image"</span> sposta il BadgeChip dalla riga titolo alla parte alta della foto (overlay).</p>
+           <p><span className="font-medium">Variant "activity"</span>: card per attività running con foto opzionale, titolo, data, distanza e tempo.</p>
+           <p className="mt-3 font-semibold uppercase tracking-wider">🎲 maxCards:</p>
+           <p>La prop <span className="font-medium">maxCards</span> limita il numero di card visualizzate in modo diretto (senza toggle "Mostra tutte"). Utile per mostrare un numero fisso di card, es: 4 card per riga. Lascia vuoto per usare il sistema di pagina con toggle.</p>
+         </div>
+       </Panel>
 
-      <div className="mt-4">
-        <PropsLegend
-          items={[
-            { prop: "tone", values: [...CARD_TONES] },
-            { prop: "total cards", values: ["3", "4", "6", "8", "10", "12"] },
-            { prop: "visible cards", values: ["3", "4", "6", "8", "10", "12"] },
-            { prop: "showDate", values: ["true", "false"] },
-            { prop: "showTypeBadge", values: ["true", "false"] },
-            { prop: "showBadgeOnImage", values: ["true", "false"] },
-            { prop: "showDescription", values: ["true", "false"] },
-          ]}
-        />
-      </div>
+       <div className="mt-4">
+         <PropsLegend
+           items={[
+             { prop: "tone", values: [...CARD_TONES] },
+             { prop: "variant", values: ["default", "activity"] },
+             { prop: "total cards", values: ["3", "4", "6", "8", "10", "12"] },
+             { prop: "visible cards", values: ["3", "4", "6", "8", "10", "12"] },
+             { prop: "maxCards", values: ["", "1", "2", "3", "4", "6", "8"] },
+             { prop: "showDate", values: ["true", "false"] },
+             { prop: "showTypeBadge", values: ["true", "false"] },
+             { prop: "showBadgeOnImage", values: ["true", "false"] },
+             { prop: "showDescription", values: ["true", "false"] },
+           ]}
+         />
+       </div>
     </Section>
   )
 }
@@ -1301,8 +1341,8 @@ function StatisticsSection() {
         { value: "trekking", label: "Trekking" },
       ],
     },
-    { type: "distanceMin", label: "Distanza minima" },
-    { type: "distanceMax", label: "Distanza massima" },
+    { type: "distanceMin", label: "Distanza min (km)", placeholder: "Distanza min (km)" },
+    { type: "distanceMax", label: "Distanza max (km)", placeholder: "Distanza max (km)" },
   ]
 
   return (

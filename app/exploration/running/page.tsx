@@ -19,11 +19,11 @@ import {
 } from "@/components/ui/carousel"
 import { Button } from "@/components/ui/button"
 import { Filter, type FilterConfig, type FilterState } from '@/components/Filter';
-import { ActivityDetailModal } from '@/components/ActivityDetailModal';
+import { Modal } from '@/components/Modal';
 import { Statistics, type StatisticsMetricKey } from '@/components/Statistics';
-import Image from 'next/image';
 import { thumbnailUrl } from '@/lib/cloudinary';
 import { getCachedActivities, setCachedActivities } from '@/lib/cache/activities';
+import { CardGrid, type CardGridItem } from '@/components/generic/CardGrid';
 
 interface ApiPhoto {
   activityId: number;
@@ -87,6 +87,10 @@ function inferRunningType(name: string, rawType: string): string {
   return normalizedRawType || 'unknown';
 }
 
+function normalizeType(type: string | undefined): string {
+  return (type || '').trim().toLowerCase();
+}
+
 function formatDurationFromSeconds(durationSec: number): string {
   const total = Math.max(0, Math.floor(durationSec));
   const hours = Math.floor(total / 3600);
@@ -108,10 +112,9 @@ function formatDistance(distanceM: number): string {
 
 export default function RunningPage() {
   const router = useRouter();
-  const [activities, setActivities] = useState<Activity[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [displayedCount, setDisplayedCount] = useState(4);
-  const [selectedActivityId, setSelectedActivityId] = useState<string | null>(null);
+   const [activities, setActivities] = useState<Activity[]>([]);
+   const [loading, setLoading] = useState(true);
+   const [selectedActivityId, setSelectedActivityId] = useState<string | null>(null);
   const [isDesktop, setIsDesktop] = useState(false);
   const [filters, setFilters] = useState({
     dateFrom: undefined as Date | undefined,
@@ -169,13 +172,13 @@ export default function RunningPage() {
     },
     {
       type: 'distanceMin',
-      label: 'Distanza minima',
-      placeholder: 'Distanza minima (m)',
+      label: 'Distanza min (km)',
+      placeholder: 'Distanza min (km)',
     },
     {
       type: 'distanceMax',
-      label: 'Distanza massima',
-      placeholder: 'Distanza massima (m)',
+      label: 'Distanza max (km)',
+      placeholder: 'Distanza max (km)',
     },
   ];
 
@@ -184,8 +187,8 @@ export default function RunningPage() {
       dateFrom: state.dateStart ? new Date(state.dateStart) : undefined,
       dateTo: state.dateEnd ? new Date(state.dateEnd) : undefined,
       types: state.activityType ? [state.activityType] : [],
-      minDistance: state.distanceMin ? Number.parseFloat(state.distanceMin) : undefined,
-      maxDistance: state.distanceMax ? Number.parseFloat(state.distanceMax) : undefined,
+      minDistance: state.distanceMin ? Number.parseFloat(state.distanceMin) * 1000 : undefined,
+      maxDistance: state.distanceMax ? Number.parseFloat(state.distanceMax) * 1000 : undefined,
     });
   };
 
@@ -265,16 +268,59 @@ export default function RunningPage() {
     void fetchActivities();
   }, []);
 
-  const displayedActivities = activities.slice(0, displayedCount);
-  const hasMore = activities.length > displayedCount;
-  const bestActivities = useMemo(
-    () => [...activities].sort((a, b) => parseFloat(b.distance_km) - parseFloat(a.distance_km)).slice(0, 4),
-    [activities]
-  );
+  const filteredActivities = useMemo(() => {
+    return activities.filter((activity) => {
+      const dateTs = safeTimestamp(activity.originalDate);
+      const distanceMeters = Number.parseFloat(activity.distance_km) * 1000;
+      const type = normalizeType(activity.type);
 
-  const loadMore = () => {
-    setDisplayedCount((prev) => prev + 4);
-  };
+      if (filters.dateFrom) {
+        const from = filters.dateFrom.getTime();
+        if (dateTs < from) return false;
+      }
+
+      if (filters.dateTo) {
+        const to = filters.dateTo.getTime();
+        if (dateTs > to) return false;
+      }
+
+      if (typeof filters.minDistance === 'number' && distanceMeters < filters.minDistance) return false;
+      if (typeof filters.maxDistance === 'number' && distanceMeters > filters.maxDistance) return false;
+
+      if (filters.types.length > 0) {
+        const allowed = filters.types.map((t) => normalizeType(t));
+        if (!allowed.includes(type)) return false;
+      }
+
+      return true;
+    });
+   }, [activities, filters]);
+
+   const activityGridItems = useMemo<CardGridItem[]>(
+     () =>
+       filteredActivities.map((activity) => ({
+         id: activity.id,
+         title: activity.name,
+         href: `/exploration/running/${activity.id}`,
+         // Nota: Non passiamo 'image' per evitare doppia visualizzazione nella modale.
+         // La foto sarà mostrata solo nella modale dal suo fetch separato.
+         // Usiamo 'hasPhoto' per mostrare il badge "Foto" sulla card.
+         hasPhoto: Boolean(activity.photo),
+         type: activity.type === 'track_running' ? 'track_running' : 'running',
+         date: activity.date,
+         distance: activity.distance_formatted,
+         duration: activity.duration_formatted,
+         pace: `${formatPace(activity.pace_min_per_km)} min/km`,
+         kcal: `${activity.calories_kcal || '—'}`,
+       })),
+     [filteredActivities]
+   );
+   const bestActivities = useMemo(
+     () => [...activities].sort((a, b) => parseFloat(b.distance_km) - parseFloat(a.distance_km)).slice(0, 4),
+     [activities]
+   );
+
+   const selectedActivity = selectedActivityId ? activities.find((a) => a.id === selectedActivityId) : null;
 
   if (loading) {
     return (
@@ -320,113 +366,28 @@ export default function RunningPage() {
               {error}
             </div>
           )}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {displayedActivities.map((activity, index) => (
-              <Card
-                key={activity.id}
-                className="p-6 hover:shadow-lg transition-shadow cursor-pointer"
-                dataName={`card ${index + 1}`}
-                onClick={() => handleActivityClick(activity.id)}
-              >
-                {activity.photo && (
-                  <div className="mb-4 relative h-44 w-full overflow-hidden rounded-lg">
-                    <Image
-                      src={thumbnailUrl(activity.photo.publicId) || activity.photo.secureUrl}
-                      alt={activity.name}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 100vw, 50vw"
-                    />
-                  </div>
-                )}
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-xl font-bold text-slate-900 dark:text-white">
-                    {activity.name}
-                  </h3>
-                  <span className="text-sm text-slate-500 dark:text-slate-400">
-                    {activity.date}
-                  </span>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">Distanza</p>
-                    <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                      {activity.distance_formatted}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">Tempo</p>
-                    <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                      {activity.duration_formatted}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">Pace</p>
-                    <p className="text-lg font-semibold text-slate-900 dark:text-white">
-                      {formatPace(activity.pace_min_per_km)} min/km
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400">Kcal</p>
-                    <p className="text-lg font-semibold text-slate-900 dark:text-white">
-                      {activity.calories_kcal || '—'}
-                    </p>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
-          {hasMore && (
-            <div className="mt-6 text-center">
-              <button
-                onClick={loadMore}
-                className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Mostra Altro
-              </button>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* My Best Section with Carousel */}
-      <section className="px-4 py-12 sm:px-6 lg:px-8 bg-slate-100 dark:bg-slate-700">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-8">
-            My Best
-          </h2>
-          <div className="space-y-4">
-            <Carousel
-              orientation="horizontal"
-              opts={{ align: "start" }}
-              className="mx-auto w-full max-w-4xl"
-              data-name="carousel"
-            >
-              <CarouselContent>
-                {bestActivities.map((activity, index) => (
-                  <CarouselItem key={activity.id} className="md:basis-1/1">
-                    <Card className="flex min-h-[320px] flex-col" dataName={`carousel card ${index + 1}`}>
-                      <CardHeader>
-                        <CardTitle>{activity.name}</CardTitle>
-                        <CardDescription>{activity.date}</CardDescription>
-                      </CardHeader>
-                      <CardContent className="flex-1">
-                        <p className="text-sm text-muted-foreground">
-                          Distanza: {activity.distance_formatted}<br/>
-                          Tempo: {activity.duration_formatted}<br/>
-                          Pace: {formatPace(activity.pace_min_per_km)} min/km<br/>
-                          Kcal: {activity.calories_kcal || '—'}
-                        </p>
-                      </CardContent>
-                    </Card>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious />
-              <CarouselNext />
-            </Carousel>
-          </div>
-        </div>
+            <CardGrid
+              variant="activity"
+              title=""
+              subtitle=""
+              items={activityGridItems}
+              columnsClassName="grid grid-cols-1 md:grid-cols-4 gap-6"
+              sectionClassName="px-0 py-0 bg-transparent"
+              useMotion={false}
+              showDate
+              showTypeBadge={false}
+              visibleItems={4}
+              showVisibilityToggle
+              showMoreLabel="Mostra altre attività"
+              showLessLabel="Mostra meno"
+              onItemClick={(item) => handleActivityClick(item.id)}
+            />
+           {filteredActivities.length === 0 && (
+             <div className="mt-6 rounded-lg border border-slate-200 dark:border-slate-700 bg-white/70 dark:bg-slate-800/50 p-6 text-center text-slate-600 dark:text-slate-300">
+               Nessuna attività trovata con i filtri selezionati.
+             </div>
+           )}
+         </div>
       </section>
 
       {/* Stats Summary */}
@@ -480,12 +441,13 @@ export default function RunningPage() {
 
       {/* Activity Detail Modal (Desktop only) */}
       {selectedActivityId && (
-        <ActivityDetailModal
+        <Modal
           activityId={selectedActivityId}
           isOpen={true}
           onClose={() => setSelectedActivityId(null)}
           detailsPageUrl={`/exploration/running/${selectedActivityId}`}
-          photo={activities.find(a => a.id === selectedActivityId)?.photo ?? null}
+          photo={selectedActivity?.photo ?? null}
+          tone="blue"
         />
       )}
     </main>
