@@ -61,8 +61,8 @@ export default function Header({
   tone = 'current',
   logoSrc = '/logo/hp-logo.svg',
   logoAlt = 'mz-exploration logo',
-  logoWidth = 175,
-  logoHeight = 150,
+  logoWidth = 160,
+  logoHeight = 138,
   aboutLink = defaultAboutLink,
   contactLink = defaultContactLink,
   explorationLink = defaultExplorationLink,
@@ -95,7 +95,7 @@ export default function Header({
 
   return (
     <header className={`sticky top-0 z-50 ${rootTextClass} shadow-lg ${backgroundClassName} ${className}`}>
-      <div className="max-w-6xl mx-auto px-4 py-4">
+      <div className="max-w-6xl mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           {/* Logo - Left */}
           <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">

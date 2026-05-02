@@ -51,12 +51,38 @@ interface Activity {
   originalDate: string;
   distance_km: string;
   distance_formatted: string;
+  duration_sec: number;
   duration_min: number;
   duration_formatted: string;
   calories_kcal: number;
   pace_min_per_km?: number;
   photo?: ApiPhoto | null;
 }
+
+type CachedActivity = Omit<Activity, 'duration_sec'> & { duration_sec?: number };
+
+function normalizeRunningActivity(activity: CachedActivity): Activity {
+  const durationSec =
+    typeof activity.duration_sec === 'number' && activity.duration_sec > 0
+      ? activity.duration_sec
+      : Math.max(0, Math.round((activity.duration_min ?? 0) * 60));
+
+  return {
+    ...activity,
+    duration_sec: durationSec,
+    duration_min: Math.round(durationSec / 60),
+    duration_formatted: formatDurationFromSeconds(durationSec),
+  };
+}
+
+const runningSortOptions = [
+  { value: 'date_desc', label: 'Più recente' },
+  { value: 'date_asc', label: 'Meno recente' },
+  { value: 'distance_desc', label: 'Più lunga' },
+  { value: 'distance_asc', label: 'Meno lunga' },
+] as const;
+
+type RunningSortValue = (typeof runningSortOptions)[number]['value'];
 
 const relatedExplorationCards: CardGridItem[] = [
   {
@@ -145,6 +171,7 @@ export default function RunningPage() {
     minDistance: undefined as number | undefined,
     maxDistance: undefined as number | undefined,
   });
+  const [sortBy, setSortBy] = useState<RunningSortValue>('date_desc');
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -179,27 +206,32 @@ export default function RunningPage() {
     {
       type: 'dateStart',
       label: 'Data inizio',
+      shortLabel: 'Data inizio',
     },
     {
       type: 'dateEnd',
       label: 'Data fine',
+      shortLabel: 'Data fine',
     },
     {
       type: 'activityType',
       label: 'Tipo attività',
+      shortLabel: 'Tipo attività',
       options: [
-        { value: 'running', label: 'Running' },
-        { value: 'track_running', label: 'Track Running' },
+        { value: 'running', label: 'Corsa su strada' },
+        { value: 'track_running', label: 'Corsa su pista' },
       ],
     },
     {
       type: 'distanceMin',
       label: 'Distanza min (km)',
+      shortLabel: 'Dist. min (km)',
       placeholder: 'Distanza min (km)',
     },
     {
       type: 'distanceMax',
       label: 'Distanza max (km)',
+      shortLabel: 'Dist. max (km)',
       placeholder: 'Distanza max (km)',
     },
   ];
@@ -221,9 +253,11 @@ export default function RunningPage() {
   useEffect(() => {
     const fetchActivities = async () => {
       try {
-        const cached = getCachedActivities<Activity[]>('running');
+        const cached = getCachedActivities<CachedActivity[]>('running');
         if (cached && cached.length > 0) {
-          setActivities(cached);
+          const normalizedCached = cached.map(normalizeRunningActivity);
+          setActivities(normalizedCached);
+          setCachedActivities(normalizedCached, 'running');
           setLoading(false);
           return;
         }
@@ -255,6 +289,7 @@ export default function RunningPage() {
                 originalDate: dateIso,
                 distance_km: (distanceM / 1000).toFixed(2),
                 distance_formatted: formatDistance(distanceM),
+                duration_sec: durationSec,
                 duration_min: Math.round(durationSec / 60),
                 duration_formatted: formatDurationFromSeconds(durationSec),
                 calories_kcal: act.calories_kcal ?? 0,
@@ -275,9 +310,10 @@ export default function RunningPage() {
       } catch (fetchError) {
         console.error('Error fetching activities:', fetchError);
 
-        const cached = getCachedActivities<Activity[]>('running');
+        const cached = getCachedActivities<CachedActivity[]>('running');
         if (cached && cached.length > 0) {
-          setActivities(cached);
+          const normalizedCached = cached.map(normalizeRunningActivity);
+          setActivities(normalizedCached);
           setError('Connessione instabile: sto mostrando dati recenti dalla cache.');
         } else {
           setError('Impossibile caricare le attività. Controlla la connessione al database.');
@@ -291,7 +327,7 @@ export default function RunningPage() {
   }, []);
 
   const filteredActivities = useMemo(() => {
-    return activities.filter((activity) => {
+    const filtered = activities.filter((activity) => {
       const dateTs = safeTimestamp(activity.originalDate);
       const distanceMeters = Number.parseFloat(activity.distance_km) * 1000;
       const type = normalizeType(activity.type);
@@ -316,7 +352,20 @@ export default function RunningPage() {
 
       return true;
     });
-   }, [activities, filters]);
+
+    switch (sortBy) {
+      case 'date_asc':
+        return [...filtered].sort((a, b) => safeTimestamp(a.originalDate) - safeTimestamp(b.originalDate));
+      case 'date_desc':
+        return [...filtered].sort((a, b) => safeTimestamp(b.originalDate) - safeTimestamp(a.originalDate));
+      case 'distance_asc':
+        return [...filtered].sort((a, b) => parseFloat(a.distance_km) - parseFloat(b.distance_km));
+      case 'distance_desc':
+        return [...filtered].sort((a, b) => parseFloat(b.distance_km) - parseFloat(a.distance_km));
+      default:
+        return filtered;
+    }
+   }, [activities, filters, sortBy]);
 
    const activityGridItems = useMemo<CardGridItem[]>(
      () =>
@@ -341,14 +390,35 @@ export default function RunningPage() {
      const longestKm = activities.length > 0
        ? Math.max(...activities.map(a => parseFloat(a.distance_km)))
        : 0;
-     const totalHours = activities.reduce((sum, a) => sum + a.duration_min, 0) / 60;
+     // Record mezza maratona: miglior tempo su attività ~21.1 km (tolleranza +/- 0.5 km)
+     const halfMarathonCandidates = activities.filter((a) => {
+       const km = parseFloat(a.distance_km);
+       const durationSec = typeof a.duration_sec === 'number' && a.duration_sec > 0
+         ? a.duration_sec
+         : Math.max(0, Math.round(a.duration_min * 60));
+       return Number.isFinite(km) && km >= 20.6 && km <= 21.6 && durationSec > 0;
+     });
+     const bestHalf = halfMarathonCandidates.length > 0
+       ? [...halfMarathonCandidates].sort((a, b) => {
+           const aSec = typeof a.duration_sec === 'number' && a.duration_sec > 0 ? a.duration_sec : Math.round(a.duration_min * 60);
+           const bSec = typeof b.duration_sec === 'number' && b.duration_sec > 0 ? b.duration_sec : Math.round(b.duration_min * 60);
+           return aSec - bSec;
+         })[0]
+       : null;
+
      return {
        count: activities.length,
        totalKm: totalKm >= 1000
          ? `${(totalKm / 1000).toFixed(1)}k km`
          : `${Math.round(totalKm)} km`,
        longestKm: `${longestKm.toFixed(1)} km`,
-       totalHours: `${Math.round(totalHours)} h`,
+       halfMarathonRecord: bestHalf
+         ? formatDurationFromSeconds(
+             typeof bestHalf.duration_sec === 'number' && bestHalf.duration_sec > 0
+               ? bestHalf.duration_sec
+               : Math.round(bestHalf.duration_min * 60)
+           )
+         : 'N/D',
      };
    }, [activities]);
 
@@ -390,6 +460,13 @@ export default function RunningPage() {
           ← Exploration
         </Link>
 
+        <Link
+          href="/exploration/running/equipment"
+          className="absolute top-6 right-6 sm:right-10 inline-flex items-center gap-1.5 text-white/75 hover:text-white text-sm font-medium transition z-10"
+        >
+          🎽 Attrezzatura
+        </Link>
+
         {/* Content in basso */}
         <div className="absolute inset-0 flex flex-col items-center justify-end px-6 pb-7 sm:px-10 sm:pb-8">
 
@@ -401,11 +478,6 @@ export default function RunningPage() {
             <p className="text-sm sm:text-base text-white/80 max-w-lg mx-auto">
               Corse su strada, pista e allenamenti — progressi, numeri ed emozioni.
             </p>
-            <div className="pt-1 flex justify-center">
-              <Button asChild tone="white" size="default" radius="lg">
-                <Link href="/exploration/running/equipment">🎽 Attrezzatura</Link>
-              </Button>
-            </div>
           </div>
 
           {/* Barra statistiche — frosted glass */}
@@ -414,7 +486,7 @@ export default function RunningPage() {
               { label: 'Attività', value: loading ? '…' : String(heroStats.count) },
               { label: 'Tot. distanza', value: loading ? '…' : heroStats.totalKm },
               { label: 'Longest run', value: loading ? '…' : heroStats.longestKm },
-              { label: 'Ore totali', value: loading ? '…' : heroStats.totalHours },
+                { label: 'PB mezza maratona', value: loading ? '…' : heroStats.halfMarathonRecord },
             ].map((stat) => (
               <div
                 key={stat.label}
@@ -433,18 +505,18 @@ export default function RunningPage() {
       </section>
 
       {/* ─── Filtri ─── */}
-      <section className="px-4 pt-6 pb-3 sm:px-6 lg:px-8 bg-sky-50 dark:bg-slate-900 border-b border-sky-200/70 dark:border-slate-800">
+      <section className="sticky top-[50px] md:top-[50px] z-40 px-4 py-[2px] sm:px-6 lg:px-8 bg-sky-50/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-sky-200/80 dark:border-slate-800">
         <div className="max-w-6xl mx-auto">
           <Filter
             filters={runningFilterConfig}
             tone="current"
             density="compact"
             variant="minimal"
-            className="bg-transparent"
+            className="bg-transparent py-0.5"
             onFilterChange={handleFilterChange}
             onReset={resetRunningFilters}
-            resetLabel="Reset"
-            applyLabel="Applica"
+            resetLabel="CLEAR"
+            applyLabel="MOSTRA RISULTATI"
           />
         </div>
       </section>
@@ -452,14 +524,6 @@ export default function RunningPage() {
       {/* ─── Griglia attività ─── */}
       <section className="px-4 pt-6 pb-10 sm:px-6 lg:px-8 bg-sky-50 dark:bg-slate-900">
         <div className="max-w-6xl mx-auto">
-          <div className="flex items-baseline justify-between mb-6">
-            <h2 className="text-xl font-bold text-slate-900 dark:text-white">Attività recenti</h2>
-            {filteredActivities.length > 0 && (
-              <span className="text-sm text-slate-500 dark:text-slate-400">
-                {filteredActivities.length} attività
-              </span>
-            )}
-          </div>
           {error && (
             <div className="mb-6 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-200">
               {error}
@@ -467,8 +531,8 @@ export default function RunningPage() {
           )}
           <CardGrid
             variant="activity"
-            title=""
-            subtitle=""
+            title="Attività recenti"
+            subtitle={`${filteredActivities.length} attività`}
             items={activityGridItems}
             columnsClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
             sectionClassName="px-0 py-0 bg-transparent"
@@ -476,10 +540,16 @@ export default function RunningPage() {
             useMotion={false}
             showDate
             showTypeBadge={false}
+            sortOptions={[...runningSortOptions]}
+            sortValue={sortBy}
+            onSortChange={(value) => setSortBy(value as RunningSortValue)}
+            sortLabel="Ordina"
             visibleItems={6}
             showVisibilityToggle
             showMoreLabel="Mostra altre attività"
             showLessLabel="Mostra meno"
+            showMoreTone="navy"
+            showLessTone="navy"
             activityPhotoBadgePosition="border"
             activityPhotoBadgeSize="medium"
             activityPhotoBadgeRounded={false}

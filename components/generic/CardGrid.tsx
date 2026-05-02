@@ -6,6 +6,8 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import type { ButtonTone } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BadgeChip } from '@/components/BadgeChip';
 import type { BadgeChipType } from '@/components/BadgeChip';
 import type { BadgeChipSize } from '@/components/BadgeChip';
@@ -27,6 +29,11 @@ export interface CardGridItem {
   pace?: string;
   kcal?: string;
   hasPhoto?: boolean; // Se true, mostra il badge "Photo" sulla card activity
+}
+
+export interface CardGridSortOption {
+  value: string;
+  label: string;
 }
 
 interface CardGridProps {
@@ -51,6 +58,14 @@ interface CardGridProps {
   showMoreLabel?: string;
   showLessLabel?: string;
   visibilityToggleClassName?: string;
+  showMoreTone?: ButtonTone;
+  showLessTone?: ButtonTone;
+  sortOptions?: CardGridSortOption[];
+  sortValue?: string;
+  onSortChange?: (value: string) => void;
+  sortLabel?: string;
+  showItemsCount?: boolean;
+  itemsCountLabel?: string;
   tone?: CardGridColor;
   sectionClassName?: string;
   titleColor?: CardGridColor;
@@ -165,6 +180,14 @@ export function CardGrid({
   showMoreLabel = 'Mostra tutte',
   showLessLabel = 'Mostra meno',
   visibilityToggleClassName = '',
+  showMoreTone = 'blue',
+  showLessTone = 'black',
+  sortOptions,
+  sortValue,
+  onSortChange,
+  sortLabel = 'Sort by',
+  showItemsCount = false,
+  itemsCountLabel = 'attività',
   tone,
   sectionClassName = 'px-4 py-16 sm:px-6 lg:px-8 bg-white dark:bg-slate-900',
   titleColor = 'current',
@@ -223,16 +246,43 @@ export function CardGrid({
       }
     : {};
 
+  const shouldShowHeader = Boolean(title || subtitle || showItemsCount || (sortOptions && sortOptions.length > 0 && onSortChange));
+  const headerBottomSpacing = title || subtitle ? 'mb-10' : 'mb-6';
+
   return (
     <section className={`${sectionClassName} ${className}`}>
       <div className={`max-w-6xl mx-auto ${containerClassName}`}>
-        <motion.div
-          {...headerAnimation}
-          className="mb-12"
-        >
-          <h2 className={`text-3xl sm:text-4xl font-bold mb-2 ${titleColorClass}`}>{title}</h2>
-          {subtitle && <p className={subtitleColorClass}>{subtitle}</p>}
-        </motion.div>
+        {shouldShowHeader ? (
+          <motion.div
+            {...headerAnimation}
+            className={`flex items-end justify-between gap-4 flex-wrap ${headerBottomSpacing}`}
+          >
+            <div>
+              {title ? <h2 className={`text-3xl sm:text-4xl font-bold mb-2 ${titleColorClass}`}>{title}</h2> : null}
+              {subtitle ? <p className={subtitleColorClass}>{subtitle}</p> : null}
+            </div>
+            {(showItemsCount || (sortOptions && sortOptions.length > 0 && onSortChange)) ? (
+              <div className="ml-auto flex items-center gap-4 text-sm text-slate-600 dark:text-slate-300">
+                {showItemsCount ? <span className="whitespace-nowrap">{items.length} {itemsCountLabel}</span> : null}
+                {sortOptions && sortOptions.length > 0 && onSortChange ? (
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium whitespace-nowrap">{sortLabel}</span>
+                    <Select value={sortValue} onValueChange={onSortChange}>
+                      <SelectTrigger className="h-9 min-w-[12.5rem] border-slate-300 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+                        <SelectValue placeholder="Seleziona" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {sortOptions.map((opt) => (
+                          <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                ) : null}
+              </div>
+            ) : null}
+          </motion.div>
+        ) : null}
 
         <div className={`${columnsClassName} ${gridClassName}`}>
           {displayedItems.map((item, index) => (
@@ -446,7 +496,7 @@ export function CardGrid({
             {hasMore && (
               <Button
                 variant="outline"
-                tone="blue"
+                tone={showMoreTone}
                 onClick={() => setShownCount((prev) => prev + (normalizedVisibleItems ?? 4))}
               >
                 {showMoreLabel}
@@ -455,7 +505,7 @@ export function CardGrid({
             {hasLess && (
               <Button
                 variant="outline"
-                tone="black"
+                tone={showLessTone}
                 onClick={() => setShownCount(normalizedVisibleItems ?? 4)}
               >
                 {showLessLabel}
