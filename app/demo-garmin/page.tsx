@@ -114,6 +114,13 @@ export default function DemoGarminPage() {
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
   const tableRef = useRef<HTMLDivElement>(null);
 
+  const noStoreGet = {
+    cache: 'no-store' as const,
+    headers: {
+      'cache-control': 'no-cache',
+    },
+  };
+
   const getActivityKey = (activity: Activity, idx: number): string => {
     if (activity._id) return `db-${activity._id}`;
 
@@ -135,7 +142,7 @@ export default function DemoGarminPage() {
     setLoadingDB(true);
     setDbMessage(null);
     try {
-      const res = await fetch('/api/test-db');
+      const res = await fetch('/api/test-db', noStoreGet);
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || data.error || 'Errore sconosciuto');
       setDbMessage({ text: `✅ Connesso — Attività: ${data.data.collections.activities}`, ok: true });
@@ -151,7 +158,7 @@ export default function DemoGarminPage() {
     setLoadingDB(true);
     setDbMessage(null);
     try {
-      const res = await fetch('/api/status');
+      const res = await fetch('/api/status', noStoreGet);
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || data.error || 'Errore sconosciuto');
       setDbStatus({
@@ -172,7 +179,7 @@ export default function DemoGarminPage() {
     if (!silent) setDbMessage(null);
 
     try {
-      const res = await fetch('/api/activities/garmin');
+      const res = await fetch('/api/activities/garmin', noStoreGet);
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || data.error || 'Errore caricamento');
 
@@ -247,7 +254,7 @@ export default function DemoGarminPage() {
         showFloatingNotice(`✅ Upload JSON: trovati/rimossi ${totalDuplicates} duplicati`);
       }
       // Aggiorna la lista silenziosamente
-      const listRes = await fetch('/api/activities/garmin');
+      const listRes = await fetch('/api/activities/garmin', noStoreGet);
       const listData = await listRes.json();
       if (listRes.ok) {
         const list: Activity[] = (listData.data.recent_activities || []).map((item: Activity) => ({
@@ -312,7 +319,7 @@ export default function DemoGarminPage() {
       setManualMessage({ text: `✅ Attività aggiunta (${result.data.saved} salvata)`, ok: true });
       setFormData({ name: '', type: 'running', date: new Date().toISOString().split('T')[0], distance: 0, duration: 0 });
       // Aggiorna lista silenziosamente
-      const listRes = await fetch('/api/activities/garmin');
+      const listRes = await fetch('/api/activities/garmin', noStoreGet);
       const listData = await listRes.json();
       if (listRes.ok) {
         const list: Activity[] = (listData.data.recent_activities || []).map((item: Activity) => ({

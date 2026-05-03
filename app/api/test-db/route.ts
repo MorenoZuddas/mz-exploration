@@ -2,6 +2,7 @@ import { connectToDatabase } from '@/lib/db/connection';
 import { Activity } from '@/lib/db/models/Activity';
 import { SyncLog } from '@/lib/db/models/SyncLog';
 import { NextResponse } from 'next/server';
+import { expandGarminActivitiesFromDocuments, isGarminWrapperDocument, type GarminStoredDocument } from '@/lib/garmin/db';
 
 export async function GET(): Promise<NextResponse> {
   try {
@@ -12,10 +13,15 @@ export async function GET(): Promise<NextResponse> {
     console.log('✅ MongoDB connesso');
 
     // 2. Verifica le collections
-    const activityCount = await Activity.countDocuments();
+    const documentsCount = await Activity.countDocuments();
+    const activityDocs = (await Activity.find().lean()) as GarminStoredDocument[];
+    const activityCount = expandGarminActivitiesFromDocuments(activityDocs).length;
+    const wrapperDocumentsCount = activityDocs.filter(isGarminWrapperDocument).length;
     const syncLogCount = await SyncLog.countDocuments();
 
-    console.log(`📊 Activities: ${activityCount}`);
+    console.log(`📦 Activity documents: ${documentsCount}`);
+    console.log(`📊 Expanded activities: ${activityCount}`);
+    console.log(`🧱 Wrapper documents: ${wrapperDocumentsCount}`);
     console.log(`📋 Sync Logs: ${syncLogCount}`);
 
     return NextResponse.json({
@@ -24,7 +30,9 @@ export async function GET(): Promise<NextResponse> {
       data: {
         mongodb_connected: true,
         collections: {
+          activity_documents: documentsCount,
           activities: activityCount,
+          activity_wrappers: wrapperDocumentsCount,
           sync_logs: syncLogCount,
         },
       },

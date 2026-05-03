@@ -1,11 +1,7 @@
 import { connectToDatabase } from '@/lib/db/connection';
 import { Activity } from '@/lib/db/models/Activity';
-import { convertGarminRaw, GarminRawActivity } from '@/lib/garmin/converter';
+import { type GarminStoredDocument, expandGarminActivitiesFromDocuments, sortExpandedGarminActivities } from '@/lib/garmin/db';
 import { NextResponse } from 'next/server';
-
-function isObjectRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
 
 function formatDuration(durationSec: number): string {
   const total = Math.max(0, Math.floor(durationSec));
@@ -32,20 +28,16 @@ export async function GET(): Promise<NextResponse> {
   try {
     await connectToDatabase();
 
-    const rawDocs = (await Activity.find().sort({ date: -1 }).lean()) as GarminRawActivity[];
+    const rawDocs = (await Activity.find().lean()) as GarminStoredDocument[];
+    const expanded = sortExpandedGarminActivities(expandGarminActivitiesFromDocuments(rawDocs));
 
-    const normalized = rawDocs.map((doc) => {
-      const payloadSource = isObjectRecord(doc.raw_payload)
-        ? ({ ...(doc as Record<string, unknown>), ...(doc.raw_payload as Record<string, unknown>) } as GarminRawActivity)
-        : doc;
-
-      const converted = convertGarminRaw(payloadSource);
+    const normalized = expanded.map((entry) => {
+      const converted = entry.converted;
       const distanceM = converted.distance_m ?? 0;
       const durationSec = converted.duration_sec ?? 0;
-      const rawId = (doc as { _id?: unknown })._id;
 
       return {
-        id: rawId != null ? String(rawId) : converted.source_id,
+        id: entry.entryId,
         name: converted.name,
         type: converted.type,
         date: converted.date,
@@ -57,7 +49,7 @@ export async function GET(): Promise<NextResponse> {
         pace_min_per_km: converted.pace_min_per_km,
         source: converted.source,
         avg_speed_ms: converted.avg_speed_mps?.toFixed(2) ?? '0',
-        created_at: (doc as { created_at?: Date }).created_at,
+        created_at: entry.createdAt ?? undefined,
       };
     });
 

@@ -2,8 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { Types } from 'mongoose';
 import { connectToDatabase } from '@/lib/db/connection';
 import { Activity } from '@/lib/db/models/Activity';
-import { convertGarminRaw, type GarminRawActivity } from '@/lib/garmin/converter';
+import { type GarminRawActivity } from '@/lib/garmin/converter';
 import { getAssetsByActivityIds } from '@/lib/cloudinary/server';
+import {
+  expandGarminActivitiesFromDocument,
+  expandGarminActivitiesFromDocuments,
+  type ExpandedGarminActivity,
+  type GarminStoredDocument,
+} from '@/lib/garmin/db';
 
 interface RouteContext {
   params: Promise<{ id: string }>;
@@ -84,18 +90,6 @@ function normalizePhotosFromDb(rawActivity: GarminRawActivity): NormalizedPhoto[
   return Array.from(unique.values());
 }
 
-function resolveNumericActivityId(rawActivity: GarminRawActivity, sourceId: string): number | null {
-  if (typeof rawActivity.activityId === 'number' && Number.isFinite(rawActivity.activityId)) {
-    return rawActivity.activityId;
-  }
-
-  if (/^\d+$/.test(sourceId)) {
-    return Number(sourceId);
-  }
-
-  return null;
-}
-
 export async function GET(request: NextRequest, context: RouteContext): Promise<NextResponse> {
   try {
     const { id: idFromParams } = await context.params;
@@ -111,43 +105,37 @@ export async function GET(request: NextRequest, context: RouteContext): Promise<
 
     await connectToDatabase();
 
-    let rawActivity: GarminRawActivity | null = null;
+    let selectedEntry: ExpandedGarminActivity | null = null;
 
     if (Types.ObjectId.isValid(id)) {
-      rawActivity = (await Activity.findById(id).lean()) as GarminRawActivity | null;
-    }
-
-    if (!rawActivity) {
-      rawActivity = (await Activity.findOne({ source_id: id }).lean()) as GarminRawActivity | null;
-    }
-
-    if (!rawActivity) {
-      const numericId = Number(id);
-      if (Number.isFinite(numericId)) {
-        rawActivity = (await Activity.findOne({ activityId: numericId }).lean()) as GarminRawActivity | null;
+      const directDoc = (await Activity.findById(id).lean()) as GarminStoredDocument | null;
+      if (directDoc) {
+        const expandedDirect = expandGarminActivitiesFromDocument(directDoc);
+        selectedEntry = expandedDirect.find((entry) => entry.entryId === id) ?? expandedDirect[0] ?? null;
       }
     }
 
-    if (!rawActivity) {
+    if (!selectedEntry) {
+      const rawDocs = (await Activity.find().lean()) as GarminStoredDocument[];
+      const expandedActivities = expandGarminActivitiesFromDocuments(rawDocs);
+      const numericId = Number(id);
+      selectedEntry = expandedActivities.find((entry) => {
+        if (entry.entryId === id) return true;
+        if (entry.containerId === id) return true;
+        return Number.isFinite(numericId) && entry.numericActivityId === numericId;
+      }) ?? null;
+    }
+
+    if (!selectedEntry) {
       return NextResponse.json(
         { status: 'error', message: 'Attività non trovata' },
         { status: 404 }
       );
     }
 
-    const payloadSource = isObjectRecord(rawActivity.raw_payload)
-      ? ({
-          ...(rawActivity as Record<string, unknown>),
-          ...(rawActivity.raw_payload as Record<string, unknown>),
-        } as GarminRawActivity)
-      : rawActivity;
-
-    const converted = convertGarminRaw(payloadSource);
-    const rawId = (rawActivity as { _id?: unknown })._id;
-    const serializedId = rawId !== undefined && rawId !== null ? String(rawId) : undefined;
-
-    const dbPhotos = normalizePhotosFromDb(rawActivity);
-    const numericActivityId = resolveNumericActivityId(payloadSource, converted.source_id);
+    const converted = selectedEntry.converted;
+    const dbPhotos = normalizePhotosFromDb(selectedEntry.raw);
+    const numericActivityId = selectedEntry.numericActivityId;
 
     let cloudPhotos: NormalizedPhoto[] = [];
     if (numericActivityId) {
@@ -172,7 +160,8 @@ export async function GET(request: NextRequest, context: RouteContext): Promise<
       data: {
         activity: {
           ...converted,
-          _id: serializedId,
+          _id: selectedEntry.entryId,
+          container_id: selectedEntry.containerId,
           activityId: numericActivityId,
           photos: finalPhotos,
         },

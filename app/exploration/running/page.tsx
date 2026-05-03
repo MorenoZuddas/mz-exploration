@@ -61,6 +61,8 @@ interface Activity {
 
 type CachedActivity = Omit<Activity, 'duration_sec'> & { duration_sec?: number };
 
+const ENABLE_ACTIVITY_CACHE = process.env.NODE_ENV === 'production';
+
 function normalizeRunningActivity(activity: CachedActivity): Activity {
   const durationSec =
     typeof activity.duration_sec === 'number' && activity.duration_sec > 0
@@ -163,7 +165,9 @@ export default function RunningPage() {
    const [activities, setActivities] = useState<Activity[]>([]);
    const [loading, setLoading] = useState(true);
    const [selectedActivityId, setSelectedActivityId] = useState<string | null>(null);
-  const [isDesktop, setIsDesktop] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(min-width: 1024px)').matches : false
+  );
   const [filters, setFilters] = useState({
     dateFrom: undefined as Date | undefined,
     dateTo: undefined as Date | undefined,
@@ -176,7 +180,6 @@ export default function RunningPage() {
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(min-width: 1024px)');
-    setIsDesktop(mediaQuery.matches);
 
     const onChange = (event: MediaQueryListEvent) => {
       setIsDesktop(event.matches);
@@ -251,18 +254,28 @@ export default function RunningPage() {
   };
 
   useEffect(() => {
-    const fetchActivities = async () => {
-      try {
-        const cached = getCachedActivities<CachedActivity[]>('running');
-        if (cached && cached.length > 0) {
-          const normalizedCached = cached.map(normalizeRunningActivity);
-          setActivities(normalizedCached);
-          setCachedActivities(normalizedCached, 'running');
-          setLoading(false);
-          return;
-        }
+    const abortController = new AbortController();
+    let isActive = true;
 
-        const response = await fetch('/api/activities/garmin');
+    const fetchActivities = async () => {
+      const cached = ENABLE_ACTIVITY_CACHE ? getCachedActivities<CachedActivity[]>('running') : null;
+
+      if (cached && cached.length > 0) {
+        const normalizedCached = cached.map(normalizeRunningActivity);
+        if (isActive) {
+          setActivities(normalizedCached);
+          setLoading(false);
+        }
+      }
+
+      try {
+        const response = await fetch('/api/activities/garmin', {
+          cache: 'no-store',
+          signal: abortController.signal,
+          headers: {
+            'cache-control': 'no-cache',
+          },
+        });
         if (!response.ok) {
           const raw = await response.text();
           console.error('GET /api/activities/garmin failed', response.status, raw);
@@ -300,17 +313,26 @@ export default function RunningPage() {
             .filter((act) => act.type === 'running' || act.type === 'track_running')
             .sort((a, b) => safeTimestamp(b.originalDate) - safeTimestamp(a.originalDate));
 
+          if (!isActive) {
+            return;
+          }
+
           setActivities(runningActivities);
-          setCachedActivities(runningActivities, 'running');
+          if (ENABLE_ACTIVITY_CACHE) {
+            setCachedActivities(runningActivities, 'running');
+          }
           setError(null);
           return;
         }
 
         throw new Error('Formato risposta API non valido.');
       } catch (fetchError) {
+        if ((fetchError instanceof Error && fetchError.name === 'AbortError') || !isActive) {
+          return;
+        }
+
         console.error('Error fetching activities:', fetchError);
 
-        const cached = getCachedActivities<CachedActivity[]>('running');
         if (cached && cached.length > 0) {
           const normalizedCached = cached.map(normalizeRunningActivity);
           setActivities(normalizedCached);
@@ -319,11 +341,18 @@ export default function RunningPage() {
           setError('Impossibile caricare le attività. Controlla la connessione al database.');
         }
       } finally {
-        setLoading(false);
+        if (isActive) {
+          setLoading(false);
+        }
       }
     };
 
     void fetchActivities();
+
+    return () => {
+      isActive = false;
+      abortController.abort();
+    };
   }, []);
 
   const filteredActivities = useMemo(() => {

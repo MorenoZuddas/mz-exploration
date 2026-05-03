@@ -247,6 +247,77 @@ npm run dev
 
 App locale: `http://localhost:3000`
 
+## Migrazione wrapper Garmin (`summarizedActivitiesExport`)
+
+Se nella collection `activities` e presente un singolo documento contenitore con un array Garmin come `summarizedActivitiesExport`, puoi convertirlo in documenti canonici (uno per attivita) tramite la route:
+
+- `POST /api/activities/garmin/migrate-wrapper`
+
+La route supporta:
+
+- dry-run di default
+- applicazione reale con `{"apply": true}`
+- cancellazione del documento wrapper sorgente dopo migrazione riuscita (default: `true`)
+- protezione opzionale tramite env `MIGRATION_API_SECRET`
+
+### Variabili ambiente consigliate
+
+In locale o su Vercel puoi configurare:
+
+```bash
+MIGRATION_API_SECRET=una-stringa-segreta-lunga
+```
+
+Se la variabile e impostata, la route richiede l'header:
+
+```bash
+x-migration-secret: <valore-segreto>
+```
+
+### Dry-run locale
+
+```bash
+curl -X POST "http://localhost:3000/api/activities/garmin/migrate-wrapper" \
+  -H "Content-Type: application/json" \
+  -H "x-migration-secret: $MIGRATION_API_SECRET" \
+  -d '{"limit":25}'
+```
+
+### Apply locale
+
+```bash
+curl -X POST "http://localhost:3000/api/activities/garmin/migrate-wrapper" \
+  -H "Content-Type: application/json" \
+  -H "x-migration-secret: $MIGRATION_API_SECRET" \
+  -d '{"apply":true,"limit":25,"deleteSourceDocuments":true}'
+```
+
+### Dry-run produzione
+
+```bash
+curl -X POST "https://TUO-DOMINIO/api/activities/garmin/migrate-wrapper" \
+  -H "Content-Type: application/json" \
+  -H "x-migration-secret: $MIGRATION_API_SECRET" \
+  -d '{"limit":25}'
+```
+
+### Apply produzione
+
+```bash
+curl -X POST "https://TUO-DOMINIO/api/activities/garmin/migrate-wrapper" \
+  -H "Content-Type: application/json" \
+  -H "x-migration-secret: $MIGRATION_API_SECRET" \
+  -d '{"apply":true,"limit":25,"deleteSourceDocuments":true}'
+```
+
+### Cosa aspettarsi
+
+- `wrapper_documents`: quanti documenti contenitore Garmin sono stati trovati
+- `activities_found`: quante attivita interne sono state rilevate
+- `upserted_activities`: quanti documenti canonici sono stati creati
+- `already_existing_activities`: quante attivita erano gia presenti
+- `deleted_wrapper_documents`: quanti wrapper sorgente sono stati rimossi dopo il successo
+
 ## Limiti attuali e rischi
 
 - Nessuna persistenza dati (contenuti mock/statici)

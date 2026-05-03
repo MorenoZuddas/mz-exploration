@@ -1,4 +1,6 @@
 import { Activity } from '@/lib/db/models/Activity';
+import { type GarminStoredDocument } from '@/lib/garmin/db';
+import { migrateGarminWrapperDocuments } from '@/lib/garmin/migrate';
 
 interface ActivityDoc {
   _id: unknown;
@@ -17,6 +19,8 @@ interface ActivityDoc {
 interface MaintenanceResult {
   scanned: number;
   removedDuplicates: number;
+  migratedWrapperDocuments: number;
+  migratedActivities: number;
   droppedIndexes: string[];
   syncedIndexes: string[];
 }
@@ -147,6 +151,12 @@ async function dropLegacyIndexes(): Promise<string[]> {
 }
 
 async function runMaintenance(): Promise<MaintenanceResult> {
+  const rawDocs = (await Activity.find().lean()) as GarminStoredDocument[];
+  const migration = await migrateGarminWrapperDocuments(rawDocs, {
+    apply: true,
+    limit: rawDocs.length,
+    deleteSourceDocuments: true,
+  });
   const normalizedIds = await normalizeGarminIdentityFields();
   const dedup = await removeDuplicateActivitiesNow();
   const droppedIndexes = await dropLegacyIndexes();
@@ -159,6 +169,8 @@ async function runMaintenance(): Promise<MaintenanceResult> {
   return {
     scanned: dedup.scanned,
     removedDuplicates: dedup.removedDuplicates,
+    migratedWrapperDocuments: migration.deleted_wrapper_documents,
+    migratedActivities: migration.upserted_activities + migration.already_existing_activities,
     droppedIndexes,
     syncedIndexes,
   };
