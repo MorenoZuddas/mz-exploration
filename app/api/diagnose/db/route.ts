@@ -1,6 +1,12 @@
 import { connectToDatabase } from '@/lib/db/connection';
 import { Activity } from '@/lib/db/models/Activity';
 import { NextResponse } from 'next/server';
+import { expandGarminActivitiesFromDocuments, isGarminWrapperDocument, type GarminStoredDocument } from '@/lib/garmin/db';
+
+interface MongoServerInfo {
+  version?: string;
+  ok?: number;
+}
 
 export async function GET(): Promise<NextResponse> {
   try {
@@ -24,7 +30,10 @@ export async function GET(): Promise<NextResponse> {
     const collectionNames = collections.map(c => c.name);
 
     // Conta attività nel database corrente
-    const activitiesCount = await Activity.countDocuments();
+    const documentsCount = await Activity.countDocuments();
+    const activityDocs = (await Activity.find().lean()) as GarminStoredDocument[];
+    const activitiesCount = expandGarminActivitiesFromDocuments(activityDocs).length;
+    const wrapperDocumentsCount = activityDocs.filter(isGarminWrapperDocument).length;
 
     // Mostra info specifiche
     const adminDb = db.admin();
@@ -40,15 +49,17 @@ export async function GET(): Promise<NextResponse> {
       database: {
         name: dbName,
         collections: collectionNames,
+        documentsCount,
         activitiesCount,
+        wrapperDocumentsCount,
       },
       environment: {
         MONGODB_URI: process.env.MONGODB_URI ? '***SET***' : 'NOT_SET',
         MONGODB_DB_NAME: process.env.MONGODB_DB_NAME || 'NOT_SET',
       },
       serverInfo: serverInfo ? {
-        version: (serverInfo as any)?.version,
-        ok: (serverInfo as any)?.ok,
+        version: (serverInfo as MongoServerInfo)?.version,
+        ok: (serverInfo as MongoServerInfo)?.ok,
       } : null,
       timestamp: new Date().toISOString(),
     });

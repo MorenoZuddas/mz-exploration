@@ -54,35 +54,12 @@ interface FloatingNotice {
   tone: 'success';
 }
 
-function inferTypeForDisplay(name: string, rawType: string): string {
-  const normalizedRawType = rawType.trim().toLowerCase();
-  const typeAlias: Record<string, string> = {
-    running: 'running',
-    trail_running: 'running',
-    road_running: 'running',
-    virtual_running: 'running',
-    track_running: 'track_running',
-    cycling: 'cycling',
-    hiking: 'hiking',
-    walking: 'walking',
-    strength: 'strength',
-    strength_training: 'strength',
-  };
-  if (normalizedRawType && normalizedRawType !== 'unknown' && typeAlias[normalizedRawType]) {
-    return typeAlias[normalizedRawType];
-  }
-
-  const normalized = name.toLowerCase().trim();
-  if (normalized.includes('pista') || normalized.includes('track')) return 'track_running';
-  if (normalized.includes('corsa') || normalized.includes('run') || normalized.includes('jog')) return 'running';
-  if (normalized.includes('ripetute') || normalized.includes('interval') || /\d+x\d+/.test(normalized)) return 'running';
-  if (normalized.includes('marathon') || normalized.includes('half marathon') || /\b\d{1,2}k\b/.test(normalized)) return 'running';
-  if (normalized.includes('cicl') || normalized.includes('bike')) return 'cycling';
-  if (normalized.includes('trek') || normalized.includes('hike')) return 'hiking';
-  if (normalized.includes('walk') || normalized.includes('cammin')) return 'walking';
-  if (normalized.includes('palestra') || normalized.includes('strength') || normalized.includes('gym')) return 'strength';
-  return normalizedRawType || 'unknown';
-}
+const NO_STORE_GET = {
+  cache: 'no-store' as const,
+  headers: {
+    'cache-control': 'no-cache',
+  },
+};
 
 export default function DemoGarminPage() {
   const [activities, setActivities] = useState<Activity[]>([]);
@@ -135,7 +112,7 @@ export default function DemoGarminPage() {
     setLoadingDB(true);
     setDbMessage(null);
     try {
-      const res = await fetch('/api/test-db');
+      const res = await fetch('/api/test-db', NO_STORE_GET);
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || data.error || 'Errore sconosciuto');
       setDbMessage({ text: `✅ Connesso — Attività: ${data.data.collections.activities}`, ok: true });
@@ -151,7 +128,7 @@ export default function DemoGarminPage() {
     setLoadingDB(true);
     setDbMessage(null);
     try {
-      const res = await fetch('/api/status');
+      const res = await fetch('/api/status', NO_STORE_GET);
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || data.error || 'Errore sconosciuto');
       setDbStatus({
@@ -172,14 +149,11 @@ export default function DemoGarminPage() {
     if (!silent) setDbMessage(null);
 
     try {
-      const res = await fetch('/api/activities/garmin');
+      const res = await fetch('/api/activities/garmin', NO_STORE_GET);
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || data.error || 'Errore caricamento');
 
-      const list: Activity[] = (data.data.recent_activities || []).map((item: Activity) => ({
-        ...item,
-        type: inferTypeForDisplay(item.name, item.type),
-      }));
+      const list: Activity[] = data.data.recent_activities || [];
       setActivities(list);
 
       if (!silent) {
@@ -247,13 +221,10 @@ export default function DemoGarminPage() {
         showFloatingNotice(`✅ Upload JSON: trovati/rimossi ${totalDuplicates} duplicati`);
       }
       // Aggiorna la lista silenziosamente
-      const listRes = await fetch('/api/activities/garmin');
+      const listRes = await fetch('/api/activities/garmin', NO_STORE_GET);
       const listData = await listRes.json();
       if (listRes.ok) {
-        const list: Activity[] = (listData.data.recent_activities || []).map((item: Activity) => ({
-          ...item,
-          type: inferTypeForDisplay(item.name, item.type),
-        }));
+        const list: Activity[] = listData.data.recent_activities || [];
         setActivities(list);
       }
     } catch (err) {
@@ -312,13 +283,10 @@ export default function DemoGarminPage() {
       setManualMessage({ text: `✅ Attività aggiunta (${result.data.saved} salvata)`, ok: true });
       setFormData({ name: '', type: 'running', date: new Date().toISOString().split('T')[0], distance: 0, duration: 0 });
       // Aggiorna lista silenziosamente
-      const listRes = await fetch('/api/activities/garmin');
+      const listRes = await fetch('/api/activities/garmin', NO_STORE_GET);
       const listData = await listRes.json();
       if (listRes.ok) {
-        const list: Activity[] = (listData.data.recent_activities || []).map((item: Activity) => ({
-          ...item,
-          type: inferTypeForDisplay(item.name, item.type),
-        }));
+        const list: Activity[] = listData.data.recent_activities || [];
         setActivities(list);
       }
     } catch (error) {

@@ -4,20 +4,18 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface UseActivityClickOptions {
-  activityId: string;
   detailsPageUrl: string;
   onOpenModal?: () => void;
 }
 
-export function useActivityClick({ activityId, detailsPageUrl, onOpenModal }: UseActivityClickOptions) {
+export function useActivityClick({ detailsPageUrl, onOpenModal }: UseActivityClickOptions) {
   const router = useRouter();
-  const [isDesktop, setIsDesktop] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(
+    () => (typeof window !== 'undefined' ? window.matchMedia('(min-width: 768px)').matches : false)
+  );
 
   useEffect(() => {
-    setMounted(true);
     const mediaQuery = window.matchMedia('(min-width: 768px)');
-    setIsDesktop(mediaQuery.matches);
 
     const handleChange = (e: MediaQueryListEvent) => {
       setIsDesktop(e.matches);
@@ -28,7 +26,6 @@ export function useActivityClick({ activityId, detailsPageUrl, onOpenModal }: Us
   }, []);
 
   const handleClick = () => {
-    if (!mounted) return;
 
     if (isDesktop) {
       onOpenModal?.();

@@ -5,8 +5,6 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card } from "@/components/ui/card"
 import { ActivityDetailModal } from '@/components/ActivityDetailModal';
-import Image from 'next/image';
-import { thumbnailUrl } from '@/lib/cloudinary';
 import { getCachedActivities, setCachedActivities } from '@/lib/cache/activities';
 
 interface ApiPhoto {
@@ -75,13 +73,14 @@ export default function TrekkingPage() {
    const [loading, setLoading] = useState(true);
    const [displayedCount, setDisplayedCount] = useState(8);
    const [selectedActivityId, setSelectedActivityId] = useState<string | null>(null);
-   const [isDesktop, setIsDesktop] = useState(false);
+   const [isDesktop, setIsDesktop] = useState(() =>
+     typeof window !== 'undefined' ? window.matchMedia('(min-width: 768px)').matches : false
+   );
    const [error, setError] = useState<string | null>(null);
 
   // Determina se desktop
   useEffect(() => {
     const mediaQuery = window.matchMedia('(min-width: 768px)');
-    setIsDesktop(mediaQuery.matches);
     const handleChange = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
     mediaQuery.addEventListener('change', handleChange);
     return () => mediaQuery.removeEventListener('change', handleChange);
@@ -96,16 +95,27 @@ export default function TrekkingPage() {
   };
 
   useEffect(() => {
+    const abortController = new AbortController();
+    let isActive = true;
+
     const fetchActivities = async () => {
-      try {
-        const cached = getCachedActivities<Activity[]>('trekking');
-        if (cached && cached.length > 0) {
+      const cached = getCachedActivities<Activity[]>('trekking');
+
+      if (cached && cached.length > 0) {
+        if (isActive) {
           setActivities(cached);
           setLoading(false);
-          return;
         }
+      }
 
-        const response = await fetch('/api/activities/garmin');
+      try {
+        const response = await fetch('/api/activities/garmin?group=trekking', {
+          cache: 'no-store',
+          signal: abortController.signal,
+          headers: {
+            'cache-control': 'no-cache',
+          },
+        });
         if (!response.ok) {
           const raw = await response.text();
           console.error('GET /api/activities/garmin failed', response.status, raw);
@@ -117,10 +127,6 @@ export default function TrekkingPage() {
           const source: GarminApiActivity[] = data?.data?.recent_activities ?? [];
 
           const trekkingActivities = source
-            .filter((act) => {
-              const type = (act.type || '').toLowerCase();
-              return type.includes('hik') || type.includes('trek') || type.includes('walk');
-            })
             .map((act, index) => ({
               id: act._id ?? `${act.name}-${act.date}-${act.distance_m}-${index}`,
               name: act.name,
@@ -137,6 +143,10 @@ export default function TrekkingPage() {
             }))
             .sort((a: Activity, b: Activity) => safeTimestamp(b.originalDate) - safeTimestamp(a.originalDate));
 
+          if (!isActive) {
+            return;
+          }
+
           setActivities(trekkingActivities);
           setCachedActivities(trekkingActivities, 'trekking');
           setError(null);
@@ -145,9 +155,12 @@ export default function TrekkingPage() {
 
         throw new Error('Formato risposta API non valido.');
       } catch (fetchError) {
+        if ((fetchError instanceof Error && fetchError.name === 'AbortError') || !isActive) {
+          return;
+        }
+
         console.error('Error fetching activities:', fetchError);
 
-        const cached = getCachedActivities<Activity[]>('trekking');
         if (cached && cached.length > 0) {
           setActivities(cached);
           setError('Connessione instabile: sto mostrando dati recenti dalla cache.');
@@ -155,11 +168,18 @@ export default function TrekkingPage() {
           setError('Impossibile caricare le attività trekking.');
         }
       } finally {
-        setLoading(false);
+        if (isActive) {
+          setLoading(false);
+        }
       }
     };
 
     void fetchActivities();
+
+    return () => {
+      isActive = false;
+      abortController.abort();
+    };
   }, []);
 
   if (loading) {

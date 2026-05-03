@@ -1,12 +1,13 @@
 import { connectToDatabase } from '@/lib/db/connection';
 import { Activity } from '@/lib/db/models/Activity';
 import { SyncLog } from '@/lib/db/models/SyncLog';
-import { convertGarminRaw, GarminRawActivity } from '@/lib/garmin/converter';
+import {
+  expandGarminActivitiesFromDocuments,
+  isGarminWrapperDocument,
+  sortExpandedGarminActivities,
+  type GarminStoredDocument,
+} from '@/lib/garmin/db';
 import { NextResponse } from 'next/server';
-
-function isObjectRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
 
 export async function GET(): Promise<NextResponse> {
   try {
@@ -15,14 +16,13 @@ export async function GET(): Promise<NextResponse> {
     await connectToDatabase();
 
     // Conta documenti
-    const activitiesCount = await Activity.countDocuments();
+    const documentsCount = await Activity.countDocuments();
     const syncLogsCount = await SyncLog.countDocuments();
 
     // Ultimi inserimenti
-    const recentActivities = (await Activity.find()
-      .sort({ created_at: -1 })
-      .limit(3)
-      .lean()) as GarminRawActivity[];
+    const activityDocs = (await Activity.find().lean()) as GarminStoredDocument[];
+    const expandedActivities = sortExpandedGarminActivities(expandGarminActivitiesFromDocuments(activityDocs));
+    const wrapperDocumentsCount = activityDocs.filter(isGarminWrapperDocument).length;
 
     const recentLogs = await SyncLog.find()
       .sort({ created_at: -1 })
@@ -33,23 +33,23 @@ export async function GET(): Promise<NextResponse> {
       status: 'success',
       timestamp: new Date().toISOString(),
       database: {
-        total_activities: activitiesCount,
+        total_documents: documentsCount,
+        total_activities: expandedActivities.length,
+        wrapper_documents: wrapperDocumentsCount,
         total_sync_logs: syncLogsCount,
       },
       recent: {
-        activities: recentActivities.map((a) => {
-          const payloadSource = isObjectRecord(a.raw_payload)
-            ? ({ ...(a as Record<string, unknown>), ...(a.raw_payload as Record<string, unknown>) } as GarminRawActivity)
-            : a;
-          const converted = convertGarminRaw(payloadSource);
+        activities: expandedActivities.slice(0, 3).map((entry) => {
+          const converted = entry.converted;
           return {
+            id: entry.entryId,
             name: converted.name,
             type: converted.type,
             date: converted.date,
             distance_m: converted.distance_m,
             calories_kcal: converted.calories_kcal,
             source: converted.source,
-            created_at: (a as { created_at?: Date }).created_at,
+            created_at: entry.createdAt ?? undefined,
           };
         }),
         logs: recentLogs.map((l) => ({

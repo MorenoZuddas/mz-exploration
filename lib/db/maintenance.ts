@@ -1,4 +1,6 @@
 import { Activity } from '@/lib/db/models/Activity';
+import { type GarminStoredDocument } from '@/lib/garmin/db';
+import { migrateGarminWrapperDocuments } from '@/lib/garmin/migrate';
 
 interface ActivityDoc {
   _id: unknown;
@@ -17,6 +19,8 @@ interface ActivityDoc {
 interface MaintenanceResult {
   scanned: number;
   removedDuplicates: number;
+  migratedWrapperDocuments: number;
+  migratedActivities: number;
   droppedIndexes: string[];
   syncedIndexes: string[];
 }
@@ -85,7 +89,8 @@ function sortTimestamp(doc: ActivityDoc): number {
 }
 
 async function normalizeGarminIdentityFields(): Promise<number> {
-  const res = await Activity.updateMany(
+  // Usa il driver nativo per supportare update pipeline senza vincoli di casting Mongoose.
+  const res = await Activity.collection.updateMany(
     {
       source: 'garmin',
       activityId: { $exists: false },
@@ -147,6 +152,12 @@ async function dropLegacyIndexes(): Promise<string[]> {
 }
 
 async function runMaintenance(): Promise<MaintenanceResult> {
+  const rawDocs = (await Activity.find().lean()) as GarminStoredDocument[];
+  const migration = await migrateGarminWrapperDocuments(rawDocs, {
+    apply: true,
+    limit: rawDocs.length,
+    deleteSourceDocuments: true,
+  });
   const normalizedIds = await normalizeGarminIdentityFields();
   const dedup = await removeDuplicateActivitiesNow();
   const droppedIndexes = await dropLegacyIndexes();
@@ -159,6 +170,8 @@ async function runMaintenance(): Promise<MaintenanceResult> {
   return {
     scanned: dedup.scanned,
     removedDuplicates: dedup.removedDuplicates,
+    migratedWrapperDocuments: migration.deleted_wrapper_documents,
+    migratedActivities: migration.upserted_activities + migration.already_existing_activities,
     droppedIndexes,
     syncedIndexes,
   };

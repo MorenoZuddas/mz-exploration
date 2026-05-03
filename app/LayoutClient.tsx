@@ -16,9 +16,12 @@ export default function LayoutClient({
   const footerClassName = pathname.startsWith('/exploration') ? '!mt-0' : '';
 
   useEffect(() => {
-    setIsLoading(true);
+    const start = setTimeout(() => setIsLoading(true), 0);
     const timer = setTimeout(() => setIsLoading(false), 500);
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(start);
+      clearTimeout(timer);
+    };
   }, [pathname]);
 
   return (

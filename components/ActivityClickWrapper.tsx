@@ -25,13 +25,14 @@ export function ActivityClickHandler({
   tone = 'current',
 }: Props) {
   const router = useRouter();
-  const [isDesktop, setIsDesktop] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia(`(min-width: ${desktopBreakpoint}px)`).matches : false
+  );
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     // Determina se è desktop (md+) basato su media query
     const mediaQuery = window.matchMedia(`(min-width: ${desktopBreakpoint}px)`);
-    setIsDesktop(mediaQuery.matches);
 
     const handleChange = (e: MediaQueryListEvent) => {
       setIsDesktop(e.matches);

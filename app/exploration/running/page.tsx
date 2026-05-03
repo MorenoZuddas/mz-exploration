@@ -3,21 +3,6 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel"
-import { Button } from "@/components/ui/button"
 import { Filter, type FilterConfig, type FilterState } from '@/components/Filter';
 import { Modal } from '@/components/Modal';
 import { getCachedActivities, setCachedActivities } from '@/lib/cache/activities';
@@ -60,6 +45,8 @@ interface Activity {
 }
 
 type CachedActivity = Omit<Activity, 'duration_sec'> & { duration_sec?: number };
+
+const ENABLE_ACTIVITY_CACHE = process.env.NODE_ENV === 'production';
 
 function normalizeRunningActivity(activity: CachedActivity): Activity {
   const durationSec =
@@ -114,27 +101,6 @@ function safeTimestamp(value: string | null | undefined): number {
   return Number.isNaN(ts) ? 0 : ts;
 }
 
-function inferRunningType(name: string, rawType: string): string {
-  const normalizedRawType = rawType.trim().toLowerCase();
-  const typeAlias: Record<string, string> = {
-    running: 'running',
-    trail_running: 'running',
-    road_running: 'running',
-    virtual_running: 'running',
-    track_running: 'track_running',
-  };
-  if (normalizedRawType && normalizedRawType !== 'unknown' && typeAlias[normalizedRawType]) {
-    return typeAlias[normalizedRawType];
-  }
-
-  const normalized = name.toLowerCase().trim();
-  if (normalized.includes('pista') || normalized.includes('track')) return 'track_running';
-  if (normalized.includes('corsa') || normalized.includes('run') || normalized.includes('jog')) return 'running';
-  if (normalized.includes('ripetute') || normalized.includes('interval') || /\d+x\d+/.test(normalized)) return 'running';
-  if (normalized.includes('marathon') || normalized.includes('half marathon') || /\b\d{1,2}k\b/.test(normalized)) return 'running';
-  return normalizedRawType || 'unknown';
-}
-
 function normalizeType(type: string | undefined): string {
   return (type || '').trim().toLowerCase();
 }
@@ -163,7 +129,9 @@ export default function RunningPage() {
    const [activities, setActivities] = useState<Activity[]>([]);
    const [loading, setLoading] = useState(true);
    const [selectedActivityId, setSelectedActivityId] = useState<string | null>(null);
-  const [isDesktop, setIsDesktop] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(min-width: 1024px)').matches : false
+  );
   const [filters, setFilters] = useState({
     dateFrom: undefined as Date | undefined,
     dateTo: undefined as Date | undefined,
@@ -176,7 +144,6 @@ export default function RunningPage() {
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(min-width: 1024px)');
-    setIsDesktop(mediaQuery.matches);
 
     const onChange = (event: MediaQueryListEvent) => {
       setIsDesktop(event.matches);
@@ -251,18 +218,28 @@ export default function RunningPage() {
   };
 
   useEffect(() => {
-    const fetchActivities = async () => {
-      try {
-        const cached = getCachedActivities<CachedActivity[]>('running');
-        if (cached && cached.length > 0) {
-          const normalizedCached = cached.map(normalizeRunningActivity);
-          setActivities(normalizedCached);
-          setCachedActivities(normalizedCached, 'running');
-          setLoading(false);
-          return;
-        }
+    const abortController = new AbortController();
+    let isActive = true;
 
-        const response = await fetch('/api/activities/garmin');
+    const fetchActivities = async () => {
+      const cached = ENABLE_ACTIVITY_CACHE ? getCachedActivities<CachedActivity[]>('running') : null;
+
+      if (cached && cached.length > 0) {
+        const normalizedCached = cached.map(normalizeRunningActivity);
+        if (isActive) {
+          setActivities(normalizedCached);
+          setLoading(false);
+        }
+      }
+
+      try {
+        const response = await fetch('/api/activities/garmin?group=running', {
+          cache: 'no-store',
+          signal: abortController.signal,
+          headers: {
+            'cache-control': 'no-cache',
+          },
+        });
         if (!response.ok) {
           const raw = await response.text();
           console.error('GET /api/activities/garmin failed', response.status, raw);
@@ -276,7 +253,6 @@ export default function RunningPage() {
 
           const runningActivities = source
             .map((act, index) => {
-              const resolvedType = inferRunningType(act.name, act.type);
               const distanceM = act.distance_m ?? 0;
               const durationSec = act.duration_sec ?? 0;
               const dateIso = act.date ?? new Date(0).toISOString();
@@ -284,7 +260,7 @@ export default function RunningPage() {
               return {
                 id: act._id ?? `${act.name}-${dateIso}-${distanceM}-${index}`,
                 name: act.name,
-                type: resolvedType,
+                type: act.type,
                 date: new Date(dateIso).toLocaleDateString('it-IT'),
                 originalDate: dateIso,
                 distance_km: (distanceM / 1000).toFixed(2),
@@ -297,20 +273,28 @@ export default function RunningPage() {
                 photo: act.photo ?? null,
               };
             })
-            .filter((act) => act.type === 'running' || act.type === 'track_running')
             .sort((a, b) => safeTimestamp(b.originalDate) - safeTimestamp(a.originalDate));
 
+          if (!isActive) {
+            return;
+          }
+
           setActivities(runningActivities);
-          setCachedActivities(runningActivities, 'running');
+          if (ENABLE_ACTIVITY_CACHE) {
+            setCachedActivities(runningActivities, 'running');
+          }
           setError(null);
           return;
         }
 
         throw new Error('Formato risposta API non valido.');
       } catch (fetchError) {
+        if ((fetchError instanceof Error && fetchError.name === 'AbortError') || !isActive) {
+          return;
+        }
+
         console.error('Error fetching activities:', fetchError);
 
-        const cached = getCachedActivities<CachedActivity[]>('running');
         if (cached && cached.length > 0) {
           const normalizedCached = cached.map(normalizeRunningActivity);
           setActivities(normalizedCached);
@@ -319,11 +303,18 @@ export default function RunningPage() {
           setError('Impossibile caricare le attività. Controlla la connessione al database.');
         }
       } finally {
-        setLoading(false);
+        if (isActive) {
+          setLoading(false);
+        }
       }
     };
 
     void fetchActivities();
+
+    return () => {
+      isActive = false;
+      abortController.abort();
+    };
   }, []);
 
   const filteredActivities = useMemo(() => {
@@ -422,10 +413,6 @@ export default function RunningPage() {
      };
    }, [activities]);
 
-   const bestActivities = useMemo(
-     () => [...activities].sort((a, b) => parseFloat(b.distance_km) - parseFloat(a.distance_km)).slice(0, 4),
-     [activities]
-   );
 
    const selectedActivity = selectedActivityId ? activities.find((a) => a.id === selectedActivityId) : null;
 
