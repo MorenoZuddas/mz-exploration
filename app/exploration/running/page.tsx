@@ -3,21 +3,6 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel"
-import { Button } from "@/components/ui/button"
 import { Filter, type FilterConfig, type FilterState } from '@/components/Filter';
 import { Modal } from '@/components/Modal';
 import { getCachedActivities, setCachedActivities } from '@/lib/cache/activities';
@@ -114,27 +99,6 @@ function safeTimestamp(value: string | null | undefined): number {
   if (!value) return 0;
   const ts = new Date(value).getTime();
   return Number.isNaN(ts) ? 0 : ts;
-}
-
-function inferRunningType(name: string, rawType: string): string {
-  const normalizedRawType = rawType.trim().toLowerCase();
-  const typeAlias: Record<string, string> = {
-    running: 'running',
-    trail_running: 'running',
-    road_running: 'running',
-    virtual_running: 'running',
-    track_running: 'track_running',
-  };
-  if (normalizedRawType && normalizedRawType !== 'unknown' && typeAlias[normalizedRawType]) {
-    return typeAlias[normalizedRawType];
-  }
-
-  const normalized = name.toLowerCase().trim();
-  if (normalized.includes('pista') || normalized.includes('track')) return 'track_running';
-  if (normalized.includes('corsa') || normalized.includes('run') || normalized.includes('jog')) return 'running';
-  if (normalized.includes('ripetute') || normalized.includes('interval') || /\d+x\d+/.test(normalized)) return 'running';
-  if (normalized.includes('marathon') || normalized.includes('half marathon') || /\b\d{1,2}k\b/.test(normalized)) return 'running';
-  return normalizedRawType || 'unknown';
 }
 
 function normalizeType(type: string | undefined): string {
@@ -269,7 +233,7 @@ export default function RunningPage() {
       }
 
       try {
-        const response = await fetch('/api/activities/garmin', {
+        const response = await fetch('/api/activities/garmin?group=running', {
           cache: 'no-store',
           signal: abortController.signal,
           headers: {
@@ -289,7 +253,6 @@ export default function RunningPage() {
 
           const runningActivities = source
             .map((act, index) => {
-              const resolvedType = inferRunningType(act.name, act.type);
               const distanceM = act.distance_m ?? 0;
               const durationSec = act.duration_sec ?? 0;
               const dateIso = act.date ?? new Date(0).toISOString();
@@ -297,7 +260,7 @@ export default function RunningPage() {
               return {
                 id: act._id ?? `${act.name}-${dateIso}-${distanceM}-${index}`,
                 name: act.name,
-                type: resolvedType,
+                type: act.type,
                 date: new Date(dateIso).toLocaleDateString('it-IT'),
                 originalDate: dateIso,
                 distance_km: (distanceM / 1000).toFixed(2),
@@ -310,7 +273,6 @@ export default function RunningPage() {
                 photo: act.photo ?? null,
               };
             })
-            .filter((act) => act.type === 'running' || act.type === 'track_running')
             .sort((a, b) => safeTimestamp(b.originalDate) - safeTimestamp(a.originalDate));
 
           if (!isActive) {
@@ -451,10 +413,6 @@ export default function RunningPage() {
      };
    }, [activities]);
 
-   const bestActivities = useMemo(
-     () => [...activities].sort((a, b) => parseFloat(b.distance_km) - parseFloat(a.distance_km)).slice(0, 4),
-     [activities]
-   );
 
    const selectedActivity = selectedActivityId ? activities.find((a) => a.id === selectedActivityId) : null;
 

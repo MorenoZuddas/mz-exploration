@@ -3,6 +3,11 @@ import { Activity } from '@/lib/db/models/Activity';
 import { NextResponse } from 'next/server';
 import { expandGarminActivitiesFromDocuments, isGarminWrapperDocument, type GarminStoredDocument } from '@/lib/garmin/db';
 
+interface MongoServerInfo {
+  version?: string;
+  ok?: number;
+}
+
 export async function GET(): Promise<NextResponse> {
   try {
     console.log('🔍 Diagnosi database in corso...');
@@ -53,8 +58,8 @@ export async function GET(): Promise<NextResponse> {
         MONGODB_DB_NAME: process.env.MONGODB_DB_NAME || 'NOT_SET',
       },
       serverInfo: serverInfo ? {
-        version: (serverInfo as any)?.version,
-        ok: (serverInfo as any)?.ok,
+        version: (serverInfo as MongoServerInfo)?.version,
+        ok: (serverInfo as MongoServerInfo)?.ok,
       } : null,
       timestamp: new Date().toISOString(),
     });

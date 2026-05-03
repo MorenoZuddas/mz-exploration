@@ -21,6 +21,16 @@ const NO_STORE_HEADERS = {
   Expires: '0',
 };
 
+type ActivityGroup = 'all' | 'running' | 'trekking';
+
+function isActivityInGroup(type: string, group: ActivityGroup): boolean {
+  if (group === 'all') return true;
+  if (group === 'running') {
+    return type === 'running' || type === 'track_running';
+  }
+  return type === 'hiking' || type === 'trekking' || type === 'walking';
+}
+
 // Estrae le attività dal wrapper Garmin (summarizedActivitiesExport) o da array flat
 function extractActivities(payload: unknown): GarminRawActivity[] {
   if (Array.isArray(payload)) {
@@ -295,13 +305,13 @@ function resolveActivityType(raw: GarminRawActivity, convertedType: string): str
   return inferredByName ?? 'unknown';
 }
 
-function isObjectRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
 // GET: legge i raw dal DB e li converte con convertGarminRaw prima di mandarli al FE
-export async function GET(): Promise<NextResponse> {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   const traceId = crypto.randomUUID();
+  const requestedGroup = (request.nextUrl.searchParams.get('group') ?? 'all').toLowerCase() as ActivityGroup;
+  const group: ActivityGroup = ['all', 'running', 'trekking'].includes(requestedGroup)
+    ? requestedGroup
+    : 'all';
 
   try {
     console.log(`[garmin:get:${traceId}] start`);
@@ -358,7 +368,9 @@ export async function GET(): Promise<NextResponse> {
     const cloudinaryMap = await getAssetsByActivityIds(activityIds);
     console.log(`[garmin:get:${traceId}] cloudinary fetch done`, { matched: cloudinaryMap.size });
 
-    const normalized = convertedRows.map((row) => {
+    const groupedRows = convertedRows.filter((row) => isActivityInGroup(row.type, group));
+
+    const normalized = groupedRows.map((row) => {
       const photo = row.activityId ? cloudinaryMap.get(row.activityId) ?? null : null;
       return {
         ...row,

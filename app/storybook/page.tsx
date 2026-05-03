@@ -483,11 +483,11 @@ function CardGridSection() {
        <Panel>
          <div className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
            <p className="font-semibold uppercase tracking-wider">📅 Data attività:</p>
-           <p>Le card mostrano la data dell'attività nel formato italiano (es: "1 aprile 2026"). Utilizza il toggle <span className="font-medium">"show date"</span> per mostrare o nascondere le date sulle card.</p>
-           <p><span className="font-medium">"badge on image"</span> sposta il BadgeChip dalla riga titolo alla parte alta della foto (overlay).</p>
-           <p><span className="font-medium">Variant "activity"</span>: card per attività running con foto opzionale, titolo, data, distanza e tempo.</p>
+           <p>Le card mostrano la data dell&apos;attività nel formato italiano (es: &quot;1 aprile 2026&quot;). Utilizza il toggle <span className="font-medium">&quot;show date&quot;</span> per mostrare o nascondere le date sulle card.</p>
+           <p><span className="font-medium">&quot;badge on image&quot;</span> sposta il BadgeChip dalla riga titolo alla parte alta della foto (overlay).</p>
+           <p><span className="font-medium">Variant &quot;activity&quot;</span>: card per attività running con foto opzionale, titolo, data, distanza e tempo.</p>
            <p className="mt-3 font-semibold uppercase tracking-wider">🎲 maxCards:</p>
-           <p>La prop <span className="font-medium">maxCards</span> limita il numero di card visualizzate in modo diretto (senza toggle "Mostra tutte"). Utile per mostrare un numero fisso di card, es: 4 card per riga. Lascia vuoto per usare il sistema di pagina con toggle.</p>
+           <p>La prop <span className="font-medium">maxCards</span> limita il numero di card visualizzate in modo diretto (senza toggle &quot;Mostra tutte&quot;). Utile per mostrare un numero fisso di card, es: 4 card per riga. Lascia vuoto per usare il sistema di pagina con toggle.</p>
          </div>
        </Panel>
 
@@ -967,7 +967,7 @@ function ModalSection() {
             <Button tone="blue" onClick={() => setIsOpen(true)}>
               Apri modal
             </Button>
-            {availableIds.length === 0 ? <p className="text-[11px] text-amber-600">Nessun preset ID disponibile dall'API. Inserisci activityId manualmente.</p> : null}
+            {availableIds.length === 0 ? <p className="text-[11px] text-amber-600">Nessun preset ID disponibile dall&apos;API. Inserisci activityId manualmente.</p> : null}
           </div>
         </Panel>
         <Panel>
@@ -1147,7 +1147,7 @@ function FilterSection() {
         </Panel>
         <Panel>
           <p className="text-xs text-slate-500 mb-3">
-            Componente Filter riusabile: configura quale filtri mostrare tramite prop "filters".
+            Componente Filter riusabile: configura quale filtri mostrare tramite prop &quot;filters&quot;.
           </p>
           <pre className="text-[10px] bg-slate-900 text-slate-100 p-2 rounded overflow-x-auto">
             {JSON.stringify(demoState, null, 2)}
@@ -1264,9 +1264,9 @@ function StatisticsSingleTestSection() {
         <Panel>
           <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">Display Options</p>
           <div className="grid gap-2 mb-4">
-            <Ctl label="background color" value={backgroundColor} options={["white", "blue", "purple", "navy", "slate"]} onChange={(v) => setBackgroundColor(v as any)} />
+            <Ctl label="background color" value={backgroundColor} options={["white", "blue", "purple", "navy", "slate"]} onChange={(v) => setBackgroundColor(v as "white" | "blue" | "purple" | "navy" | "slate")} />
             <Ctl label="tone" value={tone} options={CARD_TONES} onChange={setTone} />
-            <Ctl label="columns" value={columns} options={["2", "3", "4"]} onChange={(v) => setColumns(v as any)} />
+            <Ctl label="columns" value={columns} options={["2", "3", "4"]} onChange={(v) => setColumns(v as "2" | "3" | "4")} />
           </div>
           <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2 border-t border-slate-200 dark:border-slate-700 pt-3">Metrics</p>
           <div className="space-y-1.5 max-h-[220px] overflow-auto pr-1">
@@ -1290,8 +1290,8 @@ function StatisticsSingleTestSection() {
             <ul className="text-xs text-slate-600 dark:text-slate-300 space-y-1.5 list-disc list-inside">
               <li>Modifica background, tone e colonne a sinistra</li>
               <li>Aggiungi/rimuovi metriche tramite checkbox</li>
-              <li>Clicca su un PB o "Run Più Lunga" per navigare all'attività</li>
-              <li>Vedi la data dell'attività sopra la metrica</li>
+              <li>Clicca su un PB o &quot;Run Più Lunga&quot; per navigare all&apos;attività</li>
+              <li>Vedi la data dell&apos;attività sopra la metrica</li>
             </ul>
           </Panel>
 
@@ -1366,9 +1366,9 @@ function StatisticsSection() {
         <Panel>
           <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">Controlli</p>
           <div className="grid gap-2 mb-4">
-            <Ctl label="background color" value={backgroundColor} options={["white", "blue", "purple", "navy", "slate"]} onChange={(v) => setBackgroundColor(v as any)} />
+            <Ctl label="background color" value={backgroundColor} options={["white", "blue", "purple", "navy", "slate"]} onChange={(v) => setBackgroundColor(v as "white" | "blue" | "purple" | "navy" | "slate")} />
             <Ctl label="tone" value={tone} options={CARD_TONES} onChange={setTone} />
-            <Ctl label="columns" value={columns} options={["2", "3", "4"]} onChange={(v) => setColumns(v as any)} />
+            <Ctl label="columns" value={columns} options={["2", "3", "4"]} onChange={(v) => setColumns(v as "2" | "3" | "4")} />
           </div>
           <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2 border-t border-slate-200 dark:border-slate-700 pt-3">Metriche visibili</p>
           <div className="space-y-1.5 max-h-[220px] overflow-auto pr-1">
@@ -1404,7 +1404,7 @@ function StatisticsSection() {
           <ul className="space-y-2 list-disc list-inside">
             <li><span className="font-medium">Colore sfondo adaptivo:</span> Scegli lo sfondo e il testo si adatterà automaticamente</li>
             <li><span className="font-medium">Formato tempo intelligente:</span> Durate &lt;1h: mm:ss | Durate ≥1h: hh:mm:ss</li>
-            <li><span className="font-medium">Click su PB/Run:</span> Clicca su un PB o sulla "Run Piu Lunga" per navigare all'attività (solo su dati reali)</li>
+            <li><span className="font-medium">Click su PB/Run:</span> Clicca su un PB o sulla &quot;Run Piu Lunga&quot; per navigare all&apos;attività (solo su dati reali)</li>
             <li><span className="font-medium">Data attività:</span> Mostra la data di quando è stata registrata la metrica</li>
             <li><span className="font-medium">Sync Filter:</span> Il componente Statistical si aggiorna dinamicamente quando modifichi i filtri</li>
           </ul>

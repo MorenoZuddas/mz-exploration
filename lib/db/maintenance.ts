@@ -89,7 +89,8 @@ function sortTimestamp(doc: ActivityDoc): number {
 }
 
 async function normalizeGarminIdentityFields(): Promise<number> {
-  const res = await Activity.updateMany(
+  // Usa il driver nativo per supportare update pipeline senza vincoli di casting Mongoose.
+  const res = await Activity.collection.updateMany(
     {
       source: 'garmin',
       activityId: { $exists: false },

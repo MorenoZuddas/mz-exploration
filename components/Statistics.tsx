@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/card';
 
 export type StatisticsMetricKey =
@@ -262,15 +263,14 @@ export function Statistics({
   columns = 4,
   className = '',
 }: StatisticsProps) {
-  const [internalActivities, setInternalActivities] = useState<RawActivity[]>(activities ?? []);
+  const [fetchedActivities, setFetchedActivities] = useState<RawActivity[]>([]);
   const [loading, setLoading] = useState(false);
   const [sharedFilters, setSharedFilters] = useState<StatisticsFilters | undefined>(undefined);
-
-  useEffect(() => {
-    if (activities && activities.length > 0) {
-      setInternalActivities(activities);
-    }
-  }, [activities]);
+  const hasProvidedActivities = Boolean(activities && activities.length > 0);
+  const sourceActivities = useMemo(
+    () => (hasProvidedActivities ? (activities ?? []) : fetchedActivities),
+    [activities, fetchedActivities, hasProvidedActivities]
+  );
 
   useEffect(() => {
     if (!syncChannel) return;
@@ -286,7 +286,7 @@ export function Statistics({
   }, [syncChannel]);
 
   useEffect(() => {
-    if (!fetchIfMissing || internalActivities.length > 0) return;
+    if (!fetchIfMissing || hasProvidedActivities || fetchedActivities.length > 0) return;
 
     const fetchData = async () => {
       try {
@@ -296,7 +296,7 @@ export function Statistics({
         const data = await response.json();
         const fromApi = data?.data?.activities;
         if (Array.isArray(fromApi)) {
-          setInternalActivities(fromApi as RawActivity[]);
+          setFetchedActivities(fromApi as RawActivity[]);
         }
       } finally {
         setLoading(false);
@@ -304,10 +304,10 @@ export function Statistics({
     };
 
     void fetchData();
-  }, [endpoint, fetchIfMissing, internalActivities.length]);
+  }, [endpoint, fetchIfMissing, hasProvidedActivities, fetchedActivities.length]);
 
   const activeFilters = filters ?? sharedFilters;
-  const filteredActivities = useMemo(() => applyFilters(internalActivities, activeFilters), [internalActivities, activeFilters]);
+  const filteredActivities = useMemo(() => applyFilters(sourceActivities, activeFilters), [sourceActivities, activeFilters]);
 
   const calculated = useMemo(() => {
     const all = filteredActivities;
@@ -433,6 +433,7 @@ function StatisticsTile({
   toneClass: string;
   isPb: boolean;
 }) {
+  const router = useRouter();
   const { value, activityId, activityDate } = data;
   const target = value ?? 0;
   const animated = useAnimatedNumber(target);
@@ -458,7 +459,7 @@ function StatisticsTile({
 
   const handleClick = () => {
     if (isClickable && activityId) {
-      window.location.href = `/exploration/${label.includes('Distanza') && !label.includes('Run Piu') ? 'trekking' : 'running'}/${activityId}`;
+      router.push(`/exploration/${label.includes('Distanza') && !label.includes('Run Piu') ? 'trekking' : 'running'}/${activityId}`);
     }
   };
 

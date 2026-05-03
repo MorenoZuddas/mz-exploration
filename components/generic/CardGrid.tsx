@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -199,12 +199,6 @@ export function CardGrid({
   activityPhotoBadgeRounded = false,
   activityTextColor = 'current',
 }: CardGridProps) {
-  const itemsToDisplay = useMemo(() => {
-    if (maxCards && maxCards > 0) {
-      return items.slice(0, maxCards);
-    }
-    return items;
-  }, [items, maxCards]);
   const resolvedTitleColor = tone ?? titleColor;
   const resolvedSubtitleColor = tone ?? subtitleColor;
   const titleColorClass = textColorVariants[resolvedTitleColor].title;
@@ -215,12 +209,16 @@ export function CardGrid({
       ? Math.floor(visibleItems)
       : null;
 
-  // Conta quanti item mostrare (paginazione a gruppi)
-  const [shownCount, setShownCount] = useState<number>(normalizedVisibleItems ?? Infinity);
-
-  useEffect(() => {
-    setShownCount(normalizedVisibleItems ?? Infinity);
-  }, [normalizedVisibleItems, items.length]);
+  // Stato paginazione senza reset via effect (evita setState sincrono nell'effect).
+  const paginationKey = `${normalizedVisibleItems ?? 'all'}:${items.length}:${maxCards ?? 'none'}`;
+  const [paginationState, setPaginationState] = useState<{ key: string; shownCount: number }>({
+    key: '',
+    shownCount: Infinity,
+  });
+  const shownCount =
+    paginationState.key === paginationKey
+      ? paginationState.shownCount
+      : normalizedVisibleItems ?? Infinity;
 
   const displayedItems = useMemo(() => {
     if (maxCards && maxCards > 0) return items.slice(0, maxCards);
@@ -497,7 +495,12 @@ export function CardGrid({
               <Button
                 variant="outline"
                 tone={showMoreTone}
-                onClick={() => setShownCount((prev) => prev + (normalizedVisibleItems ?? 4))}
+                onClick={() =>
+                  setPaginationState({
+                    key: paginationKey,
+                    shownCount: shownCount + (normalizedVisibleItems ?? 4),
+                  })
+                }
               >
                 {showMoreLabel}
               </Button>
@@ -506,7 +509,12 @@ export function CardGrid({
               <Button
                 variant="outline"
                 tone={showLessTone}
-                onClick={() => setShownCount(normalizedVisibleItems ?? 4)}
+                onClick={() =>
+                  setPaginationState({
+                    key: paginationKey,
+                    shownCount: normalizedVisibleItems ?? 4,
+                  })
+                }
               >
                 {showLessLabel}
               </Button>

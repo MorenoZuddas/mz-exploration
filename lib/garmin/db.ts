@@ -100,7 +100,9 @@ export function isGarminWrapperDocument(doc: GarminStoredDocument): boolean {
 }
 
 function stripWrapperFields(record: Record<string, unknown>): Record<string, unknown> {
-  const { summarizedActivitiesExport: _summarizedActivitiesExport, raw_payload: _raw_payload, ...rest } = record;
+  const rest = { ...record };
+  delete rest.summarizedActivitiesExport;
+  delete rest.raw_payload;
   return rest;
 }
 

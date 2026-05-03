@@ -5,8 +5,6 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card } from "@/components/ui/card"
 import { ActivityDetailModal } from '@/components/ActivityDetailModal';
-import Image from 'next/image';
-import { thumbnailUrl } from '@/lib/cloudinary';
 import { getCachedActivities, setCachedActivities } from '@/lib/cache/activities';
 
 interface ApiPhoto {
@@ -111,7 +109,7 @@ export default function TrekkingPage() {
       }
 
       try {
-        const response = await fetch('/api/activities/garmin', {
+        const response = await fetch('/api/activities/garmin?group=trekking', {
           cache: 'no-store',
           signal: abortController.signal,
           headers: {
@@ -129,10 +127,6 @@ export default function TrekkingPage() {
           const source: GarminApiActivity[] = data?.data?.recent_activities ?? [];
 
           const trekkingActivities = source
-            .filter((act) => {
-              const type = (act.type || '').toLowerCase();
-              return type.includes('hik') || type.includes('trek') || type.includes('walk');
-            })
             .map((act, index) => ({
               id: act._id ?? `${act.name}-${act.date}-${act.distance_m}-${index}`,
               name: act.name,

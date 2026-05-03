@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ActivityPhotos } from '@/components/ActivityPhotos';
 
@@ -103,7 +103,7 @@ export function ActivityDetailModal({
         }
         const data = await response.json();
         if (data.status === 'success' && data.data?.activity) {
-          let activity = data.data.activity;
+          const activity = data.data.activity;
           // Se abbiamo ricevuto una foto dalla prop, aggiungila come array photos
           if (photo && (!activity.photos || activity.photos.length === 0)) {
             activity.photos = [
