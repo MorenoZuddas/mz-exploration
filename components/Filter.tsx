@@ -167,6 +167,8 @@ export function Filter({
     const iconSize = isCompact ? 'w-3.5 h-3.5' : 'w-4 h-4';
     const labelSize = isCompact ? 'text-[11px]' : 'text-xs';
     const minimalControlWidth = 'w-[9rem] xl:w-[9.5rem]';
+    const minimalTextClass = 'text-slate-800 dark:text-slate-200';
+    const minimalPlaceholderClass = 'placeholder:text-slate-800 dark:placeholder:text-slate-200';
     const minimalFieldClass = isMinimal
       ? 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100'
       : '';
@@ -186,11 +188,11 @@ export function Filter({
                 dateInputRefs.current[config.type]?.showPicker?.();
               }
             }}
-            className={`${minimalControlWidth} inline-flex h-9 items-center justify-between gap-2 cursor-pointer text-slate-800 dark:text-slate-200`}
+            className={`${minimalControlWidth} inline-flex h-9 items-center justify-between gap-2 cursor-pointer ${minimalTextClass}`}
             aria-label={`Apri calendario ${fieldLabel}`}
           >
             <Icon className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-                <span className="text-xs font-semibold uppercase tracking-wide whitespace-nowrap">
+                <span className={`text-xs font-semibold uppercase tracking-wide whitespace-nowrap ${minimalTextClass}`}>
               {value || fieldLabel}
             </span>
             <ChevronDown className="w-4 h-4 text-slate-400" />
@@ -246,7 +248,7 @@ export function Filter({
       if (isMinimal) {
         return (
           <Select value={value} onValueChange={(v) => handleChange(config.type, v)} disabled={disabled}>
-            <SelectTrigger className={`h-9 ${minimalControlWidth} border-0 bg-transparent shadow-none px-0 py-0 text-xs font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wide focus:ring-0 focus:ring-offset-0`}>
+            <SelectTrigger className={`h-9 ${minimalControlWidth} border-0 bg-transparent shadow-none px-0 py-0 text-xs font-semibold uppercase tracking-wide focus:ring-0 focus:ring-offset-0 data-[placeholder]:text-slate-800 dark:data-[placeholder]:text-slate-200 [&_svg]:text-slate-500 dark:[&_svg]:text-slate-400 ${minimalTextClass}`}>
               <div className="flex items-center gap-2">
                 <Icon className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                 <SelectValue placeholder={fieldLabel} />
@@ -291,7 +293,7 @@ export function Filter({
 
     return (
       isMinimal ? (
-        <div className={`${minimalControlWidth} inline-flex h-9 items-center gap-2 text-slate-800 dark:text-slate-200`}>
+        <div className={`${minimalControlWidth} inline-flex h-9 items-center gap-2 ${minimalTextClass}`}>
           <Icon className="w-4 h-4 shrink-0 text-slate-500 dark:text-slate-400" />
           <Input
             type={inputType}
@@ -299,7 +301,7 @@ export function Filter({
             value={value}
             onChange={(e) => handleChange(config.type, e.target.value)}
             disabled={disabled}
-            className="border-0 bg-transparent shadow-none px-0 h-auto w-full text-xs font-semibold uppercase tracking-wide text-slate-900 dark:text-slate-100 placeholder:text-slate-500"
+            className={`border-0 bg-transparent shadow-none px-0 h-auto w-full text-xs font-semibold uppercase tracking-wide ${minimalTextClass} ${minimalPlaceholderClass}`}
           />
         </div>
       ) : (

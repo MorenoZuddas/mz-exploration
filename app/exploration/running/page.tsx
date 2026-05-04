@@ -77,7 +77,7 @@ const relatedExplorationCards: CardGridItem[] = [
     title: 'Exploration',
     description: 'Panoramica generale',
     href: '/exploration',
-    image: 'https://res.cloudinary.com/derbnvxif/image/upload/v1777879740/Zuddas_1_dubi4s.png',
+    image: 'https://res.cloudinary.com/derbnvxif/image/upload/v1777886949/MZEXPLORATION_1_vm9xop.png',
   },
   {
     id: 'exp-trekking-mini',
@@ -427,7 +427,7 @@ export default function RunningPage() {
     return (
       <main className="min-h-screen bg-sky-50 dark:bg-slate-900 run-main-1" data-testid="run-main-1">
         {/* ─── Hero con statistiche integrate ─── */}
-        <section className="relative w-full h-[50vh] sm:h-[56vh] overflow-hidden run-hero-2" data-testid="run-hero-2">
+        <section className="relative w-full h-[34vh] sm:h-[38vh] overflow-hidden run-hero-2" data-testid="run-hero-2">
           {/* Background image */}
           <div
             className="absolute inset-0 bg-cover bg-center scale-105 run-hero-background-2"
@@ -464,7 +464,7 @@ export default function RunningPage() {
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight run-title-2" data-testid="run-title-2">
                 Running
               </h1>
-              <p className="text-sm sm:text-base text-white/80 max-w-lg mx-auto run-subtitle-2" data-testid="run-subtitle-2">
+              <p className="text-sm sm:text-base text-white/85 max-w-xl mx-auto run-subtitle-2" data-testid="run-subtitle-2">
                 Corse su strada, pista e allenamenti — progressi, numeri ed emozioni.
               </p>
             </div>
@@ -495,14 +495,14 @@ export default function RunningPage() {
         </section>
 
         {/* ─── Filtri ─── */}
-        <section className="sticky top-[50px] md:top-[50px] z-40 px-4 py-[2px] sm:px-6 lg:px-8 bg-sky-50/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-sky-200/80 dark:border-slate-800 run-filters-3" data-testid="run-filters-3">
+        <section className="sticky top-12 md:top-12 z-40 relative px-4 py-[2px] sm:px-6 lg:px-8 bg-sky-50/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-sky-200/80 dark:border-slate-800 shadow-[0_16px_32px_-16px_rgba(15,23,42,0.5)] after:pointer-events-none after:absolute after:inset-x-0 after:-bottom-3 after:h-3 after:bg-gradient-to-b after:from-black/30 after:to-transparent dark:after:from-black/45 run-filters-3" data-testid="run-filters-3">
           <div className="max-w-6xl mx-auto">
             <Filter
               filters={runningFilterConfig}
               tone="current"
               density="compact"
               variant="minimal"
-              className="bg-transparent py-0.5"
+              className="bg-transparent py-0.5 [&_input]:text-slate-800 dark:[&_input]:text-slate-200 [&_input]:placeholder:text-slate-800/80 dark:[&_input]:placeholder:text-slate-200/80"
               onFilterChange={handleFilterChange}
               onReset={resetRunningFilters}
               resetLabel="CLEAR"
@@ -539,8 +539,9 @@ export default function RunningPage() {
               showVisibilityToggle
               showMoreLabel="Mostra altre attività"
               showLessLabel="Mostra meno"
-              showMoreTone="navy"
-              showLessTone="navy"
+              showMoreTone="current"
+              showLessTone="current"
+              visibilityToggleClassName="[&_button.cardgrid-show-less]:border [&_button.cardgrid-show-less]:border-slate-900 [&_button.cardgrid-show-less]:bg-white [&_button.cardgrid-show-less]:text-slate-900 [&_button.cardgrid-show-less]:hover:bg-slate-100 [&_button.cardgrid-show-less]:dark:border-slate-900 [&_button.cardgrid-show-less]:dark:bg-white [&_button.cardgrid-show-less]:dark:text-slate-900 [&_button.cardgrid-show-less]:dark:hover:bg-slate-100"
               activityPhotoBadgePosition="border"
               activityPhotoBadgeSize="medium"
               activityPhotoBadgeRounded={false}

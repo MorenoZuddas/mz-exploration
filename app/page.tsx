@@ -54,10 +54,10 @@ export default function Home() {
     <main className="w-full homepage-main" data-testid="homepage-main">
       {/* Hero Video Section */}
       <Hero
-        title="MZ EXPLORATION"
+        title="MZ Exploration"
         subtitle="Un mondo oltre la pista e il sentiero."
-        heightClassName="h-[34vh] sm:h-[38vh]"
-        titleClassName="text-3xl sm:text-4xl lg:text-5xl"
+        size="md"
+        titleClassName="text-4xl sm:text-5xl lg:text-6xl leading-tight"
         subtitleClassName="text-sm sm:text-base lg:text-lg"
         data-testid="hp-hero-1"
       />

@@ -115,11 +115,20 @@ Questa guida descrive come usare, modificare ed estendere i componenti props-bas
 - `title`, `subtitle`
 - `tone` (applica colore a titolo/sottotitolo)
 - `titleColor`, `subtitleColor` (compat legacy)
+- `size`: `sm | md | lg` (preset altezza: `sm`=piccolo, `md`=default, `lg`=grande)
+- `heightClassName`: override esplicito dell'altezza (sovrascrive `size`)
 - `useVideo`, `showOverlay`
 - `videoMp4Src`, `videoWebmSrc`, `posterSrc`
-- `heightClassName`, `overlayClassName`
+- `overlayClassName`
 - `className`, `containerClassName`, `contentClassName`
 - `titleClassName`, `subtitleClassName`
+
+### Preset altezze
+| size | mobile | sm+ |
+|------|--------|-----|
+| `sm` | `h-[24vh]` | `h-[28vh]` |
+| `md` | `h-[34vh]` | `h-[38vh]` |
+| `lg` | `h-[50vh]` | `h-[56vh]` |
 
 ### Esempio
 
@@ -139,6 +148,7 @@ Questa guida descrive come usare, modificare ed estendere i componenti props-bas
 ### Props principali
 - `title`, `subtitle`, `items`
 - `tone`, `titleColor`, `subtitleColor`
+- `titlePosition`: `left | center | right` (allinea blocco titolo+sottotitolo)
 - `showTypeBadge`, `showDate`, `showDescription`
 - `useMotion`
 - `fallbackImage`
@@ -398,4 +408,3 @@ npm run build
 ```
 
 Se entrambi passano, il refactor props-based e pronto.
-

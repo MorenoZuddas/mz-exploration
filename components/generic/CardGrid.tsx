@@ -15,6 +15,7 @@ import type { BadgeChipSize } from '@/components/BadgeChip';
 export type CardGridType = 'running' | 'track_running' | 'trekking' | 'trip';
 export type CardGridColor = 'current' | 'blue' | 'purple' | 'black';
 export type CardGridVariant = 'default' | 'activity';
+export type CardGridTitlePosition = 'left' | 'center' | 'right';
 
 export interface CardGridItem {
   id: string;
@@ -70,6 +71,7 @@ interface CardGridProps {
   sectionClassName?: string;
   titleColor?: CardGridColor;
   subtitleColor?: CardGridColor;
+  titlePosition?: CardGridTitlePosition;
   onItemClick?: (item: CardGridItem) => void;
   maxCards?: number;
   activityPhotoBadgePosition?: 'border' | 'date-row'; // 'border' = fuori dal bordo card, 'date-row' = a destra della data
@@ -180,8 +182,8 @@ export function CardGrid({
   showMoreLabel = 'Mostra tutte',
   showLessLabel = 'Mostra meno',
   visibilityToggleClassName = '',
-  showMoreTone = 'blue',
-  showLessTone = 'black',
+  showMoreTone = 'navy',
+  showLessTone = 'transparent-white',
   sortOptions,
   sortValue,
   onSortChange,
@@ -192,6 +194,7 @@ export function CardGrid({
   sectionClassName = 'px-4 py-16 sm:px-6 lg:px-8 bg-white dark:bg-slate-900',
   titleColor = 'current',
   subtitleColor = 'current',
+  titlePosition = 'left',
   onItemClick,
   maxCards,
   activityPhotoBadgePosition = 'border',
@@ -246,6 +249,12 @@ export function CardGrid({
 
   const shouldShowHeader = Boolean(title || subtitle || showItemsCount || (sortOptions && sortOptions.length > 0 && onSortChange));
   const headerBottomSpacing = title || subtitle ? 'mb-10' : 'mb-6';
+  const titlePositionClass =
+    titlePosition === 'center'
+      ? 'w-full text-center'
+      : titlePosition === 'right'
+        ? 'w-full text-right'
+        : '';
 
   return (
     <section className={`cardgrid-component ${sectionClassName} ${className}`} data-testid="cardgrid-section">
@@ -256,7 +265,7 @@ export function CardGrid({
             className={`flex items-end justify-between gap-4 flex-wrap ${headerBottomSpacing} cardgrid-header`}
             data-testid="cardgrid-header"
           >
-            <div className="cardgrid-title-wrapper">
+            <div className={`${titlePositionClass} cardgrid-title-wrapper`}>
               {title ? (
                 <h2
                   className={`text-3xl sm:text-4xl font-bold mb-2 ${titleColorClass} cardgrid-title`}
@@ -546,7 +555,7 @@ export function CardGrid({
           <div className={`mt-8 flex justify-center gap-3 ${visibilityToggleClassName} cardgrid-toggle`} data-testid="cardgrid-toggle">
             {hasMore && (
               <Button
-                variant="outline"
+                variant="default"
                 tone={showMoreTone}
                 onClick={() =>
                   setPaginationState({
@@ -562,7 +571,7 @@ export function CardGrid({
             )}
             {hasLess && (
               <Button
-                variant="outline"
+                variant="default"
                 tone={showLessTone}
                 onClick={() =>
                   setPaginationState({

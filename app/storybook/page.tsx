@@ -324,6 +324,7 @@ function HeroSection() {
   const [titleColor, setTitleColor] = useState<Tone>("current")
   const [subtitleColor, setSubtitleColor] = useState<Tone>("current")
   const [align, setAlign] = useState<HeroAlign>("center")
+  const [heroSize, setHeroSize] = useState<"sm" | "md" | "lg">("md")
   const [titleSize, setTitleSize] = useState<keyof typeof HERO_SIZES>("medium")
   const [subtitleSize, setSubtitleSize] = useState<keyof typeof SUBTITLE_SIZES>("medium")
 
@@ -332,6 +333,7 @@ function HeroSection() {
       <div className="grid lg:grid-cols-[320px_1fr] gap-4">
         <Panel>
           <div className="grid gap-2">
+            <Ctl label="size" value={heroSize} options={["sm", "md", "lg"]} onChange={(v) => setHeroSize(v as "sm" | "md" | "lg")} />
             <Ctl label="title color" value={titleColor} options={CARD_TONES} onChange={setTitleColor} />
             <Ctl label="subtitle color" value={subtitleColor} options={CARD_TONES} onChange={setSubtitleColor} />
             <Ctl label="align" value={align} options={HERO_ALIGNS} onChange={setAlign} />
@@ -343,7 +345,7 @@ function HeroSection() {
           <Hero
             useVideo={false}
             posterSrc="https://res.cloudinary.com/derbnvxif/image/upload/q_auto/f_auto/v1777467700/cagliar_dallalto_-_stefano_garau_-_shutterstock.com__1_mzsy2n.jpg"
-            heightClassName="h-[36vh]"
+            size={heroSize}
             titleColor={titleColor}
             subtitleColor={subtitleColor}
             contentAlign={align}
@@ -355,6 +357,7 @@ function HeroSection() {
       <div className="mt-4">
         <PropsLegend
           items={[
+            { prop: "size", values: ["sm", "md", "lg"] },
             { prop: "titleColor", values: [...CARD_TONES] },
             { prop: "subtitleColor", values: [...CARD_TONES] },
             { prop: "contentAlign", values: [...HERO_ALIGNS] },
