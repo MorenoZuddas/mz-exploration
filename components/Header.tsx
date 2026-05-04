@@ -53,27 +53,27 @@ const defaultExplorationLink: HeaderNavLink = { label: 'Exploration', href: '/ex
 const defaultExplorationItems: HeaderNavLink[] = [
   {
     label: (
-      <span className="inline-flex items-center gap-2">
+      <span className="inline-flex items-center gap-1.5 leading-none">
         <span>Running</span>
-        <SportShoe className="h-4 w-4" strokeWidth={2.25} />
+        <SportShoe className="h-3.5 w-3.5" strokeWidth={2.25} />
       </span>
     ),
     href: '/exploration/running',
   },
   {
     label: (
-      <span className="inline-flex items-center gap-2">
+      <span className="inline-flex items-center gap-1.5 leading-none">
         <span>Trekking</span>
-        <Mountain className="h-4 w-4" />
+        <Mountain className="h-3.5 w-3.5" />
       </span>
     ),
     href: '/exploration/trekking',
   },
   {
     label: (
-      <span className="inline-flex items-center gap-2">
+      <span className="inline-flex items-center gap-1.5 leading-none">
         <span>Trips</span>
-        <PlaneTakeoff className="h-4 w-4" />
+        <PlaneTakeoff className="h-3.5 w-3.5" />
       </span>
     ),
     href: '/exploration/trips',
@@ -154,16 +154,21 @@ export default function Header({
               </Link>
 
               {/* Dropdown Menu */}
-              <div className={`absolute left-0 mt-2 w-52 ${isLightBg ? 'bg-white' : 'bg-slate-800/95 backdrop-blur'} rounded-lg border shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-2 ${toneClasses.border}`}>
-                {explorationItems.map((item) => (
-                  <Link
-                    key={`${item.href}-${item.label}`}
-                    href={item.href}
-                    className={`flex items-center justify-center text-center px-4 py-2 ${toneClasses.hoverBg} ${toneClasses.link} transition-colors motion-safe:transition-transform motion-safe:duration-200 motion-safe:hover:scale-[1.01]`}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
+              <div className={`absolute left-0 mt-1 min-w-[10rem] w-max ${isLightBg ? 'bg-white' : 'bg-slate-800/95 backdrop-blur'} rounded-md border shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 overflow-hidden ${toneClasses.border}`}>
+                <div className={`px-3 py-1.5 text-center text-[10px] uppercase tracking-[0.14em] font-semibold ${isLightBg ? 'bg-slate-50 text-slate-500 border-b border-slate-200' : 'bg-slate-900/35 text-slate-300/80 border-b border-slate-700/80'}`}>
+                  Categorie
+                </div>
+                <div className={`${isLightBg ? 'divide-y divide-slate-200' : 'divide-y divide-slate-700/80'}`}>
+                  {explorationItems.map((item) => (
+                    <Link
+                      key={`${item.href}-${item.label}`}
+                      href={item.href}
+                      className={`flex items-center justify-center text-center whitespace-nowrap px-3 py-1.5 text-sm leading-5 ${toneClasses.hoverBg} ${toneClasses.link} transition-colors`}
+                    >
+                      {item.label}
+                    </Link>
+                  ))}
+                </div>
               </div>
             </div>
 

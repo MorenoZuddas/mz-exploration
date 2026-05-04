@@ -274,7 +274,7 @@ export default function TrekkingPage() {
           className="absolute top-6 right-6 sm:right-10 hidden sm:inline-flex items-center gap-1.5 text-white/75 hover:text-white text-sm font-medium transition z-10 trek-equipment-link-2"
           data-testid="trek-equipment-link-2"
         >
-          <Backpack className="h-4 w-4" /> Attrezzatura
+          Attrezzatura <Backpack className="h-4 w-4" />
         </Link>
 
         <div className="absolute inset-0 flex flex-col items-center justify-end px-6 pb-7 sm:px-10 sm:pb-8 trek-hero-content-2" data-testid="trek-hero-content-2">
@@ -366,8 +366,8 @@ export default function TrekkingPage() {
               href="/exploration/trekking/equipment"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-900 dark:bg-slate-700 text-white text-sm font-medium hover:bg-black dark:hover:bg-slate-600 transition-colors"
             >
-              <Backpack className="h-4 w-4" />
               Attrezzatura
+              <Backpack className="h-4 w-4" />
             </Link>
           </div>
         </div>

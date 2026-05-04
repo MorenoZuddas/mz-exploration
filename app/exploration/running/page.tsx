@@ -456,7 +456,7 @@ export default function RunningPage() {
             className="absolute top-6 right-6 sm:right-10 hidden sm:inline-flex items-center gap-1.5 text-white/75 hover:text-white text-sm font-medium transition z-10 run-equipment-link-2"
             data-testid="run-equipment-link-2"
           >
-            <Shirt className="h-4 w-4" /> Attrezzatura
+            Attrezzatura <Shirt className="h-4 w-4" />
           </Link>
 
           {/* Content in basso */}
@@ -601,8 +601,8 @@ export default function RunningPage() {
                 href="/exploration/running/equipment"
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-900 dark:bg-slate-700 text-white text-sm font-medium hover:bg-black dark:hover:bg-slate-600 transition-colors"
               >
-                <Shirt className="h-4 w-4" />
                 Attrezzatura
+                <Shirt className="h-4 w-4" />
               </Link>
             </div>
           </div>
