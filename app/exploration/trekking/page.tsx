@@ -1,11 +1,13 @@
 "use client";
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card } from "@/components/ui/card"
+import { Backpack } from 'lucide-react';
 import { ActivityDetailModal } from '@/components/ActivityDetailModal';
 import { getCachedActivities, setCachedActivities } from '@/lib/cache/activities';
+import { CardGrid, type CardGridItem } from '@/components/generic/CardGrid';
+import { Divider } from '@/components/generic/Divider';
 
 interface ApiPhoto {
   activityId: number;
@@ -67,16 +69,39 @@ function safeTimestamp(value: string | undefined): number {
   return Number.isNaN(ts) ? 0 : ts;
 }
 
+const relatedExplorationCards: CardGridItem[] = [
+  {
+    id: 'exp-overview',
+    title: 'Exploration',
+    description: 'Panoramica generale',
+    href: '/exploration',
+    image: 'https://res.cloudinary.com/derbnvxif/image/upload/v1777886949/MZEXPLORATION_1_vm9xop.png',
+  },
+  {
+    id: 'exp-running-mini',
+    title: 'Running',
+    description: 'Road to Marathon',
+    href: '/exploration/running',
+    image: 'https://res.cloudinary.com/derbnvxif/image/upload/q_auto/f_auto/v1777450410/running_Large_zorzw2.jpg',
+  },
+  {
+    id: 'exp-trips-mini',
+    title: 'Trips',
+    description: 'Viaggi ed esperienze',
+    href: '/exploration/trips',
+    image: 'https://res.cloudinary.com/derbnvxif/image/upload/q_auto/f_auto/v1777450410/trips_exvdmu.avif',
+  },
+];
+
 export default function TrekkingPage() {
-   const router = useRouter();
-   const [activities, setActivities] = useState<Activity[]>([]);
-   const [loading, setLoading] = useState(true);
-   const [displayedCount, setDisplayedCount] = useState(8);
-   const [selectedActivityId, setSelectedActivityId] = useState<string | null>(null);
-   const [isDesktop, setIsDesktop] = useState(() =>
-     typeof window !== 'undefined' ? window.matchMedia('(min-width: 768px)').matches : false
-   );
-   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const [activities, setActivities] = useState<Activity[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedActivityId, setSelectedActivityId] = useState<string | null>(null);
+  const [isDesktop, setIsDesktop] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(min-width: 768px)').matches : false
+  );
+  const [error, setError] = useState<string | null>(null);
 
   // Determina se desktop
   useEffect(() => {
@@ -182,130 +207,199 @@ export default function TrekkingPage() {
     };
   }, []);
 
+  const heroStats = useMemo(() => {
+    const totalKm = activities.reduce((sum, activity) => sum + Number.parseFloat(activity.distance_km), 0);
+    const longestKm = activities.length > 0
+      ? Math.max(...activities.map((activity) => Number.parseFloat(activity.distance_km)))
+      : 0;
+    const uniqueLocations = new Set(
+      activities
+        .map((activity) => activity.location?.trim())
+        .filter((location): location is string => Boolean(location))
+    );
+
+    return {
+      count: activities.length,
+      totalKm: totalKm >= 1000 ? `${(totalKm / 1000).toFixed(1)}k km` : `${Math.round(totalKm)} km`,
+      longestKm: `${longestKm.toFixed(1)} km`,
+      locations: String(uniqueLocations.size),
+    };
+  }, [activities]);
+
+  const activityGridItems = useMemo<CardGridItem[]>(
+    () =>
+      activities.map((activity) => ({
+        id: activity.id,
+        title: activity.name,
+        href: `/exploration/trekking/${activity.id}`,
+        hasPhoto: Boolean(activity.photo),
+        type: 'trekking',
+        date: activity.date,
+        distance: activity.distance_formatted,
+        duration: activity.duration_formatted,
+      })),
+    [activities]
+  );
+
   if (loading) {
     return (
-      <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 flex items-center justify-center">
+      <main className="min-h-screen bg-sky-50 dark:bg-slate-900 flex items-center justify-center">
         <p className="text-lg">Caricamento...</p>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 trek-main-1" data-testid="trek-main-1">
-      {/* Header */}
-      <section className="px-4 py-12 sm:px-6 lg:px-8 border-b border-slate-200 dark:border-slate-700 trek-header-2" data-testid="trek-header-2">
-        <div className="max-w-4xl mx-auto trek-header-content-2" data-testid="trek-header-content-2">
-          <Link
-            href="/exploration"
-            className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 mb-6 font-semibold trek-back-link-2"
-            data-testid="trek-back-link-2"
-          >
-            ← Torna a Exploration
-          </Link>
-          <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 dark:text-white mb-4 trek-title-2" data-testid="trek-title-2">
-            🥾 Trekking
-          </h1>
-          <p className="text-lg text-slate-600 dark:text-slate-300 trek-description-2" data-testid="trek-description-2">
-            I miei percorsi trekking e escursioni. Scopri le statistiche di ogni uscita.
-          </p>
-          <div className="mt-6 flex gap-4 trek-actions-2">
-            <Link
-              href="/exploration/trekking/equipment"
-              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold trek-equipment-link-2"
-              data-testid="trek-equipment-link-2"
-            >
-              🎒 Attrezzatura
-            </Link>
+    <main className="min-h-screen bg-sky-50 dark:bg-slate-900 trek-main-1" data-testid="trek-main-1">
+      <section className="relative w-full h-[34vh] sm:h-[38vh] overflow-hidden trek-hero-2" data-testid="trek-hero-2">
+        <div
+          className="absolute inset-0 bg-cover bg-center scale-105 trek-hero-background-2"
+          style={{
+            backgroundImage:
+              'url(https://res.cloudinary.com/derbnvxif/image/upload/q_auto/f_auto/v1777450410/trekking_h2lev5.jpg)',
+          }}
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/15 trek-hero-overlay-2" />
+
+        <Link
+          href="/exploration"
+          className="absolute top-6 left-6 sm:left-10 hidden sm:inline-flex items-center gap-1.5 text-white hover:text-white text-sm font-medium transition z-10 trek-back-link-2"
+          data-testid="trek-back-link-2"
+        >
+          ← Exploration
+        </Link>
+
+        <Link
+          href="/exploration/trekking/equipment"
+          className="absolute top-6 right-6 sm:right-10 hidden sm:inline-flex items-center gap-1.5 text-white/75 hover:text-white text-sm font-medium transition z-10 trek-equipment-link-2"
+          data-testid="trek-equipment-link-2"
+        >
+          <Backpack className="h-4 w-4" /> Attrezzatura
+        </Link>
+
+        <div className="absolute inset-0 flex flex-col items-center justify-end px-6 pb-7 sm:px-10 sm:pb-8 trek-hero-content-2" data-testid="trek-hero-content-2">
+          <div className="w-full max-w-2xl space-y-2 mb-5 text-center trek-hero-text-2" data-testid="trek-hero-text-2">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight trek-title-2" data-testid="trek-title-2">
+              Trekking
+            </h1>
+            <p className="text-sm sm:text-base text-white/85 max-w-xl mx-auto trek-description-2" data-testid="trek-description-2">
+              I miei percorsi trekking e le escursioni principali, con numeri e dettagli utili.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-px overflow-hidden rounded-xl border border-white/15 bg-white/10 backdrop-blur-md w-full max-w-sm sm:max-w-3xl mx-auto trek-stats-bar-2" data-testid="trek-stats-bar-2">
+            {[
+              { label: 'Attività', mobileLabel: 'Attività', value: String(heroStats.count), testId: 'count', hideOnMobile: true },
+              { label: 'Tot. distanza', mobileLabel: 'Tot. distanza', value: heroStats.totalKm, testId: 'total-distance', hideOnMobile: true },
+              { label: 'Trekking più lungo', mobileLabel: 'Trekking più lungo', value: heroStats.longestKm, testId: 'longest', hideOnMobile: false },
+              { label: 'Località', mobileLabel: 'Località', value: heroStats.locations, testId: 'locations', hideOnMobile: false },
+            ].map((stat) => (
+              <div
+                key={stat.label}
+                className={`px-3 py-2.5 sm:px-4 sm:py-3 flex flex-col gap-0.5 trek-stat-item-2 ${stat.hideOnMobile ? 'hidden sm:flex' : 'flex'}`}
+                data-testid={`trek-stat-${stat.testId}-2`}
+              >
+                <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.08em] sm:tracking-widest text-white/55 font-semibold trek-stat-label-2">
+                  <span className="sm:hidden">{stat.mobileLabel}</span>
+                  <span className="hidden sm:inline">{stat.label}</span>
+                </span>
+                <span className="text-lg sm:text-xl font-bold text-white leading-none trek-stat-value-2">
+                  {stat.value}
+                </span>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Trekking Activities */}
-      <section className="px-4 py-12 sm:px-6 lg:px-8 trek-activities-3" data-testid="trek-activities-3">
+      <section className="px-4 pt-6 pb-10 sm:px-6 lg:px-8 bg-sky-50 dark:bg-slate-900 trek-activities-3" data-testid="trek-activities-3">
         <div className="max-w-6xl mx-auto trek-activities-container-3">
           {error && (
             <div className="mb-6 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-200 trek-error-3" data-testid="trek-error-3">
               {error}
             </div>
           )}
-          {activities.length === 0 ? (
-            <div className="text-center py-12 trek-empty-state-3" data-testid="trek-empty-state-3">
-              <p className="text-lg text-slate-600 dark:text-slate-300">
-                Nessuna attività trekking trovata.
-              </p>
+
+          <CardGrid
+            variant="activity"
+            title="Attività recenti"
+            subtitle={`${activities.length} attività`}
+            items={activityGridItems}
+            columnsClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
+            sectionClassName="px-0 py-0 bg-transparent"
+            cardClassName="border border-slate-300/80 dark:border-slate-700 bg-white dark:bg-slate-900"
+            useMotion={false}
+            showDate
+            showTypeBadge={false}
+            visibleItems={8}
+            showVisibilityToggle
+            showMoreLabel="Mostra altre attività"
+            showLessLabel="Mostra meno"
+            showMoreTone="current"
+            showLessTone="current"
+            visibilityToggleClassName="[&_button.cardgrid-show-less]:border [&_button.cardgrid-show-less]:border-slate-900 [&_button.cardgrid-show-less]:bg-white [&_button.cardgrid-show-less]:text-slate-900 [&_button.cardgrid-show-less]:hover:bg-slate-100 [&_button.cardgrid-show-less]:dark:border-slate-900 [&_button.cardgrid-show-less]:dark:bg-white [&_button.cardgrid-show-less]:dark:text-slate-900 [&_button.cardgrid-show-less]:dark:hover:bg-slate-100"
+            activityPhotoBadgePosition="border"
+            activityPhotoBadgeSize="medium"
+            activityPhotoBadgeRounded={false}
+            activityTextColor="black"
+            onItemClick={(item) => handleActivityClick(item.id)}
+            data-testid="trek-activities-grid-3"
+          />
+
+          {activities.length === 0 && (
+            <div className="mt-6 rounded-xl border border-slate-300/80 dark:border-slate-700 bg-sky-100/70 dark:bg-slate-900/80 p-8 text-center trek-empty-state-3" data-testid="trek-empty-state-3">
+              <p className="font-semibold text-slate-700 dark:text-slate-200">Nessuna attività trekking trovata</p>
             </div>
-            ) : (
-              <>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 trek-cards-grid-3">
-                  {activities.slice(0, displayedCount).map((activity, index) => (
-                    <div
-                      key={activity.id}
-                      onClick={() => handleActivityClick(activity.id)}
-                      className="cursor-pointer trek-card-item-3"
-                      data-testid={`trek-card-${activity.id}-3`}
-                    >
-                      <Card
-                        className="p-6 hover:shadow-lg hover:scale-[1.02] transition-all trek-card-3"
-                        dataName={`trek-card-${index + 1}-3`}
-                      >
-                        <div className="flex justify-between items-start mb-4 trek-card-header-3">
-                          <h3 className="text-xl font-bold text-slate-900 dark:text-white trek-card-title-3" data-testid={`trek-card-title-${activity.id}-3`}>
-                            {activity.name}
-                          </h3>
-                          <span className="text-sm text-slate-500 dark:text-slate-400 trek-card-date-3">
-                            {activity.date}
-                          </span>
-                        </div>
-                        <div className="grid grid-cols-2 gap-4 trek-card-stats-3">
-                          <div className="trek-stat-distance-3">
-                            <p className="text-sm text-slate-600 dark:text-slate-400">Distanza</p>
-                            <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                              {activity.distance_formatted}
-                            </p>
-                          </div>
-                          <div className="trek-stat-duration-3">
-                            <p className="text-sm text-slate-600 dark:text-slate-400">Tempo</p>
-                            <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                              {activity.duration_formatted}
-                            </p>
-                          </div>
-                          {activity.location && (
-                            <div className="col-span-2 trek-stat-location-3">
-                              <p className="text-sm text-slate-600 dark:text-slate-400">Luogo</p>
-                              <p className="text-lg font-semibold text-slate-900 dark:text-white">
-                                {activity.location}
-                              </p>
-                            </div>
-                          )}
-                        </div>
-                      </Card>
-                    </div>
-                  ))}
-                </div>
-                {activities.length > displayedCount && (
-                  <div className="mt-6 text-center trek-load-more-3" data-testid="trek-load-more-3">
-                    <button
-                      onClick={() => setDisplayedCount((prev) => prev + 8)}
-                      className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors trek-load-more-button-3"
-                      data-testid="trek-load-more-button-3"
-                    >
-                      Mostra Altro
-                    </button>
-                  </div>
-                )}
-              </>
-            )}
-         </div>
+          )}
+        </div>
       </section>
 
-      {/* Activity Detail Modal (Desktop only) */}
+      {/* ─── Sezione Attrezzatura ─── */}
+      <section className="px-4 pb-6 sm:px-6 lg:px-8 bg-sky-50 dark:bg-slate-900">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex items-center justify-between rounded-xl border border-slate-300/80 dark:border-slate-700 bg-white dark:bg-slate-800 px-5 py-4">
+            <div>
+              <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">La mia attrezzatura</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Zaini, bastoncini e accessori</p>
+            </div>
+            <Link
+              href="/exploration/trekking/equipment"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-900 dark:bg-slate-700 text-white text-sm font-medium hover:bg-black dark:hover:bg-slate-600 transition-colors"
+            >
+              <Backpack className="h-4 w-4" />
+              Attrezzatura
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <Divider tone="blue" size="sm" data-testid="trek-divider-4" />
+
+      <CardGrid
+        title="Categorie"
+        subtitle="Continua l'esplorazione"
+        items={relatedExplorationCards}
+        showTypeBadge={false}
+        showDate={false}
+        showDescription={true}
+        columnsClassName="grid grid-cols-1 sm:grid-cols-3 gap-4"
+        sectionClassName="px-4 pt-2 pb-8 sm:px-6 lg:px-8 bg-sky-50 dark:bg-slate-900"
+        containerClassName="max-w-6xl"
+        titleColor="black"
+        subtitleColor="black"
+        cardClassName="border border-slate-300/80 dark:border-slate-700 bg-white"
+        useMotion={false}
+        showVisibilityToggle={false}
+        data-testid="trek-related-categories-5"
+      />
+
       {selectedActivityId && (
         <ActivityDetailModal
           activityId={selectedActivityId}
           isOpen={true}
           onClose={() => setSelectedActivityId(null)}
           detailsPageUrl={`/exploration/trekking/${selectedActivityId}`}
-          photo={activities.find(a => a.id === selectedActivityId)?.photo ?? null}
+          photo={activities.find((a) => a.id === selectedActivityId)?.photo ?? null}
           data-testid="trek-activity-modal-4"
         />
       )}

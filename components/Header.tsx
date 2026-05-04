@@ -3,9 +3,10 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { ChevronDown, Mountain, PlaneTakeoff, SportShoe } from 'lucide-react';
 
 export interface HeaderNavLink {
-  label: string;
+  label: React.ReactNode;
   href: string;
 }
 
@@ -50,9 +51,33 @@ const defaultAboutLink: HeaderNavLink = { label: 'Chi Sono', href: '/about' };
 const defaultContactLink: HeaderNavLink = { label: 'Contatti', href: '/contact' };
 const defaultExplorationLink: HeaderNavLink = { label: 'Exploration', href: '/exploration' };
 const defaultExplorationItems: HeaderNavLink[] = [
-  { label: '🏃 Running', href: '/exploration/running' },
-  { label: '🥾 Trekking', href: '/exploration/trekking' },
-  { label: '✈️ Trips', href: '/exploration/trips' },
+  {
+    label: (
+      <span className="inline-flex items-center gap-2">
+        <span>Running</span>
+        <SportShoe className="h-4 w-4" strokeWidth={2.25} />
+      </span>
+    ),
+    href: '/exploration/running',
+  },
+  {
+    label: (
+      <span className="inline-flex items-center gap-2">
+        <span>Trekking</span>
+        <Mountain className="h-4 w-4" />
+      </span>
+    ),
+    href: '/exploration/trekking',
+  },
+  {
+    label: (
+      <span className="inline-flex items-center gap-2">
+        <span>Trips</span>
+        <PlaneTakeoff className="h-4 w-4" />
+      </span>
+    ),
+    href: '/exploration/trips',
+  },
 ];
 
 export default function Header({
@@ -95,7 +120,7 @@ export default function Header({
 
   return (
     <header className={`sticky top-0 z-50 ${rootTextClass} shadow-lg ${backgroundClassName} ${className}`}>
-      <div className="max-w-6xl mx-auto px-4 py-3">
+      <div className="max-w-6xl mx-auto px-4 py-2 sm:py-3">
         <div className="flex items-center justify-between">
           {/* Logo - Left */}
           <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
@@ -104,6 +129,7 @@ export default function Header({
                 alt={logoAlt}
                 width={logoWidth}
                 height={logoHeight}
+                className="h-auto w-[126px] sm:w-[160px]"
                 priority
             />
           </Link>
@@ -124,28 +150,16 @@ export default function Header({
                 className={`${toneClasses.link} transition-colors font-medium flex items-center gap-1`}
               >
                 {explorationLink.label}
-                <svg
-                  className="w-4 h-4 group-hover:rotate-180 transition-transform"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                  />
-                </svg>
+                <ChevronDown className="w-4 h-4 group-hover:rotate-180 transition-transform" />
               </Link>
 
               {/* Dropdown Menu */}
-              <div className={`absolute left-0 mt-0 w-48 ${isLightBg ? 'bg-white' : 'bg-slate-800'} rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-2 ${toneClasses.border}`}>
+              <div className={`absolute left-0 mt-2 w-52 ${isLightBg ? 'bg-white' : 'bg-slate-800/95 backdrop-blur'} rounded-lg border shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-2 ${toneClasses.border}`}>
                 {explorationItems.map((item) => (
                   <Link
                     key={`${item.href}-${item.label}`}
                     href={item.href}
-                    className={`block px-4 py-2 ${toneClasses.hoverBg} ${toneClasses.link} transition-colors`}
+                    className={`flex items-center justify-center text-center px-4 py-2 ${toneClasses.hoverBg} ${toneClasses.link} transition-colors motion-safe:transition-transform motion-safe:duration-200 motion-safe:hover:scale-[1.01]`}
                   >
                     {item.label}
                   </Link>
@@ -164,7 +178,7 @@ export default function Header({
           {/* Hamburger Menu Button - Right (Mobile) */}
           <button
             onClick={toggleMenu}
-            className={`md:hidden flex flex-col gap-1.5 p-2 ${toneClasses.hoverBg} rounded-lg transition-colors`}
+            className={`md:hidden flex flex-col gap-1.5 p-1.5 ${toneClasses.hoverBg} rounded-md transition-colors`}
             aria-label="Toggle menu"
           >
             <span
@@ -187,18 +201,11 @@ export default function Header({
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <nav className={`md:hidden mt-4 pb-4 border-t pt-4 space-y-2 ${toneClasses.border}`}>
-            <Link
-              href="/"
-              onClick={closeMenu}
-              className={`block px-4 py-2 ${toneClasses.hoverBg} ${toneClasses.link} transition-colors rounded-lg font-medium`}
-            >
-              Home
-            </Link>
+          <nav className={`md:hidden mt-2 pb-2 border-t pt-3 space-y-1.5 ${toneClasses.border}`}>
             <Link
               href="/about"
               onClick={closeMenu}
-              className={`block px-4 py-2 ${toneClasses.hoverBg} ${toneClasses.link} transition-colors rounded-lg font-medium`}
+              className={`block px-3 py-1.5 text-base ${toneClasses.hoverBg} ${toneClasses.link} transition-colors rounded-md font-medium`}
             >
               {aboutLink.label}
             </Link>
@@ -207,41 +214,24 @@ export default function Header({
             <div>
               <button
                 onClick={toggleExploration}
-                className={`w-full text-left px-4 py-2 ${toneClasses.hoverBg} ${toneClasses.link} transition-colors rounded-lg font-medium flex items-center justify-between`}
+                className={`w-full text-left px-3 py-1.5 text-base ${toneClasses.hoverBg} ${toneClasses.link} transition-colors rounded-md font-medium flex items-center justify-between`}
               >
                 {explorationLink.label}
-                <svg
-                  className={`w-4 h-4 transition-transform ${
+                <ChevronDown
+                  className={`w-3.5 h-3.5 transition-transform ${
                     isExplorationOpen ? 'rotate-180' : ''
                   }`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                  />
-                </svg>
+                />
               </button>
 
               {isExplorationOpen && (
-                <div className={`${isLightBg ? 'bg-white' : 'bg-slate-800'} rounded-lg mt-1 space-y-1 py-2`}>
-                  <Link
-                    href={explorationLink.href}
-                    onClick={closeMenu}
-                    className={`block px-6 py-2 ${toneClasses.hoverBg} ${toneClasses.link} transition-colors text-sm`}
-                  >
-                    📍 {explorationLink.label}
-                  </Link>
+                <div className={`${isLightBg ? 'bg-white' : 'bg-slate-800/95'} rounded-md border mt-1 space-y-0.5 py-1 ${toneClasses.border}`}>
                   {explorationItems.map((item) => (
                     <Link
                       key={`${item.href}-${item.label}-mobile`}
                       href={item.href}
                       onClick={closeMenu}
-                      className={`block px-6 py-2 ${toneClasses.hoverBg} ${toneClasses.link} transition-colors text-sm`}
+                      className={`flex items-center justify-center text-center px-4 py-1.5 ${toneClasses.hoverBg} ${toneClasses.link} transition-colors text-sm motion-safe:transition-transform motion-safe:duration-200 motion-safe:hover:scale-[1.01]`}
                     >
                       {item.label}
                     </Link>
@@ -253,7 +243,7 @@ export default function Header({
             <Link
               href={contactLink.href}
               onClick={closeMenu}
-              className={`block px-4 py-2 ${toneClasses.hoverBg} ${toneClasses.link} transition-colors rounded-lg font-medium`}
+              className={`block px-3 py-1.5 text-base ${toneClasses.hoverBg} ${toneClasses.link} transition-colors rounded-md font-medium`}
             >
               {contactLink.label}
             </Link>

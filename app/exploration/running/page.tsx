@@ -3,10 +3,13 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Shirt, SlidersHorizontal } from 'lucide-react';
 import { Filter, type FilterConfig, type FilterState } from '@/components/Filter';
 import { Modal } from '@/components/Modal';
 import { getCachedActivities, setCachedActivities } from '@/lib/cache/activities';
 import { CardGrid, type CardGridItem } from '@/components/generic/CardGrid';
+import { Divider } from '@/components/generic/Divider';
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
 
 interface ApiPhoto {
   activityId: number;
@@ -442,7 +445,7 @@ export default function RunningPage() {
           {/* Back link */}
           <Link
             href="/exploration"
-            className="absolute top-6 left-6 sm:left-10 inline-flex items-center gap-1.5 text-white/75 hover:text-white text-sm font-medium transition z-10 run-back-link-2"
+            className="absolute top-6 left-6 sm:left-10 hidden sm:inline-flex items-center gap-1.5 text-white hover:text-white text-sm font-medium transition z-10 run-back-link-2"
             data-testid="run-back-link-2"
           >
             ← Exploration
@@ -450,10 +453,10 @@ export default function RunningPage() {
 
           <Link
             href="/exploration/running/equipment"
-            className="absolute top-6 right-6 sm:right-10 inline-flex items-center gap-1.5 text-white/75 hover:text-white text-sm font-medium transition z-10 run-equipment-link-2"
+            className="absolute top-6 right-6 sm:right-10 hidden sm:inline-flex items-center gap-1.5 text-white/75 hover:text-white text-sm font-medium transition z-10 run-equipment-link-2"
             data-testid="run-equipment-link-2"
           >
-            🎽 Attrezzatura
+            <Shirt className="h-4 w-4" /> Attrezzatura
           </Link>
 
           {/* Content in basso */}
@@ -470,22 +473,23 @@ export default function RunningPage() {
             </div>
 
             {/* Barra statistiche — frosted glass */}
-            <div className="flex flex-wrap gap-px overflow-hidden rounded-xl border border-white/15 bg-white/10 backdrop-blur-md w-full max-w-3xl mx-auto run-stats-bar-2" data-testid="run-stats-bar-2">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-px overflow-hidden rounded-xl border border-white/15 bg-white/10 backdrop-blur-md w-full max-w-sm sm:max-w-3xl mx-auto run-stats-bar-2" data-testid="run-stats-bar-2">
               {[
-                { label: 'Attività', value: loading ? '…' : String(heroStats.count), testId: 'stats-count' },
-                { label: 'Tot. distanza', value: loading ? '…' : heroStats.totalKm, testId: 'stats-total-distance' },
-                { label: 'Longest run', value: loading ? '…' : heroStats.longestKm, testId: 'stats-longest' },
-                  { label: 'PB mezza maratona', value: loading ? '…' : heroStats.halfMarathonRecord, testId: 'stats-pb-half' },
+                { label: 'Attività', mobileLabel: 'Attività', value: loading ? '…' : String(heroStats.count), testId: 'stats-count', hideOnMobile: true },
+                { label: 'Tot. distanza', mobileLabel: 'Tot km percorsi', value: loading ? '…' : heroStats.totalKm, testId: 'stats-total-distance', hideOnMobile: false },
+                { label: 'Longest run', mobileLabel: 'Longest', value: loading ? '…' : heroStats.longestKm, testId: 'stats-longest', hideOnMobile: true },
+                { label: 'PB mezza maratona', mobileLabel: 'PB half', value: loading ? '…' : heroStats.halfMarathonRecord, testId: 'stats-pb-half', hideOnMobile: false },
               ].map((stat) => (
                 <div
                   key={stat.label}
-                  className="flex-1 min-w-[4.5rem] px-4 py-3 flex flex-col gap-0.5 run-stat-item-2"
+                  className={`px-3 py-2.5 sm:px-4 sm:py-3 flex flex-col gap-0.5 run-stat-item-2 ${stat.hideOnMobile ? 'hidden sm:flex' : 'flex'}`}
                   data-testid={`run-stat-${stat.testId}-2`}
                 >
-                  <span className="text-[10px] uppercase tracking-widest text-white/55 font-semibold run-stat-label-2">
-                    {stat.label}
+                  <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.08em] sm:tracking-widest text-white/55 font-semibold run-stat-label-2">
+                    <span className="sm:hidden">{stat.mobileLabel}</span>
+                    <span className="hidden sm:inline">{stat.label}</span>
                   </span>
-                  <span className="text-xl font-bold text-white leading-none run-stat-value-2">
+                  <span className="text-lg sm:text-xl font-bold text-white leading-none run-stat-value-2">
                     {stat.value}
                   </span>
                 </div>
@@ -520,10 +524,36 @@ export default function RunningPage() {
                 {error}
               </div>
             )}
+
+            {!isDesktop && (
+              <div className="mb-4 flex items-start justify-between gap-4" data-testid="run-mobile-header-sort-4">
+                <div>
+                  <h2 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white leading-none">Attività recenti</h2>
+                  <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">{filteredActivities.length} attività</p>
+                </div>
+                <Select value={sortBy} onValueChange={(value) => setSortBy(value as RunningSortValue)}>
+                  <SelectTrigger
+                    className="h-10 w-10 shrink-0 justify-center rounded-lg border border-slate-300 bg-white p-0 text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 [&_svg.size-4]:hidden"
+                    aria-label="Ordina attività"
+                  >
+                    <span className="sr-only">Ordina attività</span>
+                    <SlidersHorizontal className="h-4 w-4" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {runningSortOptions.map((option) => (
+                      <SelectItem key={`run-mobile-sort-${option.value}`} value={option.value}>
+                        {option.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
             <CardGrid
               variant="activity"
-              title="Attività recenti"
-              subtitle={`${filteredActivities.length} attività`}
+              title={isDesktop ? 'Attività recenti' : ''}
+              subtitle={isDesktop ? `${filteredActivities.length} attività` : ''}
               items={activityGridItems}
               columnsClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
               sectionClassName="px-0 py-0 bg-transparent"
@@ -531,9 +561,9 @@ export default function RunningPage() {
               useMotion={false}
               showDate
               showTypeBadge={false}
-              sortOptions={[...runningSortOptions]}
+              sortOptions={isDesktop ? [...runningSortOptions] : undefined}
               sortValue={sortBy}
-              onSortChange={(value) => setSortBy(value as RunningSortValue)}
+              onSortChange={isDesktop ? (value) => setSortBy(value as RunningSortValue) : undefined}
               sortLabel="Ordina"
               visibleItems={6}
               showVisibilityToggle
@@ -558,6 +588,27 @@ export default function RunningPage() {
             )}
           </div>
         </section>
+
+        {/* ─── Sezione Attrezzatura ─── */}
+        <section className="px-4 pb-6 sm:px-6 lg:px-8 bg-sky-50 dark:bg-slate-900">
+          <div className="max-w-6xl mx-auto">
+            <div className="flex items-center justify-between rounded-xl border border-slate-300/80 dark:border-slate-700 bg-white dark:bg-slate-800 px-5 py-4">
+              <div>
+                <p className="text-sm font-semibold text-slate-800 dark:text-slate-100">La mia attrezzatura</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Scarpe, abbigliamento e accessori</p>
+              </div>
+              <Link
+                href="/exploration/running/equipment"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-900 dark:bg-slate-700 text-white text-sm font-medium hover:bg-black dark:hover:bg-slate-600 transition-colors"
+              >
+                <Shirt className="h-4 w-4" />
+                Attrezzatura
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        <Divider tone="blue" size="sm" data-testid="run-divider-5" />
 
         {/* ─── Riferimenti finali stile pagina Exploration (compact) ─── */}
         <CardGrid

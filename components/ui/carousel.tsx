@@ -47,6 +47,10 @@ type CarouselCardsProps<TItem> = {
   itemClassName?: string
   contentClassName?: string
   showControls?: boolean
+  showDots?: boolean
+  dotsClassName?: string
+  dotClassName?: string
+  activeDotClassName?: string
   previousButtonProps?: React.ComponentProps<typeof CarouselPrevious>
   nextButtonProps?: React.ComponentProps<typeof CarouselNext>
   children?: React.ReactNode
@@ -389,6 +393,10 @@ function CarouselCards<TItem>({
   itemClassName,
   contentClassName,
   showControls = true,
+  showDots = false,
+  dotsClassName,
+  dotClassName,
+  activeDotClassName,
   previousButtonProps,
   nextButtonProps,
   children,
@@ -404,6 +412,28 @@ function CarouselCards<TItem>({
   )
   const childCount = React.Children.count(children)
   const hasChildren = childCount > 0
+  const [carouselApi, setCarouselApi] = React.useState<CarouselApi>()
+  const [selectedIndex, setSelectedIndex] = React.useState(0)
+  const [snapCount, setSnapCount] = React.useState(0)
+  const totalSlides = hasChildren ? childCount : (items?.length ?? 0)
+
+  React.useEffect(() => {
+    if (!carouselApi) return
+
+    const onSelect = () => {
+      setSelectedIndex(carouselApi.selectedScrollSnap())
+      setSnapCount(carouselApi.scrollSnapList().length)
+    }
+
+    onSelect()
+    carouselApi.on("select", onSelect)
+    carouselApi.on("reInit", onSelect)
+
+    return () => {
+      carouselApi.off("select", onSelect)
+      carouselApi.off("reInit", onSelect)
+    }
+  }, [carouselApi])
 
   if (!hasChildren && (!items || !renderItem)) {
     return null
@@ -413,6 +443,7 @@ function CarouselCards<TItem>({
     <Carousel
       orientation={resolvedOrientation}
       opts={{ align: "start", ...opts }}
+      setApi={setCarouselApi}
       {...props}
     >
       <CarouselContent className={contentClassName}>
@@ -434,11 +465,40 @@ function CarouselCards<TItem>({
               </CarouselItem>
             ))}
       </CarouselContent>
-      {showControls && (hasChildren ? childCount : (items?.length ?? 0)) > 1 ? (
+      {showControls && totalSlides > 1 ? (
         <>
           <CarouselPrevious {...previousButtonProps} />
           <CarouselNext {...nextButtonProps} />
         </>
+      ) : null}
+      {showDots && totalSlides > 1 ? (
+        <div
+          className={cn(
+            "mt-4 flex items-center justify-center gap-2",
+            dotsClassName
+          )}
+          data-slot="carousel-dots"
+        >
+          {Array.from({ length: snapCount || totalSlides }).map((_, index) => {
+            const isActive = index === selectedIndex
+
+            return (
+              <button
+                key={index}
+                type="button"
+                onClick={() => carouselApi?.scrollTo(index)}
+                className={cn(
+                  "h-2.5 w-2.5 rounded-full border border-slate-400/70 bg-transparent transition-all",
+                  isActive
+                    ? cn("w-6 border-slate-900 bg-slate-900", activeDotClassName)
+                    : cn("bg-slate-200/70 hover:bg-slate-300/80", dotClassName)
+                )}
+                aria-label={`Go to slide ${index + 1}`}
+                aria-current={isActive ? "true" : undefined}
+              />
+            )
+          })}
+        </div>
       ) : null}
     </Carousel>
   )
