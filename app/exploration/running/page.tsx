@@ -77,7 +77,7 @@ const relatedExplorationCards: CardGridItem[] = [
     title: 'Exploration',
     description: 'Panoramica generale',
     href: '/exploration',
-    image: 'https://res.cloudinary.com/derbnvxif/image/upload/q_auto/f_auto/v1777450410/running_Large_zorzw2.jpg',
+    image: 'https://res.cloudinary.com/derbnvxif/image/upload/v1777879740/Zuddas_1_dubi4s.png',
   },
   {
     id: 'exp-trekking-mini',
@@ -424,164 +424,171 @@ export default function RunningPage() {
     );
   }
 
-  return (
-    <main className="min-h-screen bg-sky-50 dark:bg-slate-900">
-      {/* ─── Hero con statistiche integrate ─── */}
-      <section className="relative w-full h-[50vh] sm:h-[56vh] overflow-hidden">
-        {/* Background image */}
-        <div
-          className="absolute inset-0 bg-cover bg-center scale-105"
-          style={{
-            backgroundImage:
-              'url(https://res.cloudinary.com/derbnvxif/image/upload/q_auto/f_auto/v1777450410/running_Large_zorzw2.jpg)',
-          }}
-        />
-        {/* Gradient: forte in basso per leggere sia testo che stats */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/15" />
+    return (
+      <main className="min-h-screen bg-sky-50 dark:bg-slate-900 run-main-1" data-testid="run-main-1">
+        {/* ─── Hero con statistiche integrate ─── */}
+        <section className="relative w-full h-[50vh] sm:h-[56vh] overflow-hidden run-hero-2" data-testid="run-hero-2">
+          {/* Background image */}
+          <div
+            className="absolute inset-0 bg-cover bg-center scale-105 run-hero-background-2"
+            style={{
+              backgroundImage:
+                'url(https://res.cloudinary.com/derbnvxif/image/upload/q_auto/f_auto/v1777450410/running_Large_zorzw2.jpg)',
+            }}
+          />
+          {/* Gradient: forte in basso per leggere sia testo che stats */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/15 run-hero-overlay-2" />
 
-        {/* Back link */}
-        <Link
-          href="/exploration"
-          className="absolute top-6 left-6 sm:left-10 inline-flex items-center gap-1.5 text-white/75 hover:text-white text-sm font-medium transition z-10"
-        >
-          ← Exploration
-        </Link>
+          {/* Back link */}
+          <Link
+            href="/exploration"
+            className="absolute top-6 left-6 sm:left-10 inline-flex items-center gap-1.5 text-white/75 hover:text-white text-sm font-medium transition z-10 run-back-link-2"
+            data-testid="run-back-link-2"
+          >
+            ← Exploration
+          </Link>
 
-        <Link
-          href="/exploration/running/equipment"
-          className="absolute top-6 right-6 sm:right-10 inline-flex items-center gap-1.5 text-white/75 hover:text-white text-sm font-medium transition z-10"
-        >
-          🎽 Attrezzatura
-        </Link>
+          <Link
+            href="/exploration/running/equipment"
+            className="absolute top-6 right-6 sm:right-10 inline-flex items-center gap-1.5 text-white/75 hover:text-white text-sm font-medium transition z-10 run-equipment-link-2"
+            data-testid="run-equipment-link-2"
+          >
+            🎽 Attrezzatura
+          </Link>
 
-        {/* Content in basso */}
-        <div className="absolute inset-0 flex flex-col items-center justify-end px-6 pb-7 sm:px-10 sm:pb-8">
+          {/* Content in basso */}
+          <div className="absolute inset-0 flex flex-col items-center justify-end px-6 pb-7 sm:px-10 sm:pb-8 run-hero-content-2">
 
-          {/* Testo principale */}
-          <div className="w-full max-w-2xl space-y-2 mb-5 text-center">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight">
-              Running
-            </h1>
-            <p className="text-sm sm:text-base text-white/80 max-w-lg mx-auto">
-              Corse su strada, pista e allenamenti — progressi, numeri ed emozioni.
-            </p>
+            {/* Testo principale */}
+            <div className="w-full max-w-2xl space-y-2 mb-5 text-center run-hero-text-2">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight run-title-2" data-testid="run-title-2">
+                Running
+              </h1>
+              <p className="text-sm sm:text-base text-white/80 max-w-lg mx-auto run-subtitle-2" data-testid="run-subtitle-2">
+                Corse su strada, pista e allenamenti — progressi, numeri ed emozioni.
+              </p>
+            </div>
+
+            {/* Barra statistiche — frosted glass */}
+            <div className="flex flex-wrap gap-px overflow-hidden rounded-xl border border-white/15 bg-white/10 backdrop-blur-md w-full max-w-3xl mx-auto run-stats-bar-2" data-testid="run-stats-bar-2">
+              {[
+                { label: 'Attività', value: loading ? '…' : String(heroStats.count), testId: 'stats-count' },
+                { label: 'Tot. distanza', value: loading ? '…' : heroStats.totalKm, testId: 'stats-total-distance' },
+                { label: 'Longest run', value: loading ? '…' : heroStats.longestKm, testId: 'stats-longest' },
+                  { label: 'PB mezza maratona', value: loading ? '…' : heroStats.halfMarathonRecord, testId: 'stats-pb-half' },
+              ].map((stat) => (
+                <div
+                  key={stat.label}
+                  className="flex-1 min-w-[4.5rem] px-4 py-3 flex flex-col gap-0.5 run-stat-item-2"
+                  data-testid={`run-stat-${stat.testId}-2`}
+                >
+                  <span className="text-[10px] uppercase tracking-widest text-white/55 font-semibold run-stat-label-2">
+                    {stat.label}
+                  </span>
+                  <span className="text-xl font-bold text-white leading-none run-stat-value-2">
+                    {stat.value}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
+        </section>
 
-          {/* Barra statistiche — frosted glass */}
-          <div className="flex flex-wrap gap-px overflow-hidden rounded-xl border border-white/15 bg-white/10 backdrop-blur-md w-full max-w-3xl mx-auto">
-            {[
-              { label: 'Attività', value: loading ? '…' : String(heroStats.count) },
-              { label: 'Tot. distanza', value: loading ? '…' : heroStats.totalKm },
-              { label: 'Longest run', value: loading ? '…' : heroStats.longestKm },
-                { label: 'PB mezza maratona', value: loading ? '…' : heroStats.halfMarathonRecord },
-            ].map((stat) => (
-              <div
-                key={stat.label}
-                className="flex-1 min-w-[4.5rem] px-4 py-3 flex flex-col gap-0.5"
-              >
-                <span className="text-[10px] uppercase tracking-widest text-white/55 font-semibold">
-                  {stat.label}
-                </span>
-                <span className="text-xl font-bold text-white leading-none">
-                  {stat.value}
-                </span>
+        {/* ─── Filtri ─── */}
+        <section className="sticky top-[50px] md:top-[50px] z-40 px-4 py-[2px] sm:px-6 lg:px-8 bg-sky-50/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-sky-200/80 dark:border-slate-800 run-filters-3" data-testid="run-filters-3">
+          <div className="max-w-6xl mx-auto">
+            <Filter
+              filters={runningFilterConfig}
+              tone="current"
+              density="compact"
+              variant="minimal"
+              className="bg-transparent py-0.5"
+              onFilterChange={handleFilterChange}
+              onReset={resetRunningFilters}
+              resetLabel="CLEAR"
+              applyLabel="MOSTRA RISULTATI"
+              data-testid="run-filter-component-3"
+            />
+          </div>
+        </section>
+
+        {/* ─── Griglia attività ─── */}
+        <section className="px-4 pt-6 pb-10 sm:px-6 lg:px-8 bg-sky-50 dark:bg-slate-900 run-activities-4" data-testid="run-activities-4">
+          <div className="max-w-6xl mx-auto">
+            {error && (
+              <div className="mb-6 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-200 run-error-4" data-testid="run-error-4">
+                {error}
               </div>
-            ))}
+            )}
+            <CardGrid
+              variant="activity"
+              title="Attività recenti"
+              subtitle={`${filteredActivities.length} attività`}
+              items={activityGridItems}
+              columnsClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
+              sectionClassName="px-0 py-0 bg-transparent"
+              cardClassName="border border-slate-300/80 dark:border-slate-700 bg-white dark:bg-slate-900"
+              useMotion={false}
+              showDate
+              showTypeBadge={false}
+              sortOptions={[...runningSortOptions]}
+              sortValue={sortBy}
+              onSortChange={(value) => setSortBy(value as RunningSortValue)}
+              sortLabel="Ordina"
+              visibleItems={6}
+              showVisibilityToggle
+              showMoreLabel="Mostra altre attività"
+              showLessLabel="Mostra meno"
+              showMoreTone="navy"
+              showLessTone="navy"
+              activityPhotoBadgePosition="border"
+              activityPhotoBadgeSize="medium"
+              activityPhotoBadgeRounded={false}
+              activityTextColor="black"
+              onItemClick={(item) => handleActivityClick(item.id)}
+              data-testid="run-activities-grid-4"
+            />
+            {filteredActivities.length === 0 && (
+              <div className="mt-6 rounded-xl border border-slate-300/80 dark:border-slate-700 bg-sky-100/70 dark:bg-slate-900/80 p-8 text-center run-no-activities-4" data-testid="run-no-activities-4">
+                <p className="text-2xl mb-2">🔍</p>
+                <p className="font-semibold text-slate-700 dark:text-slate-200">Nessuna attività trovata</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Prova a modificare i filtri.</p>
+              </div>
+            )}
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ─── Filtri ─── */}
-      <section className="sticky top-[50px] md:top-[50px] z-40 px-4 py-[2px] sm:px-6 lg:px-8 bg-sky-50/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-sky-200/80 dark:border-slate-800">
-        <div className="max-w-6xl mx-auto">
-          <Filter
-            filters={runningFilterConfig}
-            tone="current"
-            density="compact"
-            variant="minimal"
-            className="bg-transparent py-0.5"
-            onFilterChange={handleFilterChange}
-            onReset={resetRunningFilters}
-            resetLabel="CLEAR"
-            applyLabel="MOSTRA RISULTATI"
-          />
-        </div>
-      </section>
-
-      {/* ─── Griglia attività ─── */}
-      <section className="px-4 pt-6 pb-10 sm:px-6 lg:px-8 bg-sky-50 dark:bg-slate-900">
-        <div className="max-w-6xl mx-auto">
-          {error && (
-            <div className="mb-6 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-200">
-              {error}
-            </div>
-          )}
-          <CardGrid
-            variant="activity"
-            title="Attività recenti"
-            subtitle={`${filteredActivities.length} attività`}
-            items={activityGridItems}
-            columnsClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
-            sectionClassName="px-0 py-0 bg-transparent"
-            cardClassName="border border-slate-300/80 dark:border-slate-700 bg-white dark:bg-slate-900"
-            useMotion={false}
-            showDate
-            showTypeBadge={false}
-            sortOptions={[...runningSortOptions]}
-            sortValue={sortBy}
-            onSortChange={(value) => setSortBy(value as RunningSortValue)}
-            sortLabel="Ordina"
-            visibleItems={6}
-            showVisibilityToggle
-            showMoreLabel="Mostra altre attività"
-            showLessLabel="Mostra meno"
-            showMoreTone="navy"
-            showLessTone="navy"
-            activityPhotoBadgePosition="border"
-            activityPhotoBadgeSize="medium"
-            activityPhotoBadgeRounded={false}
-            activityTextColor="black"
-            onItemClick={(item) => handleActivityClick(item.id)}
-          />
-          {filteredActivities.length === 0 && (
-            <div className="mt-6 rounded-xl border border-slate-300/80 dark:border-slate-700 bg-sky-100/70 dark:bg-slate-900/80 p-8 text-center">
-              <p className="text-2xl mb-2">🔍</p>
-              <p className="font-semibold text-slate-700 dark:text-slate-200">Nessuna attività trovata</p>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Prova a modificare i filtri.</p>
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* ─── Riferimenti finali stile pagina Exploration (compact) ─── */}
-      <CardGrid
-        title="Categorie"
-        subtitle="Continua l'esplorazione"
-        items={relatedExplorationCards}
-        showTypeBadge={false}
-        showDate={false}
-        showDescription={true}
-        columnsClassName="grid grid-cols-1 sm:grid-cols-3 gap-4"
-        sectionClassName="px-4 pt-2 pb-8 sm:px-6 lg:px-8 bg-sky-50 dark:bg-slate-900"
-        containerClassName="max-w-6xl"
-        titleColor="black"
-        subtitleColor="black"
-        cardClassName="border border-slate-300/80 dark:border-slate-700 bg-white"
-        useMotion={false}
-        showVisibilityToggle={false}
-      />
-
-      {/* Activity Detail Modal (Desktop only) */}
-      {selectedActivityId && (
-        <Modal
-          activityId={selectedActivityId}
-          isOpen={true}
-          onClose={() => setSelectedActivityId(null)}
-          detailsPageUrl={`/exploration/running/${selectedActivityId}`}
-          photo={selectedActivity?.photo ?? null}
-          tone="blue"
+        {/* ─── Riferimenti finali stile pagina Exploration (compact) ─── */}
+        <CardGrid
+          title="Categorie"
+          subtitle="Continua l'esplorazione"
+          items={relatedExplorationCards}
+          showTypeBadge={false}
+          showDate={false}
+          showDescription={true}
+          columnsClassName="grid grid-cols-1 sm:grid-cols-3 gap-4"
+          sectionClassName="px-4 pt-2 pb-8 sm:px-6 lg:px-8 bg-sky-50 dark:bg-slate-900"
+          containerClassName="max-w-6xl"
+          titleColor="black"
+          subtitleColor="black"
+          cardClassName="border border-slate-300/80 dark:border-slate-700 bg-white"
+          useMotion={false}
+          showVisibilityToggle={false}
+          data-testid="run-related-categories-5"
         />
-      )}
-    </main>
-  );
+
+        {/* Activity Detail Modal (Desktop only) */}
+        {selectedActivityId && (
+          <Modal
+            activityId={selectedActivityId}
+            isOpen={true}
+            onClose={() => setSelectedActivityId(null)}
+            detailsPageUrl={`/exploration/running/${selectedActivityId}`}
+            photo={selectedActivity?.photo ?? null}
+            tone="blue"
+            data-testid="run-activity-modal-5"
+          />
+        )}
+      </main>
+    );
 }

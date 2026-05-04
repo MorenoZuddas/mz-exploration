@@ -86,51 +86,67 @@ export default function RunningActivityDetailPage() {
     void fetchActivity();
   }, [activityId]);
 
-  if (loading) {
-    return <main className="p-8">Caricamento...</main>;
-  }
+   if (loading) {
+     return (
+       <main className="p-8 running-detail-loading" data-testid="running-detail-loading">
+         Caricamento...
+       </main>
+     );
+   }
 
-  if (error || !activity) {
-    return (
-      <main className="p-8">
-        <Link href="/exploration/running" className="text-blue-600 hover:underline">← Torna a Running</Link>
-        <p className="mt-4 text-red-600">{error ?? 'Attività non trovata'}</p>
-      </main>
-    );
-  }
+   if (error || !activity) {
+     return (
+       <main className="p-8 running-detail-error" data-testid="running-detail-error">
+         <Link
+           href="/exploration/running"
+           className="text-blue-600 hover:underline running-detail-back-link"
+           data-testid="running-detail-back-link"
+         >
+           ← Torna a Running
+         </Link>
+         <p className="mt-4 text-red-600 running-detail-error-message">{error ?? 'Attività non trovata'}</p>
+       </main>
+     );
+   }
 
-  return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 p-6 md:p-10">
-      <div className="mx-auto max-w-5xl space-y-6">
-        <Link href="/exploration/running" className="inline-flex text-blue-600 dark:text-blue-400 hover:underline">
-          ← Torna a Running
-        </Link>
+   return (
+     <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 p-6 md:p-10 running-detail-main" data-testid="running-detail-main">
+       <div className="mx-auto max-w-5xl space-y-6 running-detail-container">
+         <Link
+           href="/exploration/running"
+           className="inline-flex text-blue-600 dark:text-blue-400 hover:underline running-detail-back-link"
+           data-testid="running-detail-back-link-main"
+         >
+           ← Torna a Running
+         </Link>
 
-        <div>
-          <h1 className="text-3xl font-bold text-slate-900 dark:text-white">{activity.name}</h1>
-          <p className="text-slate-600 dark:text-slate-300 mt-1">
-            {activity.date ? new Date(activity.date).toLocaleDateString('it-IT') : '—'} · {activity.location ?? 'Luogo n/d'}
-          </p>
-        </div>
+         <div className="running-detail-header" data-testid="running-detail-header">
+           <h1 className="text-3xl font-bold text-slate-900 dark:text-white running-detail-title" data-testid="running-detail-title">
+             {activity.name}
+           </h1>
+           <p className="text-slate-600 dark:text-slate-300 mt-1 running-detail-meta" data-testid="running-detail-meta">
+             {activity.date ? new Date(activity.date).toLocaleDateString('it-IT') : '—'} · {activity.location ?? 'Luogo n/d'}
+           </p>
+         </div>
 
-        {activity.photos && activity.photos.length > 0 && (
-          <section>
-            <h2 className="mb-3 text-lg font-semibold text-slate-900 dark:text-white">Foto attività</h2>
-            <ActivityPhotos photos={activity.photos} />
-          </section>
-        )}
+         {activity.photos && activity.photos.length > 0 && (
+           <section className="running-detail-photos" data-testid="running-detail-photos">
+             <h2 className="mb-3 text-lg font-semibold text-slate-900 dark:text-white">Foto attività</h2>
+             <ActivityPhotos photos={activity.photos} />
+           </section>
+         )}
 
-        <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card><CardHeader><CardTitle className="text-sm">Distanza</CardTitle></CardHeader><CardContent className="text-xl font-bold">{formatDistance(activity.distance_m)}</CardContent></Card>
-          <Card><CardHeader><CardTitle className="text-sm">Tempo</CardTitle></CardHeader><CardContent className="text-xl font-bold">{formatDuration(activity.duration_sec)}</CardContent></Card>
-          <Card><CardHeader><CardTitle className="text-sm">Pace</CardTitle></CardHeader><CardContent className="text-xl font-bold">{formatPace(activity.pace_min_per_km)}</CardContent></Card>
-          <Card><CardHeader><CardTitle className="text-sm">Kcal</CardTitle></CardHeader><CardContent className="text-xl font-bold">{activity.calories_kcal ?? '—'}</CardContent></Card>
-          <Card><CardHeader><CardTitle className="text-sm">Dislivello+</CardTitle></CardHeader><CardContent className="text-xl font-bold">{activity.elevation_gain_m != null ? `${Math.round(activity.elevation_gain_m)} m` : '—'}</CardContent></Card>
-          <Card><CardHeader><CardTitle className="text-sm">Dislivello-</CardTitle></CardHeader><CardContent className="text-xl font-bold">{activity.elevation_loss_m != null ? `${Math.round(activity.elevation_loss_m)} m` : '—'}</CardContent></Card>
-          <Card><CardHeader><CardTitle className="text-sm">FC media</CardTitle></CardHeader><CardContent className="text-xl font-bold">{activity.avg_hr ?? '—'}</CardContent></Card>
-          <Card><CardHeader><CardTitle className="text-sm">FC max</CardTitle></CardHeader><CardContent className="text-xl font-bold">{activity.max_hr ?? '—'}</CardContent></Card>
-        </section>
-      </div>
-    </main>
-  );
+         <section className="grid grid-cols-2 md:grid-cols-4 gap-4 running-detail-metrics" data-testid="running-detail-metrics">
+           <Card data-testid="metric-distance"><CardHeader><CardTitle className="text-sm">Distanza</CardTitle></CardHeader><CardContent className="text-xl font-bold">{formatDistance(activity.distance_m)}</CardContent></Card>
+           <Card data-testid="metric-duration"><CardHeader><CardTitle className="text-sm">Tempo</CardTitle></CardHeader><CardContent className="text-xl font-bold">{formatDuration(activity.duration_sec)}</CardContent></Card>
+           <Card data-testid="metric-pace"><CardHeader><CardTitle className="text-sm">Pace</CardTitle></CardHeader><CardContent className="text-xl font-bold">{formatPace(activity.pace_min_per_km)}</CardContent></Card>
+           <Card data-testid="metric-calories"><CardHeader><CardTitle className="text-sm">Kcal</CardTitle></CardHeader><CardContent className="text-xl font-bold">{activity.calories_kcal ?? '—'}</CardContent></Card>
+           <Card data-testid="metric-elevation-gain"><CardHeader><CardTitle className="text-sm">Dislivello+</CardTitle></CardHeader><CardContent className="text-xl font-bold">{activity.elevation_gain_m != null ? `${Math.round(activity.elevation_gain_m)} m` : '—'}</CardContent></Card>
+           <Card data-testid="metric-elevation-loss"><CardHeader><CardTitle className="text-sm">Dislivello-</CardTitle></CardHeader><CardContent className="text-xl font-bold">{activity.elevation_loss_m != null ? `${Math.round(activity.elevation_loss_m)} m` : '—'}</CardContent></Card>
+           <Card data-testid="metric-avg-hr"><CardHeader><CardTitle className="text-sm">FC media</CardTitle></CardHeader><CardContent className="text-xl font-bold">{activity.avg_hr ?? '—'}</CardContent></Card>
+           <Card data-testid="metric-max-hr"><CardHeader><CardTitle className="text-sm">FC max</CardTitle></CardHeader><CardContent className="text-xl font-bold">{activity.max_hr ?? '—'}</CardContent></Card>
+         </section>
+       </div>
+     </main>
+   );
 }

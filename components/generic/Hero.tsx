@@ -73,7 +73,10 @@ export function Hero({
   const alignClass = heroAlignVariants[contentAlign];
 
   return (
-    <section className={`relative w-full ${heightClassName} overflow-hidden ${className}`}>
+    <section
+      className={`relative w-full ${heightClassName} overflow-hidden hero-component ${className}`}
+      data-testid="hero-section"
+    >
       {/* Video Background */}
       {useVideo ? (
         <video
@@ -81,27 +84,47 @@ export function Hero({
           muted
           loop
           playsInline
-          className={`absolute inset-0 w-full h-full object-cover ${containerClassName}`}
+          className={`absolute inset-0 w-full h-full object-cover hero-video ${containerClassName}`}
           poster={posterSrc}
+          data-testid="hero-video"
         >
           <source src={videoMp4Src} type="video/mp4" />
           <source src={videoWebmSrc} type="video/webm" />
         </video>
       ) : (
         <div
-          className={`absolute inset-0 bg-cover bg-center ${containerClassName}`}
+          className={`absolute inset-0 bg-cover bg-center hero-background ${containerClassName}`}
           style={{ backgroundImage: `url(${posterSrc})` }}
+          data-testid="hero-background"
         />
       )}
 
       {/* Dark Overlay */}
-      {showOverlay ? <div className={`absolute inset-0 ${overlayClassName}`} /> : null}
+      {showOverlay ? (
+        <div
+          className={`absolute inset-0 hero-overlay ${overlayClassName}`}
+          data-testid="hero-overlay"
+        />
+      ) : null}
 
       {/* Content */}
-      <div className={`absolute inset-0 flex flex-col px-4 ${alignClass.wrapper} ${contentClassName}`}>
-        <div className={`max-w-2xl ${alignClass.content}`}>
-          <h1 className={`${titleClassName} ${heroTitleColorVariants[resolvedTitleTone]} font-bold mb-2`}>{title}</h1>
-          <h2 className={`${subtitleClassName} ${heroSubtitleColorVariants[resolvedSubtitleTone]}`}>{subtitle}</h2>
+      <div
+        className={`absolute inset-0 flex flex-col px-4 ${alignClass.wrapper} ${contentClassName} hero-content`}
+        data-testid="hero-content"
+      >
+        <div className={`max-w-2xl ${alignClass.content} hero-text`}>
+          <h1
+            className={`${titleClassName} ${heroTitleColorVariants[resolvedTitleTone]} font-bold mb-2 hero-title`}
+            data-testid="hero-title"
+          >
+            {title}
+          </h1>
+          <h2
+            className={`${subtitleClassName} ${heroSubtitleColorVariants[resolvedSubtitleTone]} hero-subtitle`}
+            data-testid="hero-subtitle"
+          >
+            {subtitle}
+          </h2>
         </div>
       </div>
     </section>

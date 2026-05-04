@@ -191,26 +191,28 @@ export default function TrekkingPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800">
+    <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 trek-main-1" data-testid="trek-main-1">
       {/* Header */}
-      <section className="px-4 py-12 sm:px-6 lg:px-8 border-b border-slate-200 dark:border-slate-700">
-        <div className="max-w-4xl mx-auto">
+      <section className="px-4 py-12 sm:px-6 lg:px-8 border-b border-slate-200 dark:border-slate-700 trek-header-2" data-testid="trek-header-2">
+        <div className="max-w-4xl mx-auto trek-header-content-2" data-testid="trek-header-content-2">
           <Link
             href="/exploration"
-            className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 mb-6 font-semibold"
+            className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 mb-6 font-semibold trek-back-link-2"
+            data-testid="trek-back-link-2"
           >
             ← Torna a Exploration
           </Link>
-          <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 dark:text-white mb-4">
+          <h1 className="text-4xl sm:text-5xl font-bold text-slate-900 dark:text-white mb-4 trek-title-2" data-testid="trek-title-2">
             🥾 Trekking
           </h1>
-          <p className="text-lg text-slate-600 dark:text-slate-300">
+          <p className="text-lg text-slate-600 dark:text-slate-300 trek-description-2" data-testid="trek-description-2">
             I miei percorsi trekking e escursioni. Scopri le statistiche di ogni uscita.
           </p>
-          <div className="mt-6 flex gap-4">
+          <div className="mt-6 flex gap-4 trek-actions-2">
             <Link
               href="/exploration/trekking/equipment"
-              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold"
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-semibold trek-equipment-link-2"
+              data-testid="trek-equipment-link-2"
             >
               🎒 Attrezzatura
             </Link>
@@ -219,79 +221,81 @@ export default function TrekkingPage() {
       </section>
 
       {/* Trekking Activities */}
-      <section className="px-4 py-12 sm:px-6 lg:px-8">
-        <div className="max-w-6xl mx-auto">
+      <section className="px-4 py-12 sm:px-6 lg:px-8 trek-activities-3" data-testid="trek-activities-3">
+        <div className="max-w-6xl mx-auto trek-activities-container-3">
           {error && (
-            <div className="mb-6 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-200">
+            <div className="mb-6 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-200 trek-error-3" data-testid="trek-error-3">
               {error}
             </div>
           )}
           {activities.length === 0 ? (
-            <div className="text-center py-12">
+            <div className="text-center py-12 trek-empty-state-3" data-testid="trek-empty-state-3">
               <p className="text-lg text-slate-600 dark:text-slate-300">
                 Nessuna attività trekking trovata.
               </p>
             </div>
-           ) : (
-             <>
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                 {activities.slice(0, displayedCount).map((activity, index) => (
-                   <div
-                     key={activity.id}
-                     onClick={() => handleActivityClick(activity.id)}
-                     className="cursor-pointer"
-                   >
-                     <Card
-                       className="p-6 hover:shadow-lg hover:scale-[1.02] transition-all"
-                       dataName={`card ${index + 1}`}
-                     >
-                       <div className="flex justify-between items-start mb-4">
-                         <h3 className="text-xl font-bold text-slate-900 dark:text-white">
-                           {activity.name}
-                         </h3>
-                         <span className="text-sm text-slate-500 dark:text-slate-400">
-                           {activity.date}
-                         </span>
-                       </div>
-                       <div className="grid grid-cols-2 gap-4">
-                         <div>
-                           <p className="text-sm text-slate-600 dark:text-slate-400">Distanza</p>
-                           <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                             {activity.distance_formatted}
-                           </p>
-                         </div>
-                         <div>
-                           <p className="text-sm text-slate-600 dark:text-slate-400">Tempo</p>
-                           <p className="text-2xl font-bold text-green-600 dark:text-green-400">
-                             {activity.duration_formatted}
-                           </p>
-                         </div>
-                         {activity.location && (
-                           <div className="col-span-2">
-                             <p className="text-sm text-slate-600 dark:text-slate-400">Luogo</p>
-                             <p className="text-lg font-semibold text-slate-900 dark:text-white">
-                               {activity.location}
-                             </p>
-                           </div>
-                         )}
-                       </div>
-                     </Card>
-                   </div>
-                 ))}
-               </div>
-               {activities.length > displayedCount && (
-                 <div className="mt-6 text-center">
-                   <button
-                     onClick={() => setDisplayedCount((prev) => prev + 8)}
-                     className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
-                   >
-                     Mostra Altro
-                   </button>
-                 </div>
-               )}
-             </>
-           )}
-        </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 trek-cards-grid-3">
+                  {activities.slice(0, displayedCount).map((activity, index) => (
+                    <div
+                      key={activity.id}
+                      onClick={() => handleActivityClick(activity.id)}
+                      className="cursor-pointer trek-card-item-3"
+                      data-testid={`trek-card-${activity.id}-3`}
+                    >
+                      <Card
+                        className="p-6 hover:shadow-lg hover:scale-[1.02] transition-all trek-card-3"
+                        dataName={`trek-card-${index + 1}-3`}
+                      >
+                        <div className="flex justify-between items-start mb-4 trek-card-header-3">
+                          <h3 className="text-xl font-bold text-slate-900 dark:text-white trek-card-title-3" data-testid={`trek-card-title-${activity.id}-3`}>
+                            {activity.name}
+                          </h3>
+                          <span className="text-sm text-slate-500 dark:text-slate-400 trek-card-date-3">
+                            {activity.date}
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-4 trek-card-stats-3">
+                          <div className="trek-stat-distance-3">
+                            <p className="text-sm text-slate-600 dark:text-slate-400">Distanza</p>
+                            <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                              {activity.distance_formatted}
+                            </p>
+                          </div>
+                          <div className="trek-stat-duration-3">
+                            <p className="text-sm text-slate-600 dark:text-slate-400">Tempo</p>
+                            <p className="text-2xl font-bold text-green-600 dark:text-green-400">
+                              {activity.duration_formatted}
+                            </p>
+                          </div>
+                          {activity.location && (
+                            <div className="col-span-2 trek-stat-location-3">
+                              <p className="text-sm text-slate-600 dark:text-slate-400">Luogo</p>
+                              <p className="text-lg font-semibold text-slate-900 dark:text-white">
+                                {activity.location}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      </Card>
+                    </div>
+                  ))}
+                </div>
+                {activities.length > displayedCount && (
+                  <div className="mt-6 text-center trek-load-more-3" data-testid="trek-load-more-3">
+                    <button
+                      onClick={() => setDisplayedCount((prev) => prev + 8)}
+                      className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors trek-load-more-button-3"
+                      data-testid="trek-load-more-button-3"
+                    >
+                      Mostra Altro
+                    </button>
+                  </div>
+                )}
+              </>
+            )}
+         </div>
       </section>
 
       {/* Activity Detail Modal (Desktop only) */}
@@ -302,6 +306,7 @@ export default function TrekkingPage() {
           onClose={() => setSelectedActivityId(null)}
           detailsPageUrl={`/exploration/trekking/${selectedActivityId}`}
           photo={activities.find(a => a.id === selectedActivityId)?.photo ?? null}
+          data-testid="trek-activity-modal-4"
         />
       )}
     </main>
