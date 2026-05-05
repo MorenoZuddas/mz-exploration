@@ -15,6 +15,7 @@ import type { BadgeChipSize } from '@/components/BadgeChip';
 export type CardGridType = 'running' | 'track_running' | 'trekking' | 'trip';
 export type CardGridColor = 'current' | 'blue' | 'purple' | 'black';
 export type CardGridVariant = 'default' | 'activity';
+export type CardGridTitlePosition = 'left' | 'center' | 'right';
 
 export interface CardGridItem {
   id: string;
@@ -70,6 +71,7 @@ interface CardGridProps {
   sectionClassName?: string;
   titleColor?: CardGridColor;
   subtitleColor?: CardGridColor;
+  titlePosition?: CardGridTitlePosition;
   onItemClick?: (item: CardGridItem) => void;
   maxCards?: number;
   activityPhotoBadgePosition?: 'border' | 'date-row'; // 'border' = fuori dal bordo card, 'date-row' = a destra della data
@@ -180,8 +182,8 @@ export function CardGrid({
   showMoreLabel = 'Mostra tutte',
   showLessLabel = 'Mostra meno',
   visibilityToggleClassName = '',
-  showMoreTone = 'blue',
-  showLessTone = 'black',
+  showMoreTone = 'navy',
+  showLessTone = 'transparent-white',
   sortOptions,
   sortValue,
   onSortChange,
@@ -192,6 +194,7 @@ export function CardGrid({
   sectionClassName = 'px-4 py-16 sm:px-6 lg:px-8 bg-white dark:bg-slate-900',
   titleColor = 'current',
   subtitleColor = 'current',
+  titlePosition = 'left',
   onItemClick,
   maxCards,
   activityPhotoBadgePosition = 'border',
@@ -246,27 +249,55 @@ export function CardGrid({
 
   const shouldShowHeader = Boolean(title || subtitle || showItemsCount || (sortOptions && sortOptions.length > 0 && onSortChange));
   const headerBottomSpacing = title || subtitle ? 'mb-10' : 'mb-6';
+  const titlePositionClass =
+    titlePosition === 'center'
+      ? 'w-full text-center'
+      : titlePosition === 'right'
+        ? 'w-full text-right'
+        : '';
 
   return (
-    <section className={`${sectionClassName} ${className}`}>
+    <section className={`cardgrid-component ${sectionClassName} ${className}`} data-testid="cardgrid-section">
       <div className={`max-w-6xl mx-auto ${containerClassName}`}>
         {shouldShowHeader ? (
           <motion.div
             {...headerAnimation}
-            className={`flex items-end justify-between gap-4 flex-wrap ${headerBottomSpacing}`}
+            className={`flex items-end justify-between gap-4 flex-wrap ${headerBottomSpacing} cardgrid-header`}
+            data-testid="cardgrid-header"
           >
-            <div>
-              {title ? <h2 className={`text-3xl sm:text-4xl font-bold mb-2 ${titleColorClass}`}>{title}</h2> : null}
-              {subtitle ? <p className={subtitleColorClass}>{subtitle}</p> : null}
+            <div className={`${titlePositionClass} cardgrid-title-wrapper`}>
+              {title ? (
+                <h2
+                  className={`text-3xl sm:text-4xl font-bold mb-2 ${titleColorClass} cardgrid-title`}
+                  data-testid="cardgrid-title"
+                >
+                  {title}
+                </h2>
+              ) : null}
+              {subtitle ? (
+                <p
+                  className={`${subtitleColorClass} cardgrid-subtitle`}
+                  data-testid="cardgrid-subtitle"
+                >
+                  {subtitle}
+                </p>
+              ) : null}
             </div>
             {(showItemsCount || (sortOptions && sortOptions.length > 0 && onSortChange)) ? (
-              <div className="ml-auto flex items-center gap-4 text-sm text-slate-600 dark:text-slate-300">
-                {showItemsCount ? <span className="whitespace-nowrap">{items.length} {itemsCountLabel}</span> : null}
+              <div className="ml-auto flex items-center gap-4 text-sm text-slate-600 dark:text-slate-300 cardgrid-controls">
+                {showItemsCount ? (
+                  <span className="whitespace-nowrap cardgrid-count" data-testid="cardgrid-count">
+                    {items.length} {itemsCountLabel}
+                  </span>
+                ) : null}
                 {sortOptions && sortOptions.length > 0 && onSortChange ? (
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 cardgrid-sort">
                     <span className="font-medium whitespace-nowrap">{sortLabel}</span>
                     <Select value={sortValue} onValueChange={onSortChange}>
-                      <SelectTrigger className="h-9 min-w-[12.5rem] border-slate-300 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+                      <SelectTrigger
+                        className="h-9 min-w-[12.5rem] border-slate-300 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 cardgrid-sort-trigger"
+                        data-testid="cardgrid-sort-trigger"
+                      >
                         <SelectValue placeholder="Seleziona" />
                       </SelectTrigger>
                       <SelectContent>
@@ -282,7 +313,7 @@ export function CardGrid({
           </motion.div>
         ) : null}
 
-        <div className={`${columnsClassName} ${gridClassName}`}>
+        <div className={`${columnsClassName} ${gridClassName} cardgrid-items`} data-testid="cardgrid-grid">
           {displayedItems.map((item, index) => (
             <motion.div
               key={item.id}
@@ -290,16 +321,19 @@ export function CardGrid({
               whileInView={useMotion ? { opacity: 1, y: 0 } : undefined}
               transition={useMotion ? { duration: 0.5, delay: index * 0.1 } : undefined}
               viewport={useMotion ? { once: true } : undefined}
+              className="cardgrid-item-wrapper"
+              data-testid={`cardgrid-item-${item.id}`}
             >
               {onItemClick ? (
                 <button
                   type="button"
                   onClick={() => onItemClick(item)}
-                  className="block group h-full w-full text-left"
+                  className="block group h-full w-full text-left cardgrid-item-button"
+                  data-testid={`cardgrid-item-button-${item.id}`}
                 >
                   {variant === 'activity' ? (
                     // Wrapper relativo per permettere al badge di stare FUORI dalla card (overflow-visible)
-                    <div className={activityPhotoBadgePosition === 'border' ? 'relative pt-3' : 'relative'}>
+                    <div className={`${activityPhotoBadgePosition === 'border' ? 'relative pt-3' : 'relative'} activity-card-wrapper`}>
                       {item.hasPhoto && activityPhotoBadgePosition === 'border' && (
                         <BadgeChip
                           type="photo"
@@ -307,44 +341,72 @@ export function CardGrid({
                           rounded={activityPhotoBadgeRounded}
                           text="Foto"
                           className="absolute -top-0 right-3 z-20 shadow-sm"
+                          data-testid={`cardgrid-photo-badge-${item.id}`}
                         />
                       )}
-                      <Card className={`overflow-hidden hover:shadow-lg transition-shadow h-full cursor-pointer group-hover:scale-[1.02] duration-300 ${cardClassName}`}>
+                      <Card
+                        className={`overflow-hidden hover:shadow-lg transition-shadow h-full cursor-pointer group-hover:scale-[1.02] duration-300 activity-card ${cardClassName}`}
+                        data-testid={`activity-card-${item.id}`}
+                      >
                         {item.image ? (
-                          <div className="relative h-52 w-full overflow-hidden bg-slate-200 dark:bg-slate-700">
+                          <div className="relative h-52 w-full overflow-hidden bg-slate-200 dark:bg-slate-700 activity-card-image-wrapper">
                             <Image
                               src={item.image}
                               alt={item.title}
                               fill
                               className={`object-cover group-hover:scale-105 transition-transform duration-300 ${imageClassName}`}
                               sizes="(max-width: 768px) 100vw, 50vw"
+                              data-testid={`activity-card-image-${item.id}`}
                             />
                           </div>
                         ) : null}
                         <CardHeader className="pb-2">
-                          <CardTitle className={`text-lg truncate ${activityTextStyle.title}`}>
+                          <CardTitle
+                            className={`text-lg truncate ${activityTextStyle.title}`}
+                            data-testid={`activity-card-title-${item.id}`}
+                          >
                             {item.title}
                           </CardTitle>
-                          <div className="flex items-center justify-between mt-1">
-                            {showDate && item.date ? <p className={`text-xs ${activityTextStyle.date}`}>{item.date}</p> : <span />}
+                          <div className="flex items-center justify-between mt-1 activity-card-meta">
+                            {showDate && item.date ? (
+                              <p
+                                className={`text-xs ${activityTextStyle.date}`}
+                                data-testid={`activity-card-date-${item.id}`}
+                              >
+                                {item.date}
+                              </p>
+                            ) : (
+                              <span />
+                            )}
                             {item.hasPhoto && activityPhotoBadgePosition === 'date-row' && (
                               <BadgeChip
                                 type="photo"
                                 size={activityPhotoBadgeSize}
                                 rounded={activityPhotoBadgeRounded}
                                 text="Foto"
+                                data-testid={`cardgrid-photo-badge-date-${item.id}`}
                               />
                             )}
                           </div>
                         </CardHeader>
-                        <CardContent className="grid grid-cols-2 gap-4">
-                          <div>
+                        <CardContent className="grid grid-cols-2 gap-4 activity-card-metrics">
+                          <div className="activity-metric">
                             <p className={`text-xs ${activityTextStyle.label}`}>Distanza</p>
-                            <p className={`font-bold ${activityTextStyle.value}`}>{item.distance || '—'}</p>
+                            <p
+                              className={`font-bold ${activityTextStyle.value}`}
+                              data-testid={`activity-card-distance-${item.id}`}
+                            >
+                              {item.distance || '—'}
+                            </p>
                           </div>
-                          <div>
+                          <div className="activity-metric">
                             <p className={`text-xs ${activityTextStyle.label}`}>Tempo</p>
-                            <p className={`font-bold ${activityTextStyle.value}`}>{item.duration || '—'}</p>
+                            <p
+                              className={`font-bold ${activityTextStyle.value}`}
+                              data-testid={`activity-card-duration-${item.id}`}
+                            >
+                              {item.duration || '—'}
+                            </p>
                           </div>
                         </CardContent>
                       </Card>
@@ -490,10 +552,10 @@ export function CardGrid({
         </div>
 
         {shouldShowToggle ? (
-          <div className={`mt-8 flex justify-center gap-3 ${visibilityToggleClassName}`}>
+          <div className={`mt-8 flex justify-center gap-3 ${visibilityToggleClassName} cardgrid-toggle`} data-testid="cardgrid-toggle">
             {hasMore && (
               <Button
-                variant="outline"
+                variant="default"
                 tone={showMoreTone}
                 onClick={() =>
                   setPaginationState({
@@ -501,13 +563,15 @@ export function CardGrid({
                     shownCount: shownCount + (normalizedVisibleItems ?? 4),
                   })
                 }
+                className="cardgrid-show-more"
+                data-testid="cardgrid-show-more"
               >
                 {showMoreLabel}
               </Button>
             )}
             {hasLess && (
               <Button
-                variant="outline"
+                variant="default"
                 tone={showLessTone}
                 onClick={() =>
                   setPaginationState({
@@ -515,6 +579,8 @@ export function CardGrid({
                     shownCount: normalizedVisibleItems ?? 4,
                   })
                 }
+                className="cardgrid-show-less"
+                data-testid="cardgrid-show-less"
               >
                 {showLessLabel}
               </Button>

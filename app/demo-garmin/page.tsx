@@ -354,71 +354,75 @@ export default function DemoGarminPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-8 dg-main-1" data-testid="dg-main-1">
       {floatingNotice && (
-        <div className="fixed top-4 right-4 z-50 max-w-md rounded-lg border border-green-500/40 bg-green-900/80 px-4 py-3 text-green-100 shadow-xl backdrop-blur">
+        <div className="fixed top-4 right-4 z-50 max-w-md rounded-lg border border-green-500/40 bg-green-900/80 px-4 py-3 text-green-100 shadow-xl backdrop-blur dg-floating-notice-1" data-testid="dg-floating-notice-1">
           <div className="flex items-start gap-3">
-            <p className="text-sm font-medium">{floatingNotice.text}</p>
+            <p className="text-sm font-medium dg-floating-notice-text-1">{floatingNotice.text}</p>
             <button
               onClick={() => setFloatingNotice(null)}
-              className="ml-auto rounded px-2 py-0.5 text-xs text-white/80 hover:bg-white/10"
+              className="ml-auto rounded px-2 py-0.5 text-xs text-white/80 hover:bg-white/10 dg-floating-notice-close-1"
+              data-testid="dg-floating-notice-close-1"
             >
               Chiudi
             </button>
           </div>
         </div>
       )}
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-4xl font-bold text-white mb-2">🏃 Activities Manager</h1>
-        <p className="text-gray-300 mb-8">Gestisci le tue attività di allenamento</p>
+      <div className="max-w-6xl mx-auto dg-container-1">
+        <h1 className="text-4xl font-bold text-white mb-2 dg-title-1" data-testid="dg-title-1">🏃 Activities Manager</h1>
+        <p className="text-gray-300 mb-8 dg-subtitle-1" data-testid="dg-subtitle-1">Gestisci le tue attività di allenamento</p>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8 dg-panels-grid-2" data-testid="dg-panels-grid-2">
           {/* Pannello Database Status */}
-          <div className="bg-slate-700 rounded-lg p-6 shadow-xl">
-            <h2 className="text-xl font-bold text-white mb-4">🔗 Database Status</h2>
+          <div className="bg-slate-700 rounded-lg p-6 shadow-xl dg-db-panel-2" data-testid="dg-db-panel-2">
+            <h2 className="text-xl font-bold text-white mb-4 dg-db-title-2" data-testid="dg-db-title-2">🔗 Database Status</h2>
             <button
               onClick={handleTestConnection}
               disabled={loadingDB}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-500 text-white font-bold py-3 px-4 rounded transition"
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-500 text-white font-bold py-3 px-4 rounded transition dg-btn-test-conn-2"
+              data-testid="dg-btn-test-conn-2"
             >
               {loadingDB ? '⏳ ...' : '🔌 Test Connection'}
             </button>
             <button
               onClick={handleCheckStatus}
               disabled={loadingDB}
-              className="w-full mt-2 bg-cyan-600 hover:bg-cyan-700 disabled:bg-gray-500 text-white font-bold py-3 px-4 rounded transition"
+              className="w-full mt-2 bg-cyan-600 hover:bg-cyan-700 disabled:bg-gray-500 text-white font-bold py-3 px-4 rounded transition dg-btn-status-2"
+              data-testid="dg-btn-status-2"
             >
               {loadingDB ? '⏳ ...' : '📊 Check Status'}
             </button>
             <button
               onClick={() => void handleLoadActivities()}
               disabled={loadingDB}
-              className="w-full mt-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-500 text-white font-bold py-3 px-4 rounded transition"
+              className="w-full mt-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-500 text-white font-bold py-3 px-4 rounded transition dg-btn-load-2"
+              data-testid="dg-btn-load-2"
             >
               {loadingDB ? '⏳ ...' : '📋 Carica Attività'}
             </button>
 
             {/* Messaggio feedback DB */}
             {dbMessage && (
-              <div className={`mt-3 p-3 rounded text-sm font-medium ${dbMessage.ok ? 'bg-green-900/50 text-green-300 border border-green-700' : 'bg-red-900/50 text-red-300 border border-red-700'}`}>
+              <div className={`mt-3 p-3 rounded text-sm font-medium dg-message-2 ${dbMessage.ok ? 'bg-green-900/50 text-green-300 border border-green-700' : 'bg-red-900/50 text-red-300 border border-red-700'}`} data-testid={`dg-message-${dbMessage.ok ? 'success' : 'error'}-2`}>
                 {dbMessage.text}
               </div>
             )}
 
             {/* Status dettagli */}
             {dbStatus && (
-              <div className="mt-3 p-3 bg-slate-800 rounded text-sm text-white">
-                <p className="font-semibold text-cyan-400 mb-1">📊 DB Status:</p>
-                <p>Attività: <span className="text-green-400 font-bold">{dbStatus.total_activities}</span></p>
+              <div className="mt-3 p-3 bg-slate-800 rounded text-sm text-white dg-status-detail-2" data-testid="dg-status-detail-2">
+                <p className="font-semibold text-cyan-400 mb-1 dg-status-label-2">📊 DB Status:</p>
+                <p dg-status-activities-2>Attività: <span className="text-green-400 font-bold">{dbStatus.total_activities}</span></p>
                 <p>Sync logs: <span className="text-green-400 font-bold">{dbStatus.total_sync_logs}</span></p>
               </div>
             )}
           </div>
 
           {/* Pannello Upload JSON Garmin */}
-          <div className="bg-slate-700 rounded-lg p-6 shadow-xl">
-            <h2 className="text-xl font-bold text-white mb-1">📂 Importa JSON Garmin</h2>
-            <p className="text-gray-400 text-sm mb-4">
+          <div className="bg-slate-700 rounded-lg p-6 shadow-xl dg-upload-panel-2" data-testid="dg-upload-panel-2">
+            <h2 className="text-xl font-bold text-white mb-1 dg-upload-title-2" data-testid="dg-upload-title-2">📂 Importa JSON Garmin</h2>
+            <p className="text-gray-400 text-sm mb-4 dg-upload-hint-2" data-testid="dg-upload-hint-2">
               Esporta da Garmin Connect → <strong>Formato JSON</strong> e carica qui
             </p>
             <div
@@ -426,23 +430,24 @@ export default function DemoGarminPage() {
               onDragLeave={() => setDragOver(false)}
               onDrop={handleDrop}
               onClick={() => fileInputRef.current?.click()}
-              className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors ${
+              className={`border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors dg-drop-zone-2 ${
                 dragOver ? 'border-blue-400 bg-blue-900/30' : 'border-slate-500 hover:border-blue-500 hover:bg-slate-600'
               }`}
+              data-testid="dg-drop-zone-2"
             >
               <div className="text-4xl mb-2">📁</div>
               <p className="text-white font-semibold mb-1">Trascina il file JSON qui</p>
               <p className="text-gray-400 text-sm">oppure clicca per selezionare</p>
-              <input ref={fileInputRef} type="file" accept=".json" onChange={handleFileChange} className="hidden" />
+              <input ref={fileInputRef} type="file" accept=".json" onChange={handleFileChange} className="hidden" data-testid="dg-file-input-2" />
             </div>
 
             {loadingUpload && (
-              <div className="mt-4 p-3 bg-slate-800 rounded text-center text-yellow-300 text-sm animate-pulse">
+              <div className="mt-4 p-3 bg-slate-800 rounded text-center text-yellow-300 text-sm animate-pulse dg-upload-loading-2" data-testid="dg-upload-loading-2">
                 ⏳ Importazione in corso...
               </div>
             )}
             {uploadResult && !loadingUpload && (
-              <div className="mt-4 p-4 bg-green-900/50 border border-green-600 rounded text-sm text-white">
+              <div className="mt-4 p-4 bg-green-900/50 border border-green-600 rounded text-sm text-white dg-upload-success-2" data-testid="dg-upload-success-2">
                 <p className="font-bold text-green-400 mb-1">✅ Import completato!</p>
                 <p>📦 Processate: <strong>{uploadResult.total_processed}</strong></p>
                 <p>✅ Salvate: <strong className="text-green-400">{uploadResult.saved}</strong></p>
@@ -463,7 +468,7 @@ export default function DemoGarminPage() {
               </div>
             )}
             {uploadError && !loadingUpload && (
-              <div className="mt-4 p-3 bg-red-900/50 border border-red-600 rounded text-sm text-red-300">
+              <div className="mt-4 p-3 bg-red-900/50 border border-red-600 rounded text-sm text-red-300 dg-upload-error-2" data-testid="dg-upload-error-2">
                 {uploadError}
               </div>
             )}
@@ -471,14 +476,14 @@ export default function DemoGarminPage() {
         </div>
 
         {/* Pannello Aggiungi Manualmente */}
-        <div className="bg-slate-700 rounded-lg p-6 shadow-xl mb-8">
-          <h2 className="text-xl font-bold text-white mb-4">➕ Aggiungi Manualmente</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <div className="bg-slate-700 rounded-lg p-6 shadow-xl mb-8 dg-manual-panel-3" data-testid="dg-manual-panel-3">
+          <h2 className="text-xl font-bold text-white mb-4 dg-manual-title-3" data-testid="dg-manual-title-3">➕ Aggiungi Manualmente</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 dg-form-grid-3">
             <input type="text" placeholder="Nome attività *" value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="bg-slate-800 text-white p-2 rounded border border-slate-600 text-sm" />
+              className="bg-slate-800 text-white p-2 rounded border border-slate-600 text-sm dg-form-input-3" data-testid="dg-form-name-3" />
             <select value={formData.type} onChange={(e) => setFormData({ ...formData, type: e.target.value })}
-              className="bg-slate-800 text-white p-2 rounded border border-slate-600 text-sm">
+              className="bg-slate-800 text-white p-2 rounded border border-slate-600 text-sm dg-form-select-3" data-testid="dg-form-type-3">
               <option value="running">🏃 Running</option>
               <option value="cycling">🚴 Cycling</option>
               <option value="hiking">🥾 Hiking</option>
@@ -486,36 +491,38 @@ export default function DemoGarminPage() {
             </select>
             <input type="date" value={formData.date}
               onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-              className="bg-slate-800 text-white p-2 rounded border border-slate-600 text-sm" />
+              className="bg-slate-800 text-white p-2 rounded border border-slate-600 text-sm dg-form-input-3" data-testid="dg-form-date-3" />
             <input type="number" placeholder="Distanza (m) *" value={formData.distance || ''}
               onChange={(e) => setFormData({ ...formData, distance: parseFloat(e.target.value) })}
-              className="bg-slate-800 text-white p-2 rounded border border-slate-600 text-sm" />
+              className="bg-slate-800 text-white p-2 rounded border border-slate-600 text-sm dg-form-input-3" data-testid="dg-form-distance-3" />
             <input type="number" placeholder="Durata (secondi) *" value={formData.duration || ''}
               onChange={(e) => setFormData({ ...formData, duration: parseFloat(e.target.value) })}
-              className="bg-slate-800 text-white p-2 rounded border border-slate-600 text-sm" />
+              className="bg-slate-800 text-white p-2 rounded border border-slate-600 text-sm dg-form-input-3" data-testid="dg-form-duration-3" />
             <button onClick={handleAddManually} disabled={loadingManual}
-              className="bg-orange-600 hover:bg-orange-700 disabled:bg-gray-500 text-white font-bold py-2 px-4 rounded transition text-sm">
+              className="bg-orange-600 hover:bg-orange-700 disabled:bg-gray-500 text-white font-bold py-2 px-4 rounded transition text-sm dg-form-btn-3"
+              data-testid="dg-form-btn-3">
               {loadingManual ? '⏳ Aggiunta...' : '➕ Aggiungi'}
             </button>
           </div>
           {manualMessage && (
-            <div className={`mt-3 p-3 rounded text-sm font-medium ${manualMessage.ok ? 'bg-green-900/50 text-green-300 border border-green-700' : 'bg-red-900/50 text-red-300 border border-red-700'}`}>
+            <div className={`mt-3 p-3 rounded text-sm font-medium dg-manual-message-3 ${manualMessage.ok ? 'bg-green-900/50 text-green-300 border border-green-700' : 'bg-red-900/50 text-red-300 border border-red-700'}`} data-testid={`dg-manual-message-${manualMessage.ok ? 'success' : 'error'}-3`}>
               {manualMessage.text}
             </div>
           )}
         </div>
 
         {/* Lista Attività */}
-        <div className="bg-slate-700 rounded-lg p-6 shadow-xl">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-2xl font-bold text-white">📋 Attività ({activities.length})</h2>
+        <div className="bg-slate-700 rounded-lg p-6 shadow-xl dg-activities-panel-4" data-testid="dg-activities-panel-4">
+          <div className="flex items-center justify-between mb-4 dg-activities-header-4">
+            <h2 className="text-2xl font-bold text-white dg-activities-title-4" data-testid="dg-activities-title-4">📋 Attività ({activities.length})</h2>
             <button onClick={() => void handleLoadActivities()} disabled={loadingDB}
-              className="bg-green-600 hover:bg-green-700 disabled:bg-gray-500 text-white font-bold py-2 px-4 rounded text-sm transition">
+              className="bg-green-600 hover:bg-green-700 disabled:bg-gray-500 text-white font-bold py-2 px-4 rounded text-sm transition dg-activities-refresh-4"
+              data-testid="dg-activities-refresh-4">
               {loadingDB ? '⏳' : '🔄 Aggiorna'}
             </button>
           </div>
-          <div className="overflow-x-auto" ref={tableRef}>
-            <table className="w-full text-white text-sm">
+          <div className="overflow-x-auto dg-activities-table-4" ref={tableRef} data-testid="dg-activities-table-4">
+            <table className="w-full text-white text-sm dg-table-4">
               <thead className="border-b border-slate-600">
                 <tr>
                   <th className="text-left p-2">Nome</th>
@@ -534,7 +541,7 @@ export default function DemoGarminPage() {
               <tbody>
                 {activities.length === 0 ? (
                   <tr>
-                    <td colSpan={11} className="text-center p-8 text-gray-400">
+                    <td colSpan={11} className="text-center p-8 text-gray-400 dg-table-empty-4">
                       Nessuna attività — clicca <strong>🔄 Aggiorna</strong> o importa un file JSON
                     </td>
                   </tr>
@@ -551,7 +558,7 @@ export default function DemoGarminPage() {
                       day: '2-digit'
                     }) : '—';
                     return (
-                    <tr key={getActivityKey(activity, idx)} className={`border-b border-slate-600 hover:bg-slate-600 ${selectedActivity && getActivityKey(activity, idx) === getActivityKey(selectedActivity, activities.indexOf(selectedActivity)) ? 'bg-yellow-600' : ''}`}>
+                    <tr key={getActivityKey(activity, idx)} className={`border-b border-slate-600 hover:bg-slate-600 dg-table-row-4 ${selectedActivity && getActivityKey(activity, idx) === getActivityKey(selectedActivity, activities.indexOf(selectedActivity)) ? 'bg-yellow-600' : ''}`} data-testid={`dg-table-row-${activity._id || idx}-4`}>
                       <td className="p-2 font-medium">{activity.name}</td>
                       <td className="p-2 capitalize">{activity.type}</td>
                       <td className="p-2">{dateStr}</td>

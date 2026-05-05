@@ -74,7 +74,7 @@ export function Divider({
   size = 'md',
   symbol = '✦',
   iconType,
-  backgroundClassName = 'bg-white dark:bg-slate-900',
+  backgroundClassName = 'bg-transparent',
 }: DividerProps) {
   const resolvedTone = tone ?? color ?? 'current';
   const variant = toneVariants[resolvedTone];

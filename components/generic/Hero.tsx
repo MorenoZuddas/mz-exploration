@@ -9,6 +9,7 @@ interface HeroProps {
   posterSrc?: string;
   useVideo?: boolean;
   showOverlay?: boolean;
+  size?: 'sm' | 'md' | 'lg';
   heightClassName?: string;
   titleClassName?: string;
   subtitleClassName?: string;
@@ -18,6 +19,12 @@ interface HeroProps {
   titleColor?: 'current' | 'blue' | 'purple' | 'black';
   subtitleColor?: 'current' | 'blue' | 'purple' | 'black';
 }
+
+const heroSizeVariants = {
+  sm:  'h-[24vh] sm:h-[28vh]',
+  md:  'h-[34vh] sm:h-[38vh]',
+  lg:  'h-[50vh] sm:h-[56vh]',
+} as const;
 
 const heroAlignVariants = {
   center: {
@@ -59,7 +66,8 @@ export function Hero({
   posterSrc = 'https://res.cloudinary.com/derbnvxif/image/upload/q_auto/f_auto/v1777467700/cagliar_dallalto_-_stefano_garau_-_shutterstock.com__1_mzsy2n.jpg',
   useVideo = true,
   showOverlay = true,
-  heightClassName = 'h-[36vh] sm:h-[40vh]',
+  size = 'md',
+  heightClassName,
   titleClassName = 'text-3xl sm:text-4xl lg:text-5xl',
   subtitleClassName = 'text-base sm:text-lg lg:text-xl',
   overlayClassName = 'bg-black/40',
@@ -71,9 +79,13 @@ export function Hero({
   const resolvedTitleTone = tone ?? titleColor;
   const resolvedSubtitleTone = tone ?? subtitleColor;
   const alignClass = heroAlignVariants[contentAlign];
+  const resolvedHeightClassName = heightClassName ?? heroSizeVariants[size];
 
   return (
-    <section className={`relative w-full ${heightClassName} overflow-hidden ${className}`}>
+    <section
+      className={`relative w-full ${resolvedHeightClassName} overflow-hidden hero-component ${className}`}
+      data-testid="hero-section"
+    >
       {/* Video Background */}
       {useVideo ? (
         <video
@@ -81,27 +93,47 @@ export function Hero({
           muted
           loop
           playsInline
-          className={`absolute inset-0 w-full h-full object-cover ${containerClassName}`}
+          className={`absolute inset-0 w-full h-full object-cover hero-video ${containerClassName}`}
           poster={posterSrc}
+          data-testid="hero-video"
         >
           <source src={videoMp4Src} type="video/mp4" />
           <source src={videoWebmSrc} type="video/webm" />
         </video>
       ) : (
         <div
-          className={`absolute inset-0 bg-cover bg-center ${containerClassName}`}
+          className={`absolute inset-0 bg-cover bg-center hero-background ${containerClassName}`}
           style={{ backgroundImage: `url(${posterSrc})` }}
+          data-testid="hero-background"
         />
       )}
 
       {/* Dark Overlay */}
-      {showOverlay ? <div className={`absolute inset-0 ${overlayClassName}`} /> : null}
+      {showOverlay ? (
+        <div
+          className={`absolute inset-0 hero-overlay ${overlayClassName}`}
+          data-testid="hero-overlay"
+        />
+      ) : null}
 
       {/* Content */}
-      <div className={`absolute inset-0 flex flex-col px-4 ${alignClass.wrapper} ${contentClassName}`}>
-        <div className={`max-w-2xl ${alignClass.content}`}>
-          <h1 className={`${titleClassName} ${heroTitleColorVariants[resolvedTitleTone]} font-bold mb-2`}>{title}</h1>
-          <h2 className={`${subtitleClassName} ${heroSubtitleColorVariants[resolvedSubtitleTone]}`}>{subtitle}</h2>
+      <div
+        className={`absolute inset-0 flex flex-col px-4 ${alignClass.wrapper} ${contentClassName} hero-content`}
+        data-testid="hero-content"
+      >
+        <div className={`max-w-2xl ${alignClass.content} hero-text`}>
+          <h1
+            className={`${titleClassName} ${heroTitleColorVariants[resolvedTitleTone]} font-bold mb-2 hero-title`}
+            data-testid="hero-title"
+          >
+            {title}
+          </h1>
+          <h2
+            className={`${subtitleClassName} ${heroSubtitleColorVariants[resolvedSubtitleTone]} hero-subtitle`}
+            data-testid="hero-subtitle"
+          >
+            {subtitle}
+          </h2>
         </div>
       </div>
     </section>

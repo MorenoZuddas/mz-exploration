@@ -117,9 +117,9 @@ export default function Footer({
   const rootTextClass = isLightBg ? 'text-slate-900' : 'text-white';
 
   return (
-    <footer className={`${backgroundClassName} ${rootTextClass} py-4 mt-12 ${className}`}>
+    <footer className={`${backgroundClassName} ${rootTextClass} py-3 mt-8 sm:mt-12 ${className}`}>
       <div className="max-w-6xl mx-auto px-4">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-3">
           {/* Logo + Brand - Left */}
           <div className="flex items-center gap-3">
             <Image
@@ -127,14 +127,14 @@ export default function Footer({
               alt={logoAlt}
               width={logoWidth}
               height={logoHeight}
-              className="opacity-75"
+              className="opacity-75 w-[90px] h-auto md:w-[150px]"
             />
           </div>
 
           {/* Links - Center */}
-          <div className="flex flex-wrap justify-center gap-4 text-xs md:text-sm">
+          <div className="flex flex-wrap justify-center gap-3 text-xs md:text-sm">
             {navLinks.map((link, index) => (
-              <div key={`${link.href}-${link.label}`} className="flex items-center gap-4">
+              <div key={`${link.href}-${link.label}`} className="flex items-center gap-3">
                 <Link href={link.href} className={`${toneClasses.link} transition`}>
                   {link.label}
                 </Link>
@@ -143,8 +143,12 @@ export default function Footer({
             ))}
           </div>
 
-          {/* Social Icons - Right */}
-          <div className="flex gap-4">
+        </div>
+
+        {/* Copyright + Social Icons - Bottom */}
+        <div className={`flex items-center justify-between gap-3 mt-3 pt-3 border-t ${toneClasses.border}`}>
+          <p className={`${isLightBg ? 'text-slate-400' : 'text-gray-500'} text-[10px]`}>{copyrightText}</p>
+          <div className="flex gap-3 shrink-0">
             {socialLinks.map((link) => (
               <a
                 key={`${link.label}-${link.href}`}
@@ -158,11 +162,6 @@ export default function Footer({
               </a>
             ))}
           </div>
-        </div>
-
-        {/* Copyright - Bottom */}
-        <div className={`text-center ${isLightBg ? 'text-slate-500' : 'text-gray-500'} text-xs mt-4 pt-4 border-t ${toneClasses.border}`}>
-          <p>{copyrightText}</p>
         </div>
       </div>
     </footer>

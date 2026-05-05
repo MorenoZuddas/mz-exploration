@@ -27,7 +27,7 @@ Questa guida descrive come usare, modificare ed estendere i componenti props-bas
 
 ### Props principali
 - `variant`: `default | destructive | outline | secondary | ghost | link`
-- `tone`: `current | blue | purple | black`
+- `tone`: `current | blue | purple | black | navy | white | transparent-white`
 - `size`: `xs | sm | default | lg | xl | icon`
 - `radius`: `sm | default | lg | full | none`
 - `width`: `auto | full`
@@ -72,6 +72,11 @@ Questa guida descrive come usare, modificare ed estendere i componenti props-bas
 - `CarouselPrevious`
 - `CarouselNext`
 - `CarouselCards` (helper alto livello)
+- `CarouselSection` (helper con card di default configurabile)
+
+### Tipi utili esportati
+- `ArrowsPosition`: `top-right | sides`
+- `CarouselCardItemData`: dati base per slide in `CarouselSection`
 
 ### Props principali (`Carousel`)
 - `orientation`: `horizontal | vertical`
@@ -86,16 +91,45 @@ Questa guida descrive come usare, modificare ed estendere i componenti props-bas
   - numero singolo: `1..6`
   - responsive: `{ base?, sm?, md?, lg?, xl? }`
 - `showControls`
+- `showDots`
+- `title`, `description` (header sezione)
+- `arrowsPosition` (desktop): `top-right | sides`
+- `arrowsPositionMobile` (mobile): `top-right | sides`
 - `previousButtonProps`, `nextButtonProps`
 - `itemClassName`, `contentClassName`
 
-### Esempio
+### Props principali (`CarouselSection`)
+- Header sezione:
+  - `title`, `description`
+  - `titleClassName`, `descriptionClassName`
+- Config carousel:
+  - `gap`, `cardsPerView`
+  - `showDots`, `dotsClassName`, `dotClassName`, `activeDotClassName`
+  - `arrowsPosition`, `arrowsPositionMobile`
+- Config card di default (`card*`):
+  - `cardImage`
+  - `cardAccentLabel`
+  - `cardAccentColor` (classe Tailwind, es. `text-blue-300`)
+  - `cardTitle`
+  - `cardDescription`
+  - `cardButtonText`
+  - `cardButtonHref`
+  - `cardButtonVariant`: `default | destructive | outline | secondary | ghost | link`
+  - `cardButtonTone`: `current | blue | purple | black | navy | white | transparent-white`
+  - `cardButtonSize`: `xs | sm | default | lg | xl | icon`
+  - `cardImageHeight`, `cardClassName`
+
+### Esempio (`CarouselCards`)
 
 ```tsx
 <CarouselCards
-  horizontal
-  carouselCard={{ base: 1, md: 2, lg: 3 }}
+  title="Esploriamo assieme"
+  description="Slide configurabili con frecce responsive"
+  cardsPerView={{ base: 1, md: 2, lg: 3 }}
   gap="md"
+  showDots
+  arrowsPosition="top-right"
+  arrowsPositionMobile="inside"
   previousButtonProps={{ tone: 'blue' }}
   nextButtonProps={{ tone: 'blue' }}
 >
@@ -103,6 +137,39 @@ Questa guida descrive come usare, modificare ed estendere i componenti props-bas
   <Card />
   <Card />
 </CarouselCards>
+```
+
+### Esempio (`CarouselSection`)
+
+```tsx
+<CarouselSection
+  title="Esploriamo assieme"
+  description="Running, Trekking e Trips"
+  items={[
+    {
+      id: 'running',
+      image: 'https://res.cloudinary.com/derbnvxif/image/upload/q_auto/f_auto/v1777450410/running_Large_zorzw2.jpg',
+      accentLabel: 'Road to Marathon',
+      title: 'Running',
+      description: 'Allenamenti su strada e pista',
+      buttonText: 'Vai a Running',
+      buttonHref: '/exploration/running',
+    },
+  ]}
+  showDots
+  arrowsPosition="sides"
+  arrowsPositionMobile="top-right"
+  cardImage="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1400&q=80"
+  cardAccentLabel="Road to Marathon"
+  cardAccentColor="text-blue-300"
+  cardTitle="Titolo fallback"
+  cardDescription="Descrizione fallback"
+  cardButtonText="Vai alla sezione"
+  cardButtonVariant="outline"
+  cardButtonTone="white"
+  cardButtonSize="default"
+  cardImageHeight="h-[18rem]"
+/>
 ```
 
 ---
@@ -115,11 +182,20 @@ Questa guida descrive come usare, modificare ed estendere i componenti props-bas
 - `title`, `subtitle`
 - `tone` (applica colore a titolo/sottotitolo)
 - `titleColor`, `subtitleColor` (compat legacy)
+- `size`: `sm | md | lg` (preset altezza: `sm`=piccolo, `md`=default, `lg`=grande)
+- `heightClassName`: override esplicito dell'altezza (sovrascrive `size`)
 - `useVideo`, `showOverlay`
 - `videoMp4Src`, `videoWebmSrc`, `posterSrc`
-- `heightClassName`, `overlayClassName`
+- `overlayClassName`
 - `className`, `containerClassName`, `contentClassName`
 - `titleClassName`, `subtitleClassName`
+
+### Preset altezze
+| size | mobile | sm+ |
+|------|--------|-----|
+| `sm` | `h-[24vh]` | `h-[28vh]` |
+| `md` | `h-[34vh]` | `h-[38vh]` |
+| `lg` | `h-[50vh]` | `h-[56vh]` |
 
 ### Esempio
 
@@ -139,6 +215,7 @@ Questa guida descrive come usare, modificare ed estendere i componenti props-bas
 ### Props principali
 - `title`, `subtitle`, `items`
 - `tone`, `titleColor`, `subtitleColor`
+- `titlePosition`: `left | center | right` (allinea blocco titolo+sottotitolo)
 - `showTypeBadge`, `showDate`, `showDescription`
 - `useMotion`
 - `fallbackImage`
@@ -398,4 +475,3 @@ npm run build
 ```
 
 Se entrambi passano, il refactor props-based e pronto.
-

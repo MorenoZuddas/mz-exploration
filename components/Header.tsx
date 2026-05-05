@@ -3,10 +3,17 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { ChevronDown, Mountain, PlaneTakeoff, SportShoe, type LucideIcon } from 'lucide-react';
 
 export interface HeaderNavLink {
+  label: React.ReactNode;
+  href: string;
+}
+
+interface HeaderExplorationItem {
   label: string;
   href: string;
+  icon: LucideIcon;
 }
 
 interface HeaderProps {
@@ -20,7 +27,7 @@ interface HeaderProps {
   aboutLink?: HeaderNavLink;
   contactLink?: HeaderNavLink;
   explorationLink?: HeaderNavLink;
-  explorationItems?: HeaderNavLink[];
+  explorationItems?: HeaderExplorationItem[];
 }
 
 const headerToneClasses: Record<NonNullable<HeaderProps['tone']>, { link: string; hoverBg: string; border: string }> = {
@@ -49,10 +56,10 @@ const headerToneClasses: Record<NonNullable<HeaderProps['tone']>, { link: string
 const defaultAboutLink: HeaderNavLink = { label: 'Chi Sono', href: '/about' };
 const defaultContactLink: HeaderNavLink = { label: 'Contatti', href: '/contact' };
 const defaultExplorationLink: HeaderNavLink = { label: 'Exploration', href: '/exploration' };
-const defaultExplorationItems: HeaderNavLink[] = [
-  { label: '🏃 Running', href: '/exploration/running' },
-  { label: '🥾 Trekking', href: '/exploration/trekking' },
-  { label: '✈️ Trips', href: '/exploration/trips' },
+const defaultExplorationItems: HeaderExplorationItem[] = [
+  { label: 'Running', href: '/exploration/running', icon: SportShoe },
+  { label: 'Trekking', href: '/exploration/trekking', icon: Mountain },
+  { label: 'Trips', href: '/exploration/trips', icon: PlaneTakeoff },
 ];
 
 export default function Header({
@@ -77,11 +84,14 @@ export default function Header({
       }
     : headerToneClasses[tone];
   const rootTextClass = isLightBg ? 'text-slate-900' : 'text-white';
+  const explorationTextColumnWidth = '5.75rem';
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isExplorationOpen, setIsExplorationOpen] = useState(false);
 
   const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
+    const opening = !isMenuOpen;
+    setIsMenuOpen(opening);
+    if (opening) setIsExplorationOpen(true);
   };
 
   const toggleExploration = () => {
@@ -95,7 +105,7 @@ export default function Header({
 
   return (
     <header className={`sticky top-0 z-50 ${rootTextClass} shadow-lg ${backgroundClassName} ${className}`}>
-      <div className="max-w-6xl mx-auto px-4 py-3">
+      <div className="max-w-6xl mx-auto px-3 py-2 sm:px-4 sm:py-3">
         <div className="flex items-center justify-between">
           {/* Logo - Left */}
           <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
@@ -104,6 +114,7 @@ export default function Header({
                 alt={logoAlt}
                 width={logoWidth}
                 height={logoHeight}
+                className="h-auto w-[112px] sm:w-[160px]"
                 priority
             />
           </Link>
@@ -121,35 +132,34 @@ export default function Header({
             <div className="relative group">
               <Link
                 href={explorationLink.href}
-                className={`${toneClasses.link} transition-colors font-medium flex items-center gap-1`}
+                className={`${toneClasses.link} transition-colors font-medium`}
+                style={{ ['--exp-text-w' as string]: explorationTextColumnWidth }}
               >
-                {explorationLink.label}
-                <svg
-                  className="w-4 h-4 group-hover:rotate-180 transition-transform"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                  />
-                </svg>
+                <span className="inline-grid grid-cols-[var(--exp-text-w)_12px] items-center gap-x-[2px] leading-none">
+                  <span className="w-[var(--exp-text-w)] text-left">{explorationLink.label}</span>
+                  <ChevronDown className="h-[12px] w-[12px] justify-self-end group-hover:rotate-180 transition-transform" />
+                </span>
               </Link>
 
               {/* Dropdown Menu */}
-              <div className={`absolute left-0 mt-0 w-48 ${isLightBg ? 'bg-white' : 'bg-slate-800'} rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 py-2 ${toneClasses.border}`}>
-                {explorationItems.map((item) => (
-                  <Link
-                    key={`${item.href}-${item.label}`}
-                    href={item.href}
-                    className={`block px-4 py-2 ${toneClasses.hoverBg} ${toneClasses.link} transition-colors`}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
+              <div
+                className={`absolute left-0 mt-1 w-max ${isLightBg ? 'bg-white' : 'bg-slate-800/95 backdrop-blur'} rounded-md border shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 overflow-hidden ${toneClasses.border}`}
+                style={{ ['--exp-text-w' as string]: explorationTextColumnWidth }}
+              >
+                <div className={`${isLightBg ? 'divide-y divide-slate-200' : 'divide-y divide-slate-700/80'}`}>
+                  {explorationItems.map((item) => (
+                    <Link
+                      key={`${item.href}-${item.label}`}
+                      href={item.href}
+                      className={`block whitespace-nowrap px-3 py-2 text-sm leading-none ${toneClasses.hoverBg} ${toneClasses.link} transition-colors`}
+                    >
+                      <span className="inline-grid grid-cols-[var(--exp-text-w)_12px] items-center gap-x-[2px] leading-none">
+                        <span className="w-[var(--exp-text-w)] text-left">{item.label}</span>
+                        <item.icon className="h-[12px] w-[12px] justify-self-end" strokeWidth={item.icon === SportShoe ? 2.25 : undefined} />
+                      </span>
+                    </Link>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -164,22 +174,22 @@ export default function Header({
           {/* Hamburger Menu Button - Right (Mobile) */}
           <button
             onClick={toggleMenu}
-            className={`md:hidden flex flex-col gap-1.5 p-2 ${toneClasses.hoverBg} rounded-lg transition-colors`}
+            className={`md:hidden flex flex-col gap-1 p-1 ${toneClasses.hoverBg} rounded-md transition-colors`}
             aria-label="Toggle menu"
           >
             <span
-              className={`w-6 h-0.5 bg-current transition-all duration-300 ${
-                isMenuOpen ? 'rotate-45 translate-y-2' : ''
+              className={`w-5 h-0.5 bg-current transition-all duration-300 ${
+                isMenuOpen ? 'rotate-45 translate-y-[6px]' : ''
               }`}
             />
             <span
-              className={`w-6 h-0.5 bg-current transition-all duration-300 ${
+              className={`w-5 h-0.5 bg-current transition-all duration-300 ${
                 isMenuOpen ? 'opacity-0' : ''
               }`}
             />
             <span
-              className={`w-6 h-0.5 bg-current transition-all duration-300 ${
-                isMenuOpen ? '-rotate-45 -translate-y-2' : ''
+              className={`w-5 h-0.5 bg-current transition-all duration-300 ${
+                isMenuOpen ? '-rotate-45 -translate-y-[6px]' : ''
               }`}
             />
           </button>
@@ -187,18 +197,11 @@ export default function Header({
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <nav className={`md:hidden mt-4 pb-4 border-t pt-4 space-y-2 ${toneClasses.border}`}>
-            <Link
-              href="/"
-              onClick={closeMenu}
-              className={`block px-4 py-2 ${toneClasses.hoverBg} ${toneClasses.link} transition-colors rounded-lg font-medium`}
-            >
-              Home
-            </Link>
+          <nav className={`md:hidden mt-1.5 pb-1.5 border-t pt-2.5 space-y-1 ${toneClasses.border}`}>
             <Link
               href="/about"
               onClick={closeMenu}
-              className={`block px-4 py-2 ${toneClasses.hoverBg} ${toneClasses.link} transition-colors rounded-lg font-medium`}
+              className={`block px-3 py-1.5 text-[15px] ${toneClasses.hoverBg} ${toneClasses.link} transition-colors rounded-md font-medium`}
             >
               {aboutLink.label}
             </Link>
@@ -207,45 +210,31 @@ export default function Header({
             <div>
               <button
                 onClick={toggleExploration}
-                className={`w-full text-left px-4 py-2 ${toneClasses.hoverBg} ${toneClasses.link} transition-colors rounded-lg font-medium flex items-center justify-between`}
+                className={`w-full text-left px-3 py-1.5 text-[15px] ${toneClasses.hoverBg} ${toneClasses.link} transition-colors rounded-md font-medium flex items-center justify-between`}
               >
                 {explorationLink.label}
-                <svg
-                  className={`w-4 h-4 transition-transform ${
+                <ChevronDown
+                  className={`w-3.5 h-3.5 transition-transform ${
                     isExplorationOpen ? 'rotate-180' : ''
                   }`}
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 14l-7 7m0 0l-7-7m7 7V3"
-                  />
-                </svg>
+                />
               </button>
 
               {isExplorationOpen && (
-                <div className={`${isLightBg ? 'bg-white' : 'bg-slate-800'} rounded-lg mt-1 space-y-1 py-2`}>
-                  <Link
-                    href={explorationLink.href}
-                    onClick={closeMenu}
-                    className={`block px-6 py-2 ${toneClasses.hoverBg} ${toneClasses.link} transition-colors text-sm`}
-                  >
-                    📍 {explorationLink.label}
-                  </Link>
+                <div className={`${isLightBg ? 'bg-white' : 'bg-slate-800/95'} rounded-md border mt-1 overflow-hidden ${toneClasses.border}`}>
+                  <div className={`${isLightBg ? 'divide-y divide-slate-200' : 'divide-y divide-slate-700/80'}`}>
                   {explorationItems.map((item) => (
                     <Link
                       key={`${item.href}-${item.label}-mobile`}
                       href={item.href}
                       onClick={closeMenu}
-                      className={`block px-6 py-2 ${toneClasses.hoverBg} ${toneClasses.link} transition-colors text-sm`}
+                      className={`flex items-center justify-between gap-3 px-4 py-2 ${toneClasses.hoverBg} ${toneClasses.link} transition-colors text-sm`}
                     >
-                      {item.label}
+                      <span>{item.label}</span>
+                      <item.icon className="h-[12px] w-[12px] shrink-0" strokeWidth={item.icon === SportShoe ? 2.25 : undefined} />
                     </Link>
                   ))}
+                  </div>
                 </div>
               )}
             </div>
@@ -253,7 +242,7 @@ export default function Header({
             <Link
               href={contactLink.href}
               onClick={closeMenu}
-              className={`block px-4 py-2 ${toneClasses.hoverBg} ${toneClasses.link} transition-colors rounded-lg font-medium`}
+              className={`block px-3 py-1.5 text-[15px] ${toneClasses.hoverBg} ${toneClasses.link} transition-colors rounded-md font-medium`}
             >
               {contactLink.label}
             </Link>

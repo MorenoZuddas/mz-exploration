@@ -13,6 +13,7 @@ export default function LayoutClient({
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const pathname = usePathname();
+  const isStorybookRoute = pathname.startsWith('/storybook');
   const footerClassName = pathname.startsWith('/exploration') ? '!mt-0' : '';
 
   useEffect(() => {
@@ -27,9 +28,9 @@ export default function LayoutClient({
   return (
     <>
       {isLoading && <Loader />}
-      <Header />
+      {!isStorybookRoute && <Header />}
       {children}
-      <Footer className={footerClassName} />
+      {!isStorybookRoute && <Footer className={footerClassName} />}
     </>
   );
 }
