@@ -142,26 +142,25 @@ export default function Footer({
               </div>
             ))}
           </div>
-
+          <div className="flex gap-3 shrink-0">
+                      {socialLinks.map((link) => (
+                        <a
+                          key={`${link.label}-${link.href}`}
+                          href={link.href}
+                          target={link.href.startsWith('mailto:') ? undefined : '_blank'}
+                          rel={link.href.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
+                          className={`${toneClasses.link} transition`}
+                          aria-label={link.label}
+                        >
+                          {link.icon}
+                        </a>
+                      ))}
+                    </div>
         </div>
 
         {/* Copyright + Social Icons - Bottom */}
-        <div className={`flex items-center justify-between gap-3 mt-3 pt-3 border-t ${toneClasses.border}`}>
-          <p className={`${isLightBg ? 'text-slate-400' : 'text-gray-500'} text-[10px]`}>{copyrightText}</p>
-          <div className="flex gap-3 shrink-0">
-            {socialLinks.map((link) => (
-              <a
-                key={`${link.label}-${link.href}`}
-                href={link.href}
-                target={link.href.startsWith('mailto:') ? undefined : '_blank'}
-                rel={link.href.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
-                className={`${toneClasses.link} transition`}
-                aria-label={link.label}
-              >
-                {link.icon}
-              </a>
-            ))}
-          </div>
+        <div className={`mt-3 pt-3 border-t ${toneClasses.border}`}>
+          <p className={`${isLightBg ? 'text-slate-400' : 'text-gray-500'} w-full text-[10px] text-center`}>{copyrightText}</p>
         </div>
       </div>
     </footer>
