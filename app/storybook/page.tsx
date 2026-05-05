@@ -1,12 +1,14 @@
 "use client"
 
 import React, { useEffect, useMemo, useState } from "react"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import type { ButtonSize, ButtonTone, ButtonVariant } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardMedia, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { ChevronLeft, ChevronRight } from "lucide-react"
 import {
   Carousel,
   CarouselCards,
@@ -43,7 +45,7 @@ type CardSize = "sm" | "md" | "lg"
 const BTN_VARIANTS: ButtonVariant[] = ["default", "destructive", "outline", "secondary", "ghost", "link"]
 const BTN_TONES: ButtonTone[] = ["current", "blue", "purple", "black", "navy", "white", "transparent-white"]
 const BTN_SIZES: ButtonSize[] = ["xs", "sm", "default", "lg", "xl", "icon"]
-const CAROUSEL_ARROW_POSITIONS: ArrowsPosition[] = ["inside", "top-right", "sides"]
+const CAROUSEL_ARROW_POSITIONS: ArrowsPosition[] = ["top-right", "sides"]
 const CAROUSEL_ACCENT_COLORS = ["text-blue-300", "text-emerald-300", "text-violet-300", "text-amber-300", "text-rose-300"] as const
 const CAROUSEL_IMAGE_HEIGHTS = ["h-[16rem]", "h-[18rem]", "h-[20rem]", "h-[22rem]"] as const
 const CARD_VARIANTS: CardVariant[] = ["default", "horizontal", "vertical"]
@@ -187,7 +189,7 @@ function Section({ id, title, children }: { id: string; title: string; children:
 }
 
 function Panel({ children }: { children: React.ReactNode }) {
-  return <div className="min-w-0 overflow-hidden p-3 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">{children}</div>
+  return <div className="min-w-0 p-3 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">{children}</div>
 }
 
 type PropLegendItem = { prop: string; values: string[]; description?: string }
@@ -282,21 +284,82 @@ const STORYBOOK_NAV = [
 ]
 
 function StorybookSidebar() {
+  const [activeSectionId, setActiveSectionId] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      const fromHash = window.location.hash.replace("#", "")
+      if (fromHash) return fromHash
+    }
+    return STORYBOOK_NAV[0]?.id ?? ""
+  })
+  const [isOpen, setIsOpen] = useState(true)
+
+  useEffect(() => {
+    const sections = STORYBOOK_NAV
+      .map((item) => document.getElementById(item.id))
+      .filter((section): section is HTMLElement => Boolean(section))
+
+    if (sections.length === 0) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)
+
+        if (visible[0]?.target?.id) {
+          setActiveSectionId(visible[0].target.id)
+        }
+      },
+      {
+        root: null,
+        rootMargin: "-25% 0px -55% 0px",
+        threshold: [0.1, 0.25, 0.5],
+      }
+    )
+
+    sections.forEach((section) => observer.observe(section))
+
+    return () => observer.disconnect()
+  }, [])
+
   return (
-    <aside className="hidden lg:block w-56 shrink-0">
-      <div className="sticky top-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 max-h-[calc(100vh-2rem)] overflow-y-auto">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-2">Componenti (A-Z)</p>
-        <nav className="space-y-1">
-          {STORYBOOK_NAV.map((item) => (
-            <a
-              key={item.id}
-              href={`#${item.id}`}
-              className="block text-[13px] text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
-            >
-              {item.label}
-            </a>
-          ))}
-        </nav>
+    <aside className={cn("hidden lg:flex shrink-0", isOpen ? "w-56" : "w-auto")}>
+      <div className="sticky top-6 flex h-[calc(100vh-3rem)] w-full flex-col overflow-hidden rounded-xl border border-slate-200 bg-white p-3 pt-2 dark:border-slate-700 dark:bg-slate-900">
+        {/* Strip con bottone toggle */}
+        <div className="mb-2 flex items-center justify-start gap-2">
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-500 shadow-sm transition-colors hover:border-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-400 dark:hover:border-slate-500 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+            aria-label={isOpen ? "Chiudi sidebar" : "Apri sidebar"}
+          >
+            {isOpen ? <ChevronLeft className="w-[17px] h-[17px]" /> : <ChevronRight className="w-[17px] h-[17px]" />}
+          </button>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Componenti (A-Z)</p>
+        </div>
+
+        {/* Contenuto sidebar (sparisce quando chiuso) */}
+        {isOpen && (
+          <div className="min-h-0 flex-1 overflow-y-auto pr-1">
+            <nav className="space-y-1">
+              {STORYBOOK_NAV.map((item) => (
+                <a
+                  key={item.id}
+                  href={`#${item.id}`}
+                  className={cn(
+                    "block rounded-md px-2 py-1 text-[13px] transition-colors truncate",
+                    activeSectionId === item.id
+                      ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"
+                      : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white"
+                  )}
+                  aria-current={activeSectionId === item.id ? "true" : undefined}
+                  title={item.label}
+                >
+                  {item.label}
+                </a>
+              ))}
+            </nav>
+          </div>
+        )}
       </div>
     </aside>
   )
@@ -600,8 +663,8 @@ function CarouselShowcaseSection() {
   const [loop, setLoop] = useState(false)
   const [controls, setControls] = useState(true)
   const [dots, setDots] = useState(true)
-  const [desktopArrows, setDesktopArrows] = useState<ArrowsPosition>("inside")
-  const [mobileArrows, setMobileArrows] = useState<ArrowsPosition>("inside")
+  const [desktopArrows, setDesktopArrows] = useState<ArrowsPosition>("sides")
+  const [mobileArrows, setMobileArrows] = useState<ArrowsPosition>("sides")
   const [mode, setMode] = useState<"items" | "children">("items")
   const [buttonVariant, setButtonVariant] = useState<ButtonVariant>("default")
   const [buttonTone, setButtonTone] = useState<ButtonTone>("white")
@@ -819,123 +882,129 @@ function DividerSection() {
   )
 }
 
-function BasicSections() {
+function ButtonSection() {
+  return (
+    <Section id="button" title="Button">
+      <Panel>
+        <p className="text-xs text-slate-500 mb-3">Combinazioni variant x tone</p>
+        <div className="space-y-2 mb-4">
+          {BTN_VARIANTS.map((variant) => (
+            <div key={variant} className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2">
+              {BTN_TONES.map((tone) => (
+                <div key={`${variant}-${tone}`} className={tone === "white" || tone === "transparent-white" ? "bg-slate-900 p-2 rounded" : "p-2"}>
+                  <Button variant={variant} tone={tone} size="sm" className="w-full">
+                    {variant}
+                  </Button>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+
+        <p className="text-xs text-slate-500 mb-2">Combinazioni size</p>
+        <div className="flex flex-wrap items-end gap-2">
+          {(["xs", "sm", "default", "lg", "xl", "icon"] as const).map((size) => (
+            <Button key={size} size={size} tone="blue">
+              {size === "icon" ? ">" : size}
+            </Button>
+          ))}
+        </div>
+      </Panel>
+      <div className="mt-4">
+        <PropsLegend
+          items={[
+            { prop: "variant", values: [...BTN_VARIANTS] },
+            { prop: "tone", values: [...BTN_TONES] },
+            { prop: "size", values: ["xs", "sm", "default", "lg", "xl", "icon"] },
+          ]}
+        />
+      </div>
+    </Section>
+  )
+}
+
+function InputSelectSection() {
   const [selected, setSelected] = useState("")
+
+  return (
+    <Section id="input-select" title="Input + Select">
+      <div className="grid md:grid-cols-2 gap-4">
+        <Panel>
+          <Label htmlFor="sb-input">Input</Label>
+          <Input id="sb-input" placeholder="Testo" className="mt-2" />
+        </Panel>
+        <Panel>
+          <Label>Select</Label>
+          <Select value={selected} onValueChange={setSelected}>
+            <SelectTrigger className="mt-2">
+              <SelectValue placeholder="Scegli..." />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="run">Running</SelectItem>
+              <SelectItem value="trk">Trekking</SelectItem>
+              <SelectItem value="trip">Trip</SelectItem>
+            </SelectContent>
+          </Select>
+        </Panel>
+      </div>
+      <div className="mt-4">
+        <PropsLegend
+          items={[
+            { prop: "Input.type", values: ["text", "email", "password", "number", "search", "tel", "url"] },
+            { prop: "Select.value", values: ["run", "trk", "trip"] },
+          ]}
+        />
+      </div>
+    </Section>
+  )
+}
+
+function LoaderSection() {
   const [showLoader, setShowLoader] = useState(false)
   const [loaderTone, setLoaderTone] = useState<Tone>("purple")
   const [loaderSize, setLoaderSize] = useState<(typeof LOADER_SIZES)[number]>("md")
 
   return (
-    <>
-      <Section id="button" title="Button">
+    <Section id="loader" title="Loader">
+      <div className="grid lg:grid-cols-[320px_1fr] gap-4">
         <Panel>
-          <p className="text-xs text-slate-500 mb-3">Combinazioni variant x tone</p>
-          <div className="space-y-2 mb-4">
-            {BTN_VARIANTS.map((variant) => (
-              <div key={variant} className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2">
-                {BTN_TONES.map((tone) => (
-                  <div key={`${variant}-${tone}`} className={tone === "white" || tone === "transparent-white" ? "bg-slate-900 p-2 rounded" : "p-2"}>
-                    <Button variant={variant} tone={tone} size="sm" className="w-full">
-                      {variant}
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            ))}
-          </div>
-
-          <p className="text-xs text-slate-500 mb-2">Combinazioni size</p>
-          <div className="flex flex-wrap items-end gap-2">
-            {(["xs", "sm", "default", "lg", "xl", "icon"] as const).map((size) => (
-              <Button key={size} size={size} tone="blue">
-                {size === "icon" ? ">" : size}
-              </Button>
-            ))}
+          <div className="grid gap-2">
+            <Ctl label="tone" value={loaderTone} options={LOADER_TONES} onChange={setLoaderTone} />
+            <Ctl label="size" value={loaderSize} options={LOADER_SIZES} onChange={setLoaderSize} />
+            <Button
+              tone="purple"
+              onClick={() => {
+                setShowLoader(true)
+                setTimeout(() => setShowLoader(false), 1800)
+              }}
+            >
+              Mostra loader fullscreen
+            </Button>
           </div>
         </Panel>
-        <div className="mt-4">
-          <PropsLegend
-            items={[
-              { prop: "variant", values: [...BTN_VARIANTS] },
-              { prop: "tone", values: [...BTN_TONES] },
-              { prop: "size", values: ["xs", "sm", "default", "lg", "xl", "icon"] },
-            ]}
-          />
-        </div>
-      </Section>
-
-      <Section id="input-select" title="Input + Select">
-        <div className="grid md:grid-cols-2 gap-4">
-          <Panel>
-            <Label htmlFor="sb-input">Input</Label>
-            <Input id="sb-input" placeholder="Testo" className="mt-2" />
-          </Panel>
-          <Panel>
-            <Label>Select</Label>
-            <Select value={selected} onValueChange={setSelected}>
-              <SelectTrigger className="mt-2">
-                <SelectValue placeholder="Scegli..." />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="run">Running</SelectItem>
-                <SelectItem value="trk">Trekking</SelectItem>
-                <SelectItem value="trip">Trip</SelectItem>
-              </SelectContent>
-            </Select>
-          </Panel>
-        </div>
-        <div className="mt-4">
-          <PropsLegend
-            items={[
-              { prop: "Input.type", values: ["text", "email", "password", "number", "search", "tel", "url"] },
-              { prop: "Select.value", values: ["run", "trk", "trip"] },
-            ]}
-          />
-        </div>
-      </Section>
-
-      <Section id="loader" title="Loader">
-        <div className="grid lg:grid-cols-[320px_1fr] gap-4">
-          <Panel>
-            <div className="grid gap-2">
-              <Ctl label="tone" value={loaderTone} options={LOADER_TONES} onChange={setLoaderTone} />
-              <Ctl label="size" value={loaderSize} options={LOADER_SIZES} onChange={setLoaderSize} />
-              <Button
-                tone="purple"
-                onClick={() => {
-                  setShowLoader(true)
-                  setTimeout(() => setShowLoader(false), 1800)
-                }}
-              >
-                Mostra loader fullscreen
-              </Button>
-            </div>
-          </Panel>
-          <Panel>
-            <p className="text-xs text-slate-500 mb-3">Combinazioni tone x size</p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {LOADER_TONES.map((tone) =>
-                LOADER_SIZES.map((size) => (
-                  <div key={`${tone}-${size}`} className="rounded-lg border border-slate-200 dark:border-slate-700 p-3 bg-white dark:bg-slate-950">
-                    <InlineLoader tone={tone} size={size} />
-                    <p className="text-[11px] mt-2 text-center text-slate-500">
-                      {tone} / {size}
-                    </p>
-                  </div>
-                ))
-              )}
-            </div>
-          </Panel>
-          {showLoader ? <Loader tone={loaderTone} size={loaderSize} /> : null}
-        </div>
-        <div className="mt-4">
-          <PropsLegend items={[{ prop: "tone", values: [...LOADER_TONES] }, { prop: "size", values: [...LOADER_SIZES] }]} />
-        </div>
-      </Section>
-    </>
+        <Panel>
+          <p className="text-xs text-slate-500 mb-3">Combinazioni tone x size</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {LOADER_TONES.map((tone) =>
+              LOADER_SIZES.map((size) => (
+                <div key={`${tone}-${size}`} className="rounded-lg border border-slate-200 dark:border-slate-700 p-3 bg-white dark:bg-slate-950">
+                  <InlineLoader tone={tone} size={size} />
+                  <p className="text-[11px] mt-2 text-center text-slate-500">
+                    {tone} / {size}
+                  </p>
+                </div>
+              ))
+            )}
+          </div>
+        </Panel>
+        {showLoader ? <Loader tone={loaderTone} size={loaderSize} /> : null}
+      </div>
+      <div className="mt-4">
+        <PropsLegend items={[{ prop: "tone", values: [...LOADER_TONES] }, { prop: "size", values: [...LOADER_SIZES] }]} />
+      </div>
+    </Section>
   )
 }
-
 function InlineLoader({ tone, size }: { tone: Tone; size: (typeof LOADER_SIZES)[number] }) {
   const toneClass = {
     current: { primary: "border-t-blue-600 border-r-blue-600", secondary: "border-b-blue-400" },
@@ -1636,16 +1705,21 @@ function AnimatedSectionDemo() {
 
 export default function StorybookPage() {
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 overflow-x-hidden">
-      <div className="max-w-[1500px] mx-auto px-4 sm:px-6 py-6 lg:py-8 lg:flex lg:gap-4 overflow-x-hidden">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+      <div className="max-w-[1500px] mx-auto px-4 sm:px-6 py-6 lg:py-8 lg:flex lg:gap-6">
         <StorybookSidebar />
-        <main className="flex-1 min-w-0 overflow-x-hidden">
-          <h1 className="text-3xl font-bold mb-2">Storybook - Componenti</h1>
+        <main className="flex-1 min-w-0">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <h1 className="text-3xl font-bold">Storybook - Componenti</h1>
+            <Button asChild variant="outline" tone="black" size="sm">
+              <Link href="/">Torna al sito</Link>
+            </Button>
+          </div>
           <p className="text-slate-500 mb-8">Pagina unica con varianti e controlli per tutti i componenti principali.</p>
           <ActivityComponentsSection />
           <AnimatedSectionDemo />
           <BadgeChipSection />
-          <BasicSections />
+          <ButtonSection />
           <CardSection />
           <CardGridSection />
           <CarouselShowcaseSection />
@@ -1653,6 +1727,8 @@ export default function StorybookPage() {
            <FilterSection />
            <HeaderFooterSection />
            <HeroSection />
+           <InputSelectSection />
+           <LoaderSection />
            <ModalSection />
            <StatisticsSingleTestSection />
            <StatisticsSection />

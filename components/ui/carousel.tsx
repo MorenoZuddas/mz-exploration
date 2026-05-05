@@ -22,8 +22,8 @@ type ResponsiveCarouselCards =
   | CarouselCardsCount
   | Partial<Record<"base" | "sm" | "md" | "lg" | "xl", CarouselCardsCount>>
 
-/** Position delle frecce di navigazione: top-right = header accanto al titolo, sides = ai lati del track, inside = sovrapposto al carousel */
-type ArrowsPosition = "top-right" | "sides" | "inside"
+/** Position delle frecce di navigazione: top-right = header accanto al titolo, sides = ai lati del track */
+type ArrowsPosition = "top-right" | "sides"
 
 /** Dati per la card di default di CarouselSection */
 export interface CarouselCardItemData {
@@ -77,7 +77,7 @@ type CarouselCardsProps<TItem> = {
   /** Descrizione della sezione sopra il carousel */
   description?: string
   descriptionClassName?: string
-  /** Posizione frecce su desktop (md+). Default: 'inside' */
+  /** Posizione frecce su desktop (md+). Default: 'sides' */
   arrowsPosition?: ArrowsPosition
   /** Posizione frecce su mobile. Default: uguale a arrowsPosition */
   arrowsPositionMobile?: ArrowsPosition
@@ -99,7 +99,7 @@ type CarouselSectionProps = {
   dotsClassName?: string
   dotClassName?: string
   activeDotClassName?: string
-  /** Posizione frecce su desktop (md+). Default: 'inside' */
+  /** Posizione frecce su desktop (md+). Default: 'sides' */
   arrowsPosition?: ArrowsPosition
   /** Posizione frecce su mobile. Default: uguale a arrowsPosition */
   arrowsPositionMobile?: ArrowsPosition
@@ -335,6 +335,14 @@ type ExternalNavButtonsProps = {
   btnClassName?: string
 }
 
+type ExternalNavButtonProps = {
+  direction: "prev" | "next"
+  canScroll: boolean
+  onClick: () => void
+  className?: string
+  btnClassName?: string
+}
+
 function ExternalNavButtons({ canScrollPrev, canScrollNext, onPrev, onNext, className, btnClassName }: ExternalNavButtonsProps) {
   return (
     <div className={cn("flex items-center gap-1.5", className)}>
@@ -345,6 +353,25 @@ function ExternalNavButtons({ canScrollPrev, canScrollNext, onPrev, onNext, clas
       <button type="button" onClick={onNext} disabled={!canScrollNext} aria-label="Slide successiva"
         className={cn("inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 shadow-sm transition disabled:opacity-40 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700", btnClassName)}>
         <ArrowRight className="h-4 w-4" />
+      </button>
+    </div>
+  )
+}
+
+function ExternalNavButton({ direction, canScroll, onClick, className, btnClassName }: ExternalNavButtonProps) {
+  return (
+    <div className={cn("flex items-center", className)}>
+      <button
+        type="button"
+        onClick={onClick}
+        disabled={!canScroll}
+        aria-label={direction === "prev" ? "Slide precedente" : "Slide successiva"}
+        className={cn(
+          "inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 shadow-sm transition disabled:opacity-40 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700",
+          btnClassName
+        )}
+      >
+        {direction === "prev" ? <ArrowLeft className="h-4 w-4" /> : <ArrowRight className="h-4 w-4" />}
       </button>
     </div>
   )
@@ -365,8 +392,6 @@ function CarouselCards<TItem>({
   dotsClassName,
   dotClassName,
   activeDotClassName,
-  previousButtonProps,
-  nextButtonProps,
   children,
   orientation,
   horizontal,
@@ -376,7 +401,7 @@ function CarouselCards<TItem>({
   titleClassName,
   description,
   descriptionClassName,
-  arrowsPosition = "inside",
+  arrowsPosition = "sides",
   arrowsPositionMobile,
   ...props
 }: CarouselCardsProps<TItem>) {
@@ -410,12 +435,15 @@ function CarouselCards<TItem>({
   if (!hasChildren && (!items || !renderItem)) return null
 
   const hasHeader = Boolean(title || description)
-  const showInsideControls = showControls && totalSlides > 1
+  const showExternalControls = showControls && totalSlides > 1
 
   // Visibilità gruppi frecce
-  const insideVisible = arrowVisibilityClasses("inside", mobilePos, arrowsPosition)
-  const topRightVisible = arrowVisibilityClasses("top-right", mobilePos, arrowsPosition)
-  const sidesVisible = arrowVisibilityClasses("sides", mobilePos, arrowsPosition)
+  const topRightVisible = showExternalControls
+    ? arrowVisibilityClasses("top-right", mobilePos, arrowsPosition)
+    : "hidden"
+  const sidesVisible = showExternalControls
+    ? arrowVisibilityClasses("sides", mobilePos, arrowsPosition)
+    : "hidden"
 
   const carouselNode = (
     <Carousel orientation={resolvedOrientation} opts={{ align: "start", ...opts }} setApi={setCarouselApi} {...props}>
@@ -433,13 +461,6 @@ function CarouselCards<TItem>({
             ))}
       </CarouselContent>
 
-      {/* Frecce INSIDE */}
-      {showInsideControls && (insideVisible !== "hidden") ? (
-        <>
-          <CarouselPrevious {...previousButtonProps} className={cn(insideVisible, previousButtonProps?.className)} />
-          <CarouselNext {...nextButtonProps} className={cn(insideVisible, nextButtonProps?.className)} />
-        </>
-      ) : null}
     </Carousel>
   )
 
@@ -478,17 +499,19 @@ function CarouselCards<TItem>({
       )}
 
       {/* Carousel con eventuali frecce SIDES */}
-      {sidesVisible !== "hidden" && totalSlides > 1 ? (
+      {sidesVisible !== "hidden" ? (
         <div className={cn("flex items-center gap-3")}>
-          <ExternalNavButtons
-            canScrollPrev={canScrollPrev} canScrollNext={canScrollNext}
-            onPrev={() => carouselApi?.scrollPrev()} onNext={() => carouselApi?.scrollNext()}
+          <ExternalNavButton
+            direction="prev"
+            canScroll={canScrollPrev}
+            onClick={() => carouselApi?.scrollPrev()}
             className={cn("flex-col", sidesVisible)}
           />
           <div className="flex-1 min-w-0">{carouselNode}</div>
-          <ExternalNavButtons
-            canScrollPrev={canScrollPrev} canScrollNext={canScrollNext}
-            onPrev={() => carouselApi?.scrollPrev()} onNext={() => carouselApi?.scrollNext()}
+          <ExternalNavButton
+            direction="next"
+            canScroll={canScrollNext}
+            onClick={() => carouselApi?.scrollNext()}
             className={cn("flex-col", sidesVisible)}
           />
         </div>
@@ -589,7 +612,7 @@ function CarouselSection({
   dotsClassName,
   dotClassName,
   activeDotClassName,
-  arrowsPosition = "inside",
+  arrowsPosition = "sides",
   arrowsPositionMobile,
   cardImage,
   cardAccentLabel,
@@ -638,7 +661,7 @@ function CarouselSection({
         descriptionClassName={descriptionClassName}
         arrowsPosition={arrowsPosition}
         arrowsPositionMobile={arrowsPositionMobile}
-        showControls={arrowsPosition === "inside" || (arrowsPositionMobile ?? arrowsPosition) === "inside"}
+        showControls
       />
     </div>
   )

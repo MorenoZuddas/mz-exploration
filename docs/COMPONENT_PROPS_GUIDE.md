@@ -75,7 +75,7 @@ Questa guida descrive come usare, modificare ed estendere i componenti props-bas
 - `CarouselSection` (helper con card di default configurabile)
 
 ### Tipi utili esportati
-- `ArrowsPosition`: `inside | top-right | sides`
+- `ArrowsPosition`: `top-right | sides`
 - `CarouselCardItemData`: dati base per slide in `CarouselSection`
 
 ### Props principali (`Carousel`)
@@ -93,8 +93,8 @@ Questa guida descrive come usare, modificare ed estendere i componenti props-bas
 - `showControls`
 - `showDots`
 - `title`, `description` (header sezione)
-- `arrowsPosition` (desktop): `inside | top-right | sides`
-- `arrowsPositionMobile` (mobile): `inside | top-right | sides`
+- `arrowsPosition` (desktop): `top-right | sides`
+- `arrowsPositionMobile` (mobile): `top-right | sides`
 - `previousButtonProps`, `nextButtonProps`
 - `itemClassName`, `contentClassName`
 
@@ -157,7 +157,7 @@ Questa guida descrive come usare, modificare ed estendere i componenti props-bas
     },
   ]}
   showDots
-  arrowsPosition="inside"
+  arrowsPosition="sides"
   arrowsPositionMobile="top-right"
   cardImage="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1400&q=80"
   cardAccentLabel="Road to Marathon"

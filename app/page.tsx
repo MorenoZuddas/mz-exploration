@@ -133,7 +133,7 @@ export default function Home() {
         </AnimatedSection>
       </div>
 
-      <Divider color="blue" size="sm" data-testid="hp-divider-7" />
+      <Divider color="current" size="sm" data-testid="hp-divider-7" />
 
       {/* Latest Adventures Section */}
       <CardGrid
@@ -143,7 +143,7 @@ export default function Home() {
         data-testid="hp-latest-adventures-8"
       />
 
-      <Divider color="purple" size="sm" data-testid="hp-divider-9" />
+      <Divider color="current" size="sm" data-testid="hp-divider-9" />
 
       {/* Coming Soon Section */}
       <AnimatedSection className="px-4 py-10 sm:px-6 lg:px-8 bg-white dark:bg-slate-900 hp-coming-soon-10" data-testid="hp-coming-soon-10">
