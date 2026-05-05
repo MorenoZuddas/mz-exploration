@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
-import type { ButtonTone, ButtonVariant } from "@/components/ui/button"
+import type { ButtonSize, ButtonTone, ButtonVariant } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardMedia, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -10,10 +10,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import {
   Carousel,
   CarouselCards,
+  CarouselSection as UICarouselSection,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  type ArrowsPosition,
   type CarouselGap,
 } from "@/components/ui/carousel"
 import Loader from "@/components/Loader"
@@ -31,6 +33,7 @@ import { CardGrid, type CardGridItem } from "@/components/generic/CardGrid"
 import { Divider } from "@/components/generic/Divider"
 import { Hero } from "@/components/generic/Hero"
 import { Text } from "@/components/generic/Text"
+import { cn } from "@/lib/utils"
 
 type Tone = "current" | "blue" | "purple" | "black"
 type HeroAlign = "center" | "left" | "right"
@@ -39,6 +42,10 @@ type CardSize = "sm" | "md" | "lg"
 
 const BTN_VARIANTS: ButtonVariant[] = ["default", "destructive", "outline", "secondary", "ghost", "link"]
 const BTN_TONES: ButtonTone[] = ["current", "blue", "purple", "black", "navy", "white", "transparent-white"]
+const BTN_SIZES: ButtonSize[] = ["xs", "sm", "default", "lg", "xl", "icon"]
+const CAROUSEL_ARROW_POSITIONS: ArrowsPosition[] = ["inside", "top-right", "sides"]
+const CAROUSEL_ACCENT_COLORS = ["text-blue-300", "text-emerald-300", "text-violet-300", "text-amber-300", "text-rose-300"] as const
+const CAROUSEL_IMAGE_HEIGHTS = ["h-[16rem]", "h-[18rem]", "h-[20rem]", "h-[22rem]"] as const
 const CARD_VARIANTS: CardVariant[] = ["default", "horizontal", "vertical"]
 const CARD_TONES: Tone[] = ["current", "blue", "purple", "black"]
 const CARD_SIZES: CardSize[] = ["sm", "md", "lg"]
@@ -156,9 +163,23 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
   )
 }
 
+function TxtCtl({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string }) {
+  return (
+    <label className="flex flex-col gap-1 text-xs">
+      <span className="uppercase tracking-wider text-slate-400 font-semibold">{label}</span>
+      <Input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="h-8"
+      />
+    </label>
+  )
+}
+
 function Section({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
   return (
-    <section id={id} className="py-8 border-b border-slate-200 dark:border-slate-800">
+    <section id={id} className="py-8 border-b border-slate-200 dark:border-slate-800 overflow-x-hidden">
       <h2 className="text-xl font-bold mb-4">{title}</h2>
       {children}
     </section>
@@ -166,7 +187,7 @@ function Section({ id, title, children }: { id: string; title: string; children:
 }
 
 function Panel({ children }: { children: React.ReactNode }) {
-  return <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">{children}</div>
+  return <div className="min-w-0 overflow-hidden p-3 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">{children}</div>
 }
 
 function PropsLegend({ items }: { items: Array<{ prop: string; values: string[] }> }) {
@@ -207,15 +228,15 @@ const STORYBOOK_NAV = [
 
 function StorybookSidebar() {
   return (
-    <aside className="hidden lg:block w-64 shrink-0">
-      <div className="sticky top-6 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4">
-        <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">Componenti (A-Z)</p>
-        <nav className="space-y-1.5">
+    <aside className="hidden lg:block w-56 shrink-0">
+      <div className="sticky top-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 max-h-[calc(100vh-2rem)] overflow-y-auto">
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-2">Componenti (A-Z)</p>
+        <nav className="space-y-1">
           {STORYBOOK_NAV.map((item) => (
             <a
               key={item.id}
               href={`#${item.id}`}
-              className="block text-sm text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
+              className="block text-[13px] text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white"
             >
               {item.label}
             </a>
@@ -517,14 +538,38 @@ function CardGridSection() {
   )
 }
 
-function CarouselSection() {
+function CarouselShowcaseSection() {
   const [orientation, setOrientation] = useState<"horizontal" | "vertical">("horizontal")
   const [gap, setGap] = useState<CarouselGap>("md")
   const [perView, setPerView] = useState<"1" | "2" | "3" | "4">("3")
   const [loop, setLoop] = useState(false)
   const [controls, setControls] = useState(true)
+  const [dots, setDots] = useState(true)
+  const [desktopArrows, setDesktopArrows] = useState<ArrowsPosition>("inside")
+  const [mobileArrows, setMobileArrows] = useState<ArrowsPosition>("inside")
   const [mode, setMode] = useState<"items" | "children">("items")
+  const [buttonVariant, setButtonVariant] = useState<ButtonVariant>("default")
+  const [buttonTone, setButtonTone] = useState<ButtonTone>("white")
+  const [buttonSize, setButtonSize] = useState<ButtonSize>("default")
+  const [sectionTitle, setSectionTitle] = useState("Esploriamo assieme")
+  const [sectionDescription, setSectionDescription] = useState("Demo del nuovo CarouselSection con card configurabile")
+  const [cardImage, setCardImage] = useState("https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1400&q=80")
+  const [cardAccentLabel, setCardAccentLabel] = useState("Road to Marathon")
+  const [cardAccentColor, setCardAccentColor] = useState<(typeof CAROUSEL_ACCENT_COLORS)[number]>("text-blue-300")
+  const [cardTitle, setCardTitle] = useState("Titolo card fallback")
+  const [cardDescription, setCardDescription] = useState("Descrizione fallback della card")
+  const [cardButtonText, setCardButtonText] = useState("Vai alla sezione")
+  const [cardButtonHref, setCardButtonHref] = useState("/exploration")
+  const [cardImageHeight, setCardImageHeight] = useState<(typeof CAROUSEL_IMAGE_HEIGHTS)[number]>("h-[18rem]")
   const slides = useMemo(() => Array.from({ length: 8 }, (_, i) => i + 1), [])
+  const sectionSlides = useMemo(
+    () => [
+      { id: "running" },
+      { id: "trekking" },
+      { id: "trips" },
+    ],
+    []
+  )
 
   return (
     <Section id="carousel" title="Carousel">
@@ -536,18 +581,26 @@ function CarouselSection() {
             <Ctl label="gap" value={gap} options={["sm", "md", "lg"] as CarouselGap[]} onChange={setGap} />
             <Ctl label="cards/view" value={perView} options={["1", "2", "3", "4"]} onChange={setPerView} />
             <Toggle label="show controls" checked={controls} onChange={setControls} />
+            <Toggle label="show dots" checked={dots} onChange={setDots} />
             <Toggle label="loop" checked={loop} onChange={setLoop} />
+            <Ctl label="desktop arrows" value={desktopArrows} options={CAROUSEL_ARROW_POSITIONS} onChange={setDesktopArrows} />
+            <Ctl label="mobile arrows" value={mobileArrows} options={CAROUSEL_ARROW_POSITIONS} onChange={setMobileArrows} />
           </div>
         </Panel>
         <Panel>
-          <div className={orientation === "vertical" ? "h-[320px]" : ""}>
+          <div className={cn("min-w-0", orientation === "vertical" ? "h-[320px]" : "") }>
             {mode === "items" ? (
               <CarouselCards
                 items={slides}
+                title="CarouselCards title"
+                description="Descrizione configurabile del carousel"
                 orientation={orientation}
                 gap={gap}
                 cardsPerView={Number(perView) as 1 | 2 | 3 | 4}
                 showControls={controls}
+                showDots={dots}
+                arrowsPosition={desktopArrows}
+                arrowsPositionMobile={mobileArrows}
                 opts={{ align: "start", loop }}
                 className={orientation === "vertical" ? "h-full" : ""}
                 renderItem={(n) => (
@@ -561,10 +614,15 @@ function CarouselSection() {
               />
             ) : (
               <CarouselCards
+                title="CarouselCards title"
+                description="Descrizione configurabile del carousel"
                 orientation={orientation}
                 gap={gap}
                 cardsPerView={Number(perView) as 1 | 2 | 3 | 4}
                 showControls={controls}
+                showDots={dots}
+                arrowsPosition={desktopArrows}
+                arrowsPositionMobile={mobileArrows}
                 opts={{ align: "start", loop }}
                 className={orientation === "vertical" ? "h-full" : ""}
               >
@@ -579,6 +637,47 @@ function CarouselSection() {
               </CarouselCards>
             )}
           </div>
+        </Panel>
+      </div>
+
+      <div className="grid lg:grid-cols-[360px_1fr] gap-4 mb-4">
+        <Panel>
+          <div className="grid gap-2">
+            <TxtCtl label="section title" value={sectionTitle} onChange={setSectionTitle} />
+            <TxtCtl label="section description" value={sectionDescription} onChange={setSectionDescription} />
+            <TxtCtl label="card image" value={cardImage} onChange={setCardImage} placeholder="https://..." />
+            <TxtCtl label="card accent label" value={cardAccentLabel} onChange={setCardAccentLabel} />
+            <Ctl label="card accent color" value={cardAccentColor} options={CAROUSEL_ACCENT_COLORS} onChange={setCardAccentColor} />
+            <TxtCtl label="card title" value={cardTitle} onChange={setCardTitle} />
+            <TxtCtl label="card description" value={cardDescription} onChange={setCardDescription} />
+            <TxtCtl label="button text" value={cardButtonText} onChange={setCardButtonText} />
+            <TxtCtl label="button href" value={cardButtonHref} onChange={setCardButtonHref} placeholder="/exploration" />
+            <Ctl label="image height" value={cardImageHeight} options={CAROUSEL_IMAGE_HEIGHTS} onChange={setCardImageHeight} />
+            <Ctl label="button variant" value={buttonVariant} options={BTN_VARIANTS} onChange={setButtonVariant} />
+            <Ctl label="button tone" value={buttonTone} options={BTN_TONES} onChange={setButtonTone} />
+            <Ctl label="button size" value={buttonSize} options={BTN_SIZES} onChange={setButtonSize} />
+          </div>
+        </Panel>
+        <Panel>
+          <UICarouselSection
+            items={sectionSlides}
+            title={sectionTitle}
+            description={sectionDescription}
+            showDots={dots}
+            arrowsPosition={desktopArrows}
+            arrowsPositionMobile={mobileArrows}
+            cardImage={cardImage}
+            cardAccentLabel={cardAccentLabel}
+            cardAccentColor={cardAccentColor}
+            cardTitle={cardTitle}
+            cardDescription={cardDescription}
+            cardButtonText={cardButtonText}
+            cardButtonHref={cardButtonHref}
+            cardButtonVariant={buttonVariant}
+            cardButtonTone={buttonTone}
+            cardButtonSize={buttonSize}
+            cardImageHeight={cardImageHeight}
+          />
         </Panel>
       </div>
 
@@ -607,6 +706,20 @@ function CarouselSection() {
             { prop: "cardsPerView", values: ["1", "2", "3", "4"] },
             { prop: "loop", values: ["true", "false"] },
             { prop: "showControls", values: ["true", "false"] },
+              { prop: "showDots", values: ["true", "false"] },
+              { prop: "arrowsPosition", values: [...CAROUSEL_ARROW_POSITIONS] },
+              { prop: "arrowsPositionMobile", values: [...CAROUSEL_ARROW_POSITIONS] },
+              { prop: "title", values: ["string"] },
+              { prop: "description", values: ["string"] },
+              { prop: "cardImage", values: ["url"] },
+              { prop: "cardAccentLabel", values: ["Road to Marathon", "string"] },
+              { prop: "cardAccentColor", values: ["text-blue-300", "text-emerald-300", "text-violet-300"] },
+              { prop: "cardTitle", values: ["string"] },
+              { prop: "cardDescription", values: ["string"] },
+              { prop: "cardButtonText", values: ["string"] },
+              { prop: "cardButtonVariant", values: [...BTN_VARIANTS] },
+              { prop: "cardButtonTone", values: [...BTN_TONES] },
+              { prop: "cardButtonSize", values: [...BTN_SIZES] },
           ]}
         />
       </div>
@@ -1468,10 +1581,10 @@ function AnimatedSectionDemo() {
 
 export default function StorybookPage() {
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
-      <div className="max-w-[1500px] mx-auto px-6 py-8 lg:flex lg:gap-6">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 overflow-x-hidden">
+      <div className="max-w-[1500px] mx-auto px-4 sm:px-6 py-6 lg:py-8 lg:flex lg:gap-4 overflow-x-hidden">
         <StorybookSidebar />
-        <main className="flex-1 min-w-0">
+        <main className="flex-1 min-w-0 overflow-x-hidden">
           <h1 className="text-3xl font-bold mb-2">Storybook - Componenti</h1>
           <p className="text-slate-500 mb-8">Pagina unica con varianti e controlli per tutti i componenti principali.</p>
           <ActivityComponentsSection />
@@ -1480,7 +1593,7 @@ export default function StorybookPage() {
           <BasicSections />
           <CardSection />
           <CardGridSection />
-          <CarouselSection />
+          <CarouselShowcaseSection />
           <DividerSection />
            <FilterSection />
            <HeaderFooterSection />
