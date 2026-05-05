@@ -323,10 +323,18 @@ function StorybookSidebar() {
   }, [])
 
   return (
-    <aside className={cn("hidden lg:flex shrink-0", isOpen ? "w-56" : "w-auto")}>
-      <div className="sticky top-6 flex h-[calc(100vh-3rem)] w-full flex-col overflow-hidden rounded-xl border border-slate-200 bg-white p-3 pt-2 dark:border-slate-700 dark:bg-slate-900">
+    <aside className={cn("relative hidden lg:block shrink-0", isOpen ? "w-56" : "w-[26px]")}>
+      <div
+        className={cn(
+          "fixed top-6 z-30",
+          isOpen
+            ? "flex h-[calc(100vh-3rem)] w-56 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white p-3 pt-2 dark:border-slate-700 dark:bg-slate-900"
+            : "w-[26px]"
+        )}
+        style={{ left: "max(1.5rem, calc((100vw - 1500px)/2 + 1.5rem))" }}
+      >
         {/* Strip con bottone toggle */}
-        <div className="mb-2 flex items-center justify-start gap-2">
+        <div className={cn("flex items-center justify-start", isOpen ? "mb-2 gap-2" : "mb-0")}>
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="flex h-[26px] w-[26px] shrink-0 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-500 shadow-sm transition-colors hover:border-slate-400 hover:bg-slate-100 hover:text-slate-700 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-400 dark:hover:border-slate-500 dark:hover:bg-slate-800 dark:hover:text-slate-200"
@@ -334,7 +342,7 @@ function StorybookSidebar() {
           >
             {isOpen ? <ChevronLeft className="w-[17px] h-[17px]" /> : <ChevronRight className="w-[17px] h-[17px]" />}
           </button>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Componenti (A-Z)</p>
+          {isOpen ? <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Componenti (A-Z)</p> : null}
         </div>
 
         {/* Contenuto sidebar (sparisce quando chiuso) */}
@@ -1706,7 +1714,7 @@ function AnimatedSectionDemo() {
 export default function StorybookPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
-      <div className="max-w-[1500px] mx-auto px-4 sm:px-6 py-6 lg:py-8 lg:flex lg:gap-6">
+      <div className="max-w-[1500px] mx-auto px-4 sm:px-6 py-6 lg:py-8 lg:flex lg:items-start lg:gap-6">
         <StorybookSidebar />
         <main className="flex-1 min-w-0">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
