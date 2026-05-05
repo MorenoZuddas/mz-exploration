@@ -8,7 +8,7 @@ export default function ContactPage() {
           className="absolute inset-0 bg-cover bg-center scale-105 co-hero-background-2"
           style={{
             backgroundImage:
-              'url(https://res.cloudinary.com/derbnvxif/image/upload/v1777890348/exploration_uo7dnb.png)',
+              'url(https://res.cloudinary.com/derbnvxif/image/upload/q_auto/f_auto/v1777966565/CONTACT_ajntod.png)',
           }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/20 co-hero-overlay-2" />
