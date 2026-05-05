@@ -447,20 +447,33 @@ function CarouselCards<TItem>({
     <div className="w-full">
       {/* Header: titolo + frecce top-right */}
       {(hasHeader || topRightVisible !== "hidden") && (
-        <div className={cn("mb-4 flex items-center justify-between gap-4", !hasHeader && topRightVisible !== "hidden" && "justify-end")}>
-          {hasHeader && (
-            <div>
-              {title && <h2 className={cn("text-xl font-bold text-slate-900 dark:text-white", titleClassName)}>{title}</h2>}
-              {description && <p className={cn("mt-1 text-sm text-slate-600 dark:text-slate-400", descriptionClassName)}>{description}</p>}
+        <div className={cn("mb-4", topRightVisible !== "hidden" && totalSlides > 1 ? "relative" : "") }>
+          {(title || topRightVisible !== "hidden") && (
+            <div className={cn("flex items-start justify-between gap-4", !title && topRightVisible !== "hidden" && "justify-end")}>
+              {title ? <h2 className={cn("text-xl font-bold text-slate-900 dark:text-white", titleClassName)}>{title}</h2> : null}
+              {topRightVisible !== "hidden" && totalSlides > 1 ? (
+                <ExternalNavButtons
+                  canScrollPrev={canScrollPrev}
+                  canScrollNext={canScrollNext}
+                  onPrev={() => carouselApi?.scrollPrev()}
+                  onNext={() => carouselApi?.scrollNext()}
+                  className={cn("self-start", topRightVisible)}
+                />
+              ) : null}
             </div>
           )}
-          {topRightVisible !== "hidden" && totalSlides > 1 && (
-            <ExternalNavButtons
-              canScrollPrev={canScrollPrev} canScrollNext={canScrollNext}
-              onPrev={() => carouselApi?.scrollPrev()} onNext={() => carouselApi?.scrollNext()}
-              className={topRightVisible}
-            />
-          )}
+
+          {description ? (
+            <p
+              className={cn(
+                "mt-1 text-sm text-slate-600 dark:text-slate-400",
+                topRightVisible !== "hidden" && totalSlides > 1 ? "pr-20 md:pr-0" : "",
+                descriptionClassName
+              )}
+            >
+              {description}
+            </p>
+          ) : null}
         </div>
       )}
 

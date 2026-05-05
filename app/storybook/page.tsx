@@ -190,16 +190,71 @@ function Panel({ children }: { children: React.ReactNode }) {
   return <div className="min-w-0 overflow-hidden p-3 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">{children}</div>
 }
 
-function PropsLegend({ items }: { items: Array<{ prop: string; values: string[] }> }) {
+type PropLegendItem = { prop: string; values: string[]; description?: string }
+
+const PROP_DESCRIPTIONS: Record<string, string> = {
+  tone: "Tema colore del componente.",
+  variant: "Stile visuale principale del componente.",
+  size: "Dimensione generale del componente.",
+  mode: "Modalita di rendering del componente (data-driven o children).",
+  orientation: "Direzione principale del layout o dello scorrimento.",
+  gap: "Spaziatura tra elementi o slide.",
+  cardsPerView: "Numero di card visibili contemporaneamente.",
+  "cards/view": "Numero di card visibili contemporaneamente.",
+  loop: "Se attivo, il contenuto ricomincia dall'inizio in modo ciclico.",
+  showControls: "Mostra o nasconde i controlli di navigazione.",
+  "show controls": "Mostra o nasconde i controlli di navigazione.",
+  showDots: "Mostra o nasconde l'indicatore a pallini dello slider.",
+  arrowsPosition: "Posizione delle frecce su desktop.",
+  arrowsPositionMobile: "Posizione delle frecce su mobile.",
+  title: "Titolo principale della sezione o del componente.",
+  description: "Testo descrittivo di supporto sotto il titolo.",
+  cardImage: "Immagine della card (fallback se non specificata nell'item).",
+  cardAccentLabel: "Etichetta colorata sopra il titolo card (es. Road to Marathon).",
+  cardAccentColor: "Classe colore Tailwind usata per l'etichetta accent.",
+  cardTitle: "Titolo principale della card.",
+  cardDescription: "Descrizione testuale della card.",
+  cardButtonText: "Testo visualizzato nel bottone card.",
+  cardButtonVariant: "Variant del bottone (stili del componente Button).",
+  cardButtonTone: "Tone del bottone (palette colore del componente Button).",
+  cardButtonSize: "Dimensione del bottone card.",
+  iconType: "Tipo icona usata nel componente.",
+  symbol: "Simbolo testuale personalizzato (se supportato).",
+  metrics: "Elenco metriche mostrate dal componente statistiche.",
+  filters: "Configurazione filtri disponibili nel componente.",
+  endpoint: "Endpoint API usato per recuperare i dati demo.",
+  totalCards: "Numero totale di card generate nel demo.",
+  "total cards": "Numero totale di card generate nel demo.",
+  visibleCards: "Numero di card inizialmente visibili prima del toggle.",
+  "visible cards": "Numero di card inizialmente visibili prima del toggle.",
+  maxCards: "Limite massimo rigido di card renderizzate.",
+  showDate: "Mostra la data nelle card che la supportano.",
+  showTypeBadge: "Mostra il badge tipo attivita/categoria.",
+  showBadgeOnImage: "Posiziona il badge sopra l'immagine invece che nel contenuto.",
+  showDescription: "Mostra il testo descrittivo secondario.",
+  activityPhotoBadgePosition: "Posizione del badge foto nelle activity card.",
+  activityPhotoBadgeSize: "Dimensione del badge foto.",
+  activityPhotoBadgeRounded: "Forma arrotondata del badge foto.",
+  activityTextColor: "Colore testi interni alla activity card.",
+}
+
+function PropsLegend({ items }: { items: PropLegendItem[] }) {
   return (
     <Panel>
-      <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Variabili disponibili</p>
-      <div className="space-y-1.5 text-xs">
+      <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Props disponibili</p>
+      <div className="space-y-2 text-xs">
         {items.map((item) => (
-          <p key={item.prop}>
-            <span className="font-semibold text-slate-700 dark:text-slate-200">{item.prop}:</span>{" "}
-            <span className="text-slate-500">{item.values.join(" | ")}</span>
-          </p>
+          <div key={item.prop}>
+            <p>
+              <span className="font-semibold text-slate-700 dark:text-slate-200">{item.prop}:</span>{" "}
+              <span className="text-slate-500">{item.values.join(" | ")}</span>
+            </p>
+            {(item.description ?? PROP_DESCRIPTIONS[item.prop]) ? (
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
+                {item.description ?? PROP_DESCRIPTIONS[item.prop]}
+              </p>
+            ) : null}
+          </div>
         ))}
       </div>
     </Panel>

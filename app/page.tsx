@@ -66,15 +66,18 @@ export default function Home() {
       <div id="hp-categories-3" className="bg-white dark:bg-slate-900 scroll-mt-20 hp-categories-3" data-testid="hp-categories-3">
         <AnimatedSection className="px-4 py-8 sm:px-6 lg:px-8 hp-carousel-section-4" data-testid="hp-carousel-section-4">
           <div className="max-w-6xl mx-auto">
-            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white mb-5 hp-section-title-4" data-testid="hp-carousel-title-4">
+            <h2 className="sr-only hp-section-title-4" data-testid="hp-carousel-title-4">
               Esploriamo assieme
             </h2>
             <CarouselCards
               horizontal
               carouselCard={1}
               gap="md"
+              title="Esploriamo assieme"
+              titleClassName="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white"
               className="w-full max-w-5xl mx-auto hp-carousel-5"
               showDots
+              arrowsPositionMobile="top-right"
               dotsClassName="mt-5"
               dotClassName="border-slate-500/70 bg-slate-200/80 hover:bg-slate-300"
               activeDotClassName="border-slate-900 bg-slate-900"
