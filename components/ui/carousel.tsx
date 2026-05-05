@@ -332,7 +332,8 @@ type ExternalNavButtonsProps = {
   onPrev: () => void
   onNext: () => void
   className?: string
-  btnClassName?: string
+  previousBtnClassName?: string
+  nextBtnClassName?: string
 }
 
 type ExternalNavButtonProps = {
@@ -343,15 +344,15 @@ type ExternalNavButtonProps = {
   btnClassName?: string
 }
 
-function ExternalNavButtons({ canScrollPrev, canScrollNext, onPrev, onNext, className, btnClassName }: ExternalNavButtonsProps) {
+function ExternalNavButtons({ canScrollPrev, canScrollNext, onPrev, onNext, className, previousBtnClassName, nextBtnClassName }: ExternalNavButtonsProps) {
   return (
     <div className={cn("flex items-center gap-1.5", className)}>
       <button type="button" onClick={onPrev} disabled={!canScrollPrev} aria-label="Slide precedente"
-        className={cn("inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 shadow-sm transition disabled:opacity-40 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700", btnClassName)}>
+        className={cn("inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 shadow-sm transition disabled:opacity-40 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700", previousBtnClassName)}>
         <ArrowLeft className="h-4 w-4" />
       </button>
       <button type="button" onClick={onNext} disabled={!canScrollNext} aria-label="Slide successiva"
-        className={cn("inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 shadow-sm transition disabled:opacity-40 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700", btnClassName)}>
+        className={cn("inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 shadow-sm transition disabled:opacity-40 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700", nextBtnClassName)}>
         <ArrowRight className="h-4 w-4" />
       </button>
     </div>
@@ -392,6 +393,8 @@ function CarouselCards<TItem>({
   dotsClassName,
   dotClassName,
   activeDotClassName,
+  previousButtonProps,
+  nextButtonProps,
   children,
   orientation,
   horizontal,
@@ -436,6 +439,8 @@ function CarouselCards<TItem>({
 
   const hasHeader = Boolean(title || description)
   const showExternalControls = showControls && totalSlides > 1
+  const previousBtnClassName = previousButtonProps?.className
+  const nextBtnClassName = nextButtonProps?.className
 
   // Visibilità gruppi frecce
   const topRightVisible = showExternalControls
@@ -479,6 +484,8 @@ function CarouselCards<TItem>({
                   onPrev={() => carouselApi?.scrollPrev()}
                   onNext={() => carouselApi?.scrollNext()}
                   className={cn("self-start", topRightVisible)}
+                  previousBtnClassName={previousBtnClassName}
+                  nextBtnClassName={nextBtnClassName}
                 />
               ) : null}
             </div>
@@ -506,6 +513,7 @@ function CarouselCards<TItem>({
             canScroll={canScrollPrev}
             onClick={() => carouselApi?.scrollPrev()}
             className={cn("flex-col", sidesVisible)}
+            btnClassName={previousBtnClassName}
           />
           <div className="flex-1 min-w-0">{carouselNode}</div>
           <ExternalNavButton
@@ -513,6 +521,7 @@ function CarouselCards<TItem>({
             canScroll={canScrollNext}
             onClick={() => carouselApi?.scrollNext()}
             className={cn("flex-col", sidesVisible)}
+            btnClassName={nextBtnClassName}
           />
         </div>
       ) : carouselNode}
