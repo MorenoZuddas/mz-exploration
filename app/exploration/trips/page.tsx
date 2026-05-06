@@ -95,7 +95,7 @@ export default function TripsPage() {
 
         <Link
           href="/exploration"
-          className="absolute top-6 left-6 sm:left-10 inline-flex items-center gap-1.5 text-white/75 hover:text-white text-sm font-medium transition z-10 trip-back-link-2"
+          className="absolute top-6 left-6 sm:left-10 hidden sm:inline-flex items-center gap-1.5 text-white hover:text-white text-sm font-medium transition z-10 trip-back-link-2"
           data-testid="trip-back-link-2"
         >
           ← Exploration
@@ -111,21 +111,22 @@ export default function TripsPage() {
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-px overflow-hidden rounded-xl border border-white/15 bg-white/10 backdrop-blur-md w-full max-w-3xl mx-auto trip-stats-bar-2" data-testid="trip-stats-bar-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-px overflow-hidden rounded-xl border border-white/15 bg-white/10 backdrop-blur-md w-full max-w-sm sm:max-w-3xl mx-auto trip-stats-bar-2" data-testid="trip-stats-bar-2">
             {[
-              { label: 'Trips', value: String(trips.length), testId: 'total' },
-              { label: 'Paesi', value: String(countries.size), testId: 'countries' },
-              { label: 'Focus', value: 'Travel + Sport', testId: 'focus' },
+              { label: 'Trips', mobileLabel: 'Trips', value: String(trips.length), testId: 'total', hideOnMobile: false },
+              { label: 'Paesi', mobileLabel: 'Paesi', value: String(countries.size), testId: 'countries', hideOnMobile: false },
+              { label: 'Focus', mobileLabel: 'Focus', value: 'Travel + Sport', testId: 'focus', hideOnMobile: true },
             ].map((stat) => (
               <div
                 key={stat.label}
-                className="flex-1 min-w-[4.5rem] px-4 py-3 flex flex-col gap-0.5 trip-stat-item-2"
+                className={`px-3 py-2.5 sm:px-4 sm:py-3 flex flex-col gap-0.5 trip-stat-item-2 ${stat.hideOnMobile ? 'hidden sm:flex' : 'flex'}`}
                 data-testid={`trip-stat-${stat.testId}-2`}
               >
-                <span className="text-[10px] uppercase tracking-widest text-white/55 font-semibold trip-stat-label-2">
-                  {stat.label}
+                <span className="text-[9px] sm:text-[10px] uppercase tracking-[0.08em] sm:tracking-widest text-white/55 font-semibold trip-stat-label-2">
+                  <span className="sm:hidden">{stat.mobileLabel}</span>
+                  <span className="hidden sm:inline">{stat.label}</span>
                 </span>
-                <span className="text-xl font-bold text-white leading-none trip-stat-value-2">
+                <span className="text-lg sm:text-xl font-bold text-white leading-none trip-stat-value-2">
                   {stat.value}
                 </span>
               </div>
@@ -136,11 +137,16 @@ export default function TripsPage() {
 
       <section className="px-4 pt-6 pb-10 sm:px-6 lg:px-8 trip-cards-section-3" data-testid="trip-cards-section-3">
         <div className="max-w-6xl mx-auto">
+          <div className="mb-6" data-testid="trip-header-3">
+            <h2 className="text-4xl font-bold tracking-tight text-slate-900 dark:text-white leading-none">Trip recenti</h2>
+            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">{trips.length} trip</p>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 trip-cards-grid-3" data-testid="trip-cards-grid-3">
             {trips.map((trip) => (
               <Card
                 key={trip.id}
-                className="border-2 border-slate-300/80 dark:border-slate-500/90 p-5 bg-white dark:bg-slate-950/40 trip-card-3"
+                className="border-2 border-slate-300/80 dark:border-slate-500/90 p-5 bg-white dark:bg-slate-950/40 hover:shadow-lg transition-shadow trip-card-3"
                 data-testid={`trip-card-${trip.id}-3`}
               >
                 <h2 className="text-xl font-semibold text-slate-900 dark:text-white trip-card-title-3" data-testid={`trip-card-title-${trip.id}-3`}>
