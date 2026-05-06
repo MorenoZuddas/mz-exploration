@@ -191,7 +191,7 @@ export function CardGrid({
   showItemsCount = false,
   itemsCountLabel = 'attività',
   tone,
-  sectionClassName = 'px-4 py-16 sm:px-6 lg:px-8 bg-white dark:bg-slate-900',
+  sectionClassName = 'px-4 py-16 sm:px-6 lg:px-8',
   titleColor = 'current',
   subtitleColor = 'current',
   titlePosition = 'left',
@@ -255,6 +255,10 @@ export function CardGrid({
       : titlePosition === 'right'
         ? 'w-full text-right'
         : '';
+  const baseCardSurfaceClass = 'border-slate-300/80 bg-white dark:border-slate-500/90 dark:border-2 dark:bg-slate-950/40';
+  const defaultCardTitleClass = 'text-xl text-slate-900 transition-colors group-hover:text-blue-600 dark:text-slate-100 dark:group-hover:text-blue-300';
+  const defaultCardDescriptionClass = 'text-sm text-slate-600 dark:text-slate-300';
+  const defaultCardMetaClass = 'text-sm text-slate-500 dark:text-slate-400';
 
   return (
     <section className={`cardgrid-component ${sectionClassName} ${className}`} data-testid="cardgrid-section">
@@ -345,7 +349,7 @@ export function CardGrid({
                         />
                       )}
                       <Card
-                        className={`overflow-hidden hover:shadow-lg transition-shadow h-full cursor-pointer group-hover:scale-[1.02] duration-300 activity-card ${cardClassName}`}
+                        className={`${baseCardSurfaceClass} overflow-hidden hover:shadow-lg transition-shadow h-full cursor-pointer group-hover:scale-[1.02] duration-300 activity-card ${cardClassName}`}
                         data-testid={`activity-card-${item.id}`}
                       >
                         {item.image ? (
@@ -412,7 +416,12 @@ export function CardGrid({
                       </Card>
                     </div>
                   ) : (
-                    <Card className={`overflow-hidden hover:shadow-lg transition-shadow h-full cursor-pointer group-hover:scale-[1.02] duration-300 ${cardClassName}`}>
+                    <Card className={`${baseCardSurfaceClass} relative overflow-hidden hover:shadow-lg transition-shadow h-full cursor-pointer group-hover:scale-[1.02] duration-300 ${cardClassName}`}>
+                      {showTypeBadge && !showBadgeOnImage && toBadgeType(item.type) && (
+                        <div className="absolute top-3 right-3 z-20 sm:hidden">
+                          <BadgeChip type={toBadgeType(item.type) as BadgeChipType} text={item.type} className="whitespace-nowrap" />
+                        </div>
+                      )}
                       <div className="relative h-48 w-full overflow-hidden bg-slate-200 dark:bg-slate-700">
                         <Image
                           src={item.image || fallbackImage}
@@ -433,20 +442,20 @@ export function CardGrid({
                       </div>
                       <CardHeader>
                         <div className="flex items-start justify-between gap-2">
-                          <CardTitle className="text-xl group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                          <CardTitle className={defaultCardTitleClass}>
                             {item.title}
                           </CardTitle>
                           {showTypeBadge && !showBadgeOnImage && toBadgeType(item.type) && (
-                            <BadgeChip type={toBadgeType(item.type) as BadgeChipType} text={item.type} className="whitespace-nowrap" />
+                            <BadgeChip type={toBadgeType(item.type) as BadgeChipType} text={item.type} className="hidden whitespace-nowrap sm:inline-flex" />
                           )}
                         </div>
                       </CardHeader>
                       <CardContent className="space-y-2">
                         {showDescription && item.description && (
-                          <p className="text-sm text-slate-600 dark:text-slate-400">{item.description}</p>
+                            <p className={defaultCardDescriptionClass}>{item.description}</p>
                         )}
                         {showDate && item.date && (
-                          <p className="text-sm text-slate-500 dark:text-slate-400">{item.date}</p>
+                            <p className={defaultCardMetaClass}>{item.date}</p>
                         )}
                       </CardContent>
                     </Card>
@@ -465,7 +474,7 @@ export function CardGrid({
                            className="absolute -top-0 right-3 z-20 shadow-sm"
                          />
                        )}
-                       <Card className={`overflow-hidden hover:shadow-lg transition-shadow h-full cursor-pointer group-hover:scale-[1.02] duration-300 ${cardClassName}`}>
+                       <Card className={`${baseCardSurfaceClass} overflow-hidden hover:shadow-lg transition-shadow h-full cursor-pointer group-hover:scale-[1.02] duration-300 ${cardClassName}`}>
                          {item.image ? (
                            <div className="relative h-52 w-full overflow-hidden bg-slate-200 dark:bg-slate-700">
                              <Image
@@ -506,7 +515,12 @@ export function CardGrid({
                        </Card>
                      </div>
                    ) : (
-                     <Card className={`overflow-hidden hover:shadow-lg transition-shadow h-full cursor-pointer group-hover:scale-[1.02] duration-300 ${cardClassName}`}>
+                           <Card className={`${baseCardSurfaceClass} relative overflow-hidden hover:shadow-lg transition-shadow h-full cursor-pointer group-hover:scale-[1.02] duration-300 ${cardClassName}`}>
+                             {showTypeBadge && !showBadgeOnImage && toBadgeType(item.type) && (
+                               <div className="absolute top-3 right-3 z-20 sm:hidden">
+                                 <BadgeChip type={toBadgeType(item.type) as BadgeChipType} text={item.type} className="whitespace-nowrap" />
+                               </div>
+                             )}
                        <div className="relative h-48 w-full overflow-hidden bg-slate-200 dark:bg-slate-700">
                          <Image
                            src={item.image || fallbackImage}
@@ -527,20 +541,20 @@ export function CardGrid({
                        </div>
                        <CardHeader>
                          <div className="flex items-start justify-between gap-2">
-                           <CardTitle className="text-xl group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                            <CardTitle className={defaultCardTitleClass}>
                              {item.title}
                            </CardTitle>
                            {showTypeBadge && !showBadgeOnImage && toBadgeType(item.type) && (
-                             <BadgeChip type={toBadgeType(item.type) as BadgeChipType} text={item.type} className="whitespace-nowrap" />
+                              <BadgeChip type={toBadgeType(item.type) as BadgeChipType} text={item.type} className="hidden whitespace-nowrap sm:inline-flex" />
                            )}
                          </div>
                        </CardHeader>
                        <CardContent className="space-y-2">
                          {showDescription && item.description && (
-                           <p className="text-sm text-slate-600 dark:text-slate-400">{item.description}</p>
+                            <p className={defaultCardDescriptionClass}>{item.description}</p>
                          )}
                          {showDate && item.date && (
-                           <p className="text-sm text-slate-500 dark:text-slate-400">{item.date}</p>
+                            <p className={defaultCardMetaClass}>{item.date}</p>
                          )}
                        </CardContent>
                      </Card>

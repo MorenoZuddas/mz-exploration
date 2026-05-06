@@ -30,11 +30,7 @@ import { ActivityPhotos } from "@/components/ActivityPhotos"
 import { ActivityClickHandler } from "@/components/ActivityClickWrapper"
 import { Filter, type FilterConfig, type FilterType } from "@/components/Filter"
 import { Statistics, type StatisticsMetricKey } from "@/components/Statistics"
-import { AnimatedSection } from "@/components/generic/AnimatedSection"
-import { CardGrid, type CardGridItem } from "@/components/generic/CardGrid"
-import { Divider } from "@/components/generic/Divider"
-import { Hero } from "@/components/generic/Hero"
-import { Text } from "@/components/generic/Text"
+import { AnimatedSection, CardGrid, Divider, Hero, PageShell, Text, type CardGridItem } from "@/components/generic"
 import { cn } from "@/lib/utils"
 
 type Tone = "current" | "blue" | "purple" | "black"
@@ -284,13 +280,7 @@ const STORYBOOK_NAV = [
 ]
 
 function StorybookSidebar() {
-  const [activeSectionId, setActiveSectionId] = useState<string>(() => {
-    if (typeof window !== "undefined") {
-      const fromHash = window.location.hash.replace("#", "")
-      if (fromHash) return fromHash
-    }
-    return STORYBOOK_NAV[0]?.id ?? ""
-  })
+  const [activeSectionId, setActiveSectionId] = useState<string>(STORYBOOK_NAV[0]?.id ?? "")
   const [isOpen, setIsOpen] = useState(true)
 
   useEffect(() => {
@@ -353,6 +343,7 @@ function StorybookSidebar() {
                 <a
                   key={item.id}
                   href={`#${item.id}`}
+                  onClick={() => setActiveSectionId(item.id)}
                   className={cn(
                     "block rounded-md px-2 py-1 text-[13px] transition-colors truncate",
                     activeSectionId === item.id
@@ -1713,7 +1704,7 @@ function AnimatedSectionDemo() {
 
 export default function StorybookPage() {
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+    <PageShell background="white" className="text-slate-900 dark:text-slate-100">
       <div className="max-w-[1500px] mx-auto px-4 sm:px-6 py-6 lg:py-8 lg:flex lg:items-start lg:gap-6">
         <StorybookSidebar />
         <main className="flex-1 min-w-0">
@@ -1743,7 +1734,7 @@ export default function StorybookPage() {
            <TextSection />
         </main>
       </div>
-    </div>
+    </PageShell>
   )
 }
 

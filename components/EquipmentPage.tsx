@@ -1,6 +1,7 @@
 "use client";
 
 import Link from 'next/link';
+import { PageShell, type PageBackground } from '@/components/generic';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface EquipmentItem {
@@ -23,6 +24,7 @@ interface EquipmentPageProps {
   subtitle?: string;
   className?: string;
   tone?: 'current' | 'blue' | 'purple' | 'black';
+  background?: PageBackground;
   backLabel?: string;
   conditionClassMap?: Partial<Record<EquipmentItem['condition'], string>>;
 }
@@ -54,6 +56,7 @@ export default function EquipmentPage({
   subtitle = "L'attrezzatura che utilizzo per le mie avventure",
   className = '',
   tone = 'current',
+  background = 'white',
   backLabel = '← Torna Indietro',
   conditionClassMap,
 }: EquipmentPageProps) {
@@ -67,7 +70,7 @@ export default function EquipmentPage({
   }, {} as Record<string, EquipmentItem[]>);
 
   return (
-    <main className={`min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 ${className}`}>
+    <PageShell background={background} className={className}>
       {/* Header */}
       <section className="px-4 py-12 sm:px-6 lg:px-8 border-b border-slate-200 dark:border-slate-700">
         <div className="max-w-4xl mx-auto">
@@ -137,7 +140,7 @@ export default function EquipmentPage({
           ))}
         </div>
       </section>
-    </main>
+    </PageShell>
   );
 }
 

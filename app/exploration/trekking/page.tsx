@@ -5,9 +5,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Backpack } from 'lucide-react';
 import { ActivityDetailModal } from '@/components/ActivityDetailModal';
+import { CardGrid, Divider, PageShell, type CardGridItem } from '@/components/generic';
 import { getCachedActivities, setCachedActivities } from '@/lib/cache/activities';
-import { CardGrid, type CardGridItem } from '@/components/generic/CardGrid';
-import { Divider } from '@/components/generic/Divider';
 
 interface ApiPhoto {
   activityId: number;
@@ -98,17 +97,19 @@ export default function TrekkingPage() {
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedActivityId, setSelectedActivityId] = useState<string | null>(null);
-  const [isDesktop, setIsDesktop] = useState(() =>
-    typeof window !== 'undefined' ? window.matchMedia('(min-width: 768px)').matches : false
-  );
+  const [isDesktop, setIsDesktop] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // Determina se desktop
   useEffect(() => {
     const mediaQuery = window.matchMedia('(min-width: 768px)');
+    const frame = window.requestAnimationFrame(() => setIsDesktop(mediaQuery.matches));
     const handleChange = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
     mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      mediaQuery.removeEventListener('change', handleChange);
+    };
   }, []);
 
   const handleActivityClick = (activityId: string) => {
@@ -243,14 +244,14 @@ export default function TrekkingPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-sky-50 dark:bg-slate-900 flex items-center justify-center">
+      <PageShell background="sky" className="flex items-center justify-center">
         <p className="text-lg">Caricamento...</p>
-      </main>
+      </PageShell>
     );
   }
 
   return (
-    <main className="min-h-screen bg-sky-50 dark:bg-slate-900 trek-main-1" data-testid="trek-main-1">
+    <PageShell background="sky" className="trek-main-1" data-testid="trek-main-1">
       <section className="relative w-full h-[34vh] sm:h-[38vh] overflow-hidden trek-hero-2" data-testid="trek-hero-2">
         <div
           className="absolute inset-0 bg-cover bg-center scale-105 trek-hero-background-2"
@@ -312,7 +313,7 @@ export default function TrekkingPage() {
         </div>
       </section>
 
-      <section className="px-4 pt-6 pb-10 sm:px-6 lg:px-8 bg-sky-50 dark:bg-slate-900 trek-activities-3" data-testid="trek-activities-3">
+      <section className="px-4 pt-6 pb-10 sm:px-6 lg:px-8 trek-activities-3" data-testid="trek-activities-3">
         <div className="max-w-6xl mx-auto trek-activities-container-3">
           {error && (
             <div className="mb-6 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-200 trek-error-3" data-testid="trek-error-3">
@@ -327,7 +328,7 @@ export default function TrekkingPage() {
             items={activityGridItems}
             columnsClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
             sectionClassName="px-0 py-0 bg-transparent"
-            cardClassName="border border-slate-300/80 dark:border-slate-700 bg-white dark:bg-slate-900"
+            cardClassName="border-slate-300/80 bg-white dark:border-slate-500/90 dark:border-2 dark:bg-slate-950/40"
             useMotion={false}
             showDate
             showTypeBadge={false}
@@ -355,7 +356,7 @@ export default function TrekkingPage() {
       </section>
 
       {/* ─── Sezione Attrezzatura ─── */}
-      <section className="px-4 pb-6 sm:px-6 lg:px-8 bg-sky-50 dark:bg-slate-900">
+      <section className="px-4 pb-6 sm:px-6 lg:px-8">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-between rounded-xl border border-slate-300/80 dark:border-slate-700 bg-white dark:bg-slate-800 px-5 py-4">
             <div>
@@ -383,11 +384,11 @@ export default function TrekkingPage() {
         showDate={false}
         showDescription={true}
         columnsClassName="grid grid-cols-1 sm:grid-cols-3 gap-4"
-        sectionClassName="px-4 pt-2 pb-8 sm:px-6 lg:px-8 bg-sky-50 dark:bg-slate-900"
+        sectionClassName="px-4 pt-2 pb-8 sm:px-6 lg:px-8"
         containerClassName="max-w-6xl"
-        titleColor="black"
-        subtitleColor="black"
-        cardClassName="border border-slate-300/80 dark:border-slate-700 bg-white"
+        titleColor="current"
+        subtitleColor="current"
+        cardClassName="border-slate-300/80 bg-white dark:border-slate-500/90 dark:border-2 dark:bg-slate-950/40"
         useMotion={false}
         showVisibilityToggle={false}
         data-testid="trek-related-categories-5"
@@ -403,6 +404,6 @@ export default function TrekkingPage() {
           data-testid="trek-activity-modal-4"
         />
       )}
-    </main>
+    </PageShell>
   );
 }

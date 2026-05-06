@@ -1,4 +1,4 @@
-import { CardGrid, type CardGridItem } from '@/components/generic';
+import { CardGrid, PageShell, type CardGridItem } from '@/components/generic';
 
 const explorationCards: CardGridItem[] = [
 	{
@@ -26,7 +26,7 @@ const explorationCards: CardGridItem[] = [
 
 export default function ExplorationPage() {
 	return (
-		<main className="min-h-screen bg-sky-50 dark:bg-slate-900 ex-main-1" data-testid="ex-main-1">
+		<PageShell background="sky" className="ex-main-1" data-testid="ex-main-1">
 			<section className="relative w-full h-[34vh] sm:h-[38vh] overflow-hidden ex-hero-2" data-testid="ex-hero-2">
 				<div
 					className="absolute inset-0 bg-cover bg-center scale-105 ex-hero-background-2"
@@ -57,9 +57,10 @@ export default function ExplorationPage() {
 				showTypeBadge={false}
 				showDate={false}
 				showDescription={true}
-				sectionClassName="px-4 pt-8 pb-12 sm:px-6 lg:px-8 bg-sky-50 dark:bg-slate-900"
+				sectionClassName="px-4 pt-8 pb-12 sm:px-6 lg:px-8"
+				cardClassName="border-slate-300/80 bg-white dark:border-slate-500/90 dark:border-2 dark:bg-slate-950/40"
 				data-testid="ex-categories-grid-4"
 			/>
-		</main>
+		</PageShell>
 	);
 }

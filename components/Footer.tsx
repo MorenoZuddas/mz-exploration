@@ -117,7 +117,7 @@ export default function Footer({
   const rootTextClass = isLightBg ? 'text-slate-900' : 'text-white';
 
   return (
-    <footer className={`${backgroundClassName} ${rootTextClass} py-3 mt-8 sm:mt-12 ${className}`}>
+    <footer className={`${backgroundClassName} ${rootTextClass} py-3 ${className}`}>
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex flex-col md:flex-row items-center justify-between gap-3">
           {/* Logo + Brand - Left */}

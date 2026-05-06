@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { StatsCard, type StatsActivity, type StatsType } from "@/components/ui/card"
+import { PageShell } from '@/components/generic'
 
 interface Activity {
   _id?: string;
@@ -354,7 +355,7 @@ export default function DemoGarminPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 to-slate-800 p-8 dg-main-1" data-testid="dg-main-1">
+    <PageShell background="navy" className="p-8 dg-main-1" data-testid="dg-main-1">
       {floatingNotice && (
         <div className="fixed top-4 right-4 z-50 max-w-md rounded-lg border border-green-500/40 bg-green-900/80 px-4 py-3 text-green-100 shadow-xl backdrop-blur dg-floating-notice-1" data-testid="dg-floating-notice-1">
           <div className="flex items-start gap-3">
@@ -687,7 +688,7 @@ export default function DemoGarminPage() {
         </div>
 
       </div>
-    </div>
+    </PageShell>
   );
 }
 

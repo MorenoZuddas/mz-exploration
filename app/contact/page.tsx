@@ -1,8 +1,10 @@
 import Link from 'next/link';
 
+import { PageShell } from '@/components/generic';
+
 export default function ContactPage() {
   return (
-    <main className="min-h-screen bg-sky-50 dark:bg-slate-900 co-main-1" data-testid="co-main-1">
+    <PageShell background="sky" className="co-main-1" data-testid="co-main-1">
       <section className="relative w-full h-[34vh] sm:h-[38vh] overflow-hidden co-hero-2" data-testid="co-hero-2">
         <div
           className="absolute inset-0 bg-cover bg-center scale-105 co-hero-background-2"
@@ -33,14 +35,14 @@ export default function ContactPage() {
         </div>
       </section>
 
-      <section className="px-4 pt-6 pb-10 sm:px-6 lg:px-8 bg-sky-50 dark:bg-slate-900 co-content-3" data-testid="co-content-3">
+      <section className="px-4 pt-6 pb-10 sm:px-6 lg:px-8 co-content-3" data-testid="co-content-3">
         <div className="max-w-3xl mx-auto">
           <p className="text-lg text-slate-700 dark:text-slate-300 mb-8 co-description-3" data-testid="co-description-3">
             Se vuoi collaborare o semplicemente fare due chiacchiere su running, trekking o sviluppo,
             scrivimi pure.
           </p>
 
-          <div className="rounded-lg border border-slate-300/80 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 space-y-4 co-contact-box-3" data-testid="co-contact-box-3">
+          <div className="rounded-lg border-2 border-slate-300/80 dark:border-slate-500/90 bg-white dark:bg-slate-950/40 p-6 space-y-4 co-contact-box-3" data-testid="co-contact-box-3">
             <div className="co-contact-item-3" data-testid="co-contact-email-3">
               <p className="text-sm text-slate-500 dark:text-slate-400 co-contact-label-3" data-testid="co-contact-email-label-3">Email</p>
               <a
@@ -67,6 +69,6 @@ export default function ContactPage() {
           </div>
         </div>
       </section>
-    </main>
+    </PageShell>
   );
 }

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { PageShell } from '@/components/generic';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ActivityPhotos } from '@/components/ActivityPhotos';
 
@@ -74,19 +75,19 @@ export default function TrekkingActivityDetailPage() {
     void fetchActivity();
   }, [activityId]);
 
-  if (loading) return <main className="p-8">Caricamento...</main>;
+  if (loading) return <PageShell background="white" className="p-8">Caricamento...</PageShell>;
 
   if (error || !activity) {
     return (
-      <main className="p-8">
+      <PageShell background="white" className="p-8">
         <Link href="/exploration/trekking" className="text-blue-600 hover:underline">← Torna a Trekking</Link>
         <p className="mt-4 text-red-600">{error ?? 'Attività non trovata'}</p>
-      </main>
+      </PageShell>
     );
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 p-6 md:p-10">
+    <PageShell background="white" className="p-6 md:p-10">
       <div className="mx-auto max-w-5xl space-y-6">
         <Link href="/exploration/trekking" className="inline-flex text-blue-600 dark:text-blue-400 hover:underline">
           ← Torna a Trekking
@@ -116,7 +117,7 @@ export default function TrekkingActivityDetailPage() {
           <Card><CardHeader><CardTitle className="text-sm">FC max</CardTitle></CardHeader><CardContent className="text-xl font-bold">{activity.max_hr ?? '—'}</CardContent></Card>
         </section>
       </div>
-    </main>
+    </PageShell>
   );
 }
 

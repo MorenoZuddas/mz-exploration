@@ -105,7 +105,7 @@ export default function Header({
 
   return (
     <header className={`sticky top-0 z-50 ${rootTextClass} shadow-lg ${backgroundClassName} ${className}`}>
-      <div className="max-w-6xl mx-auto px-3 py-2 sm:px-4 sm:py-3">
+      <div className="max-w-6xl mx-auto px-3 py-[10px] sm:px-4 md:py-[14px]">
         <div className="flex items-center justify-between">
           {/* Logo - Left */}
           <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
@@ -114,7 +114,7 @@ export default function Header({
                 alt={logoAlt}
                 width={logoWidth}
                 height={logoHeight}
-                className="h-auto w-[112px] sm:w-[160px]"
+                className="h-auto w-[116px] sm:w-[160px]"
                 priority
             />
           </Link>
@@ -174,7 +174,7 @@ export default function Header({
           {/* Hamburger Menu Button - Right (Mobile) */}
           <button
             onClick={toggleMenu}
-            className={`md:hidden flex flex-col gap-1 p-1 ${toneClasses.hoverBg} rounded-md transition-colors`}
+            className={`md:hidden flex flex-col gap-1 p-1.5 ${toneClasses.hoverBg} rounded-md transition-colors`}
             aria-label="Toggle menu"
           >
             <span
@@ -197,7 +197,7 @@ export default function Header({
 
         {/* Mobile Menu */}
         {isMenuOpen && (
-          <nav className={`md:hidden mt-1.5 pb-1.5 border-t pt-2.5 space-y-1 ${toneClasses.border}`}>
+          <nav className={`md:hidden mt-2 pb-2 border-t pt-3 space-y-1 ${toneClasses.border}`}>
             <Link
               href="/about"
               onClick={closeMenu}
@@ -208,17 +208,27 @@ export default function Header({
 
             {/* Mobile Exploration Menu */}
             <div>
-              <button
-                onClick={toggleExploration}
-                className={`w-full text-left px-3 py-1.5 text-[15px] ${toneClasses.hoverBg} ${toneClasses.link} transition-colors rounded-md font-medium flex items-center justify-between`}
-              >
-                {explorationLink.label}
-                <ChevronDown
-                  className={`w-3.5 h-3.5 transition-transform ${
-                    isExplorationOpen ? 'rotate-180' : ''
-                  }`}
-                />
-              </button>
+              <div className="flex items-stretch gap-1">
+                <Link
+                  href={explorationLink.href}
+                  onClick={closeMenu}
+                  className={`flex-1 px-3 py-1.5 text-[15px] ${toneClasses.hoverBg} ${toneClasses.link} transition-colors rounded-md font-medium`}
+                >
+                  {explorationLink.label}
+                </Link>
+                <button
+                  onClick={toggleExploration}
+                  className={`px-3 py-1.5 ${toneClasses.hoverBg} ${toneClasses.link} transition-colors rounded-md font-medium flex items-center justify-center`}
+                  aria-label={isExplorationOpen ? 'Chiudi sotto-menu Exploration' : 'Apri sotto-menu Exploration'}
+                  aria-expanded={isExplorationOpen}
+                >
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 transition-transform ${
+                      isExplorationOpen ? 'rotate-180' : ''
+                    }`}
+                  />
+                </button>
+              </div>
 
               {isExplorationOpen && (
                 <div className={`${isLightBg ? 'bg-white' : 'bg-slate-800/95'} rounded-md border mt-1 overflow-hidden ${toneClasses.border}`}>
