@@ -6,9 +6,8 @@ import { useRouter } from 'next/navigation';
 import { Shirt, SlidersHorizontal } from 'lucide-react';
 import { Filter, type FilterConfig, type FilterState } from '@/components/Filter';
 import { Modal } from '@/components/Modal';
+import { Divider, PageShell, CardGrid, type CardGridItem } from '@/components/generic';
 import { getCachedActivities, setCachedActivities } from '@/lib/cache/activities';
-import { CardGrid, type CardGridItem } from '@/components/generic/CardGrid';
-import { Divider } from '@/components/generic/Divider';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
 
 interface ApiPhoto {
@@ -132,9 +131,7 @@ export default function RunningPage() {
    const [activities, setActivities] = useState<Activity[]>([]);
    const [loading, setLoading] = useState(true);
    const [selectedActivityId, setSelectedActivityId] = useState<string | null>(null);
-  const [isDesktop, setIsDesktop] = useState(() =>
-    typeof window !== 'undefined' ? window.matchMedia('(min-width: 1024px)').matches : false
-  );
+  const [isDesktop, setIsDesktop] = useState(false);
   const [filters, setFilters] = useState({
     dateFrom: undefined as Date | undefined,
     dateTo: undefined as Date | undefined,
@@ -147,13 +144,17 @@ export default function RunningPage() {
 
   useEffect(() => {
     const mediaQuery = window.matchMedia('(min-width: 1024px)');
+    const frame = window.requestAnimationFrame(() => setIsDesktop(mediaQuery.matches));
 
     const onChange = (event: MediaQueryListEvent) => {
       setIsDesktop(event.matches);
     };
 
     mediaQuery.addEventListener('change', onChange);
-    return () => mediaQuery.removeEventListener('change', onChange);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      mediaQuery.removeEventListener('change', onChange);
+    };
   }, []);
 
   const handleActivityClick = (activityId: string): void => {
@@ -421,14 +422,14 @@ export default function RunningPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-sky-50 dark:bg-slate-900 flex items-center justify-center">
+      <PageShell background="sky" className="flex items-center justify-center">
         <p className="text-lg">Caricamento...</p>
-      </main>
+      </PageShell>
     );
   }
 
     return (
-      <main className="min-h-screen bg-sky-50 dark:bg-slate-900 run-main-1" data-testid="run-main-1">
+      <PageShell background="sky" className="run-main-1" data-testid="run-main-1">
         {/* ─── Hero con statistiche integrate ─── */}
         <section className="relative w-full h-[34vh] sm:h-[38vh] overflow-hidden run-hero-2" data-testid="run-hero-2">
           {/* Background image */}
@@ -517,7 +518,7 @@ export default function RunningPage() {
         </section>
 
         {/* ─── Griglia attività ─── */}
-        <section className="px-4 pt-6 pb-10 sm:px-6 lg:px-8 bg-sky-50 dark:bg-slate-900 run-activities-4" data-testid="run-activities-4">
+        <section className="px-4 pt-6 pb-10 sm:px-6 lg:px-8 run-activities-4" data-testid="run-activities-4">
           <div className="max-w-6xl mx-auto">
             {error && (
               <div className="mb-6 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-200 run-error-4" data-testid="run-error-4">
@@ -557,7 +558,7 @@ export default function RunningPage() {
               items={activityGridItems}
               columnsClassName="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"
               sectionClassName="px-0 py-0 bg-transparent"
-              cardClassName="border border-slate-300/80 dark:border-slate-700 bg-white dark:bg-slate-900"
+              cardClassName="border-slate-300/80 bg-white dark:border-slate-500/90 dark:border-2 dark:bg-slate-950/40"
               useMotion={false}
               showDate
               showTypeBadge={false}
@@ -590,7 +591,7 @@ export default function RunningPage() {
         </section>
 
         {/* ─── Sezione Attrezzatura ─── */}
-        <section className="px-4 pb-6 sm:px-6 lg:px-8 bg-sky-50 dark:bg-slate-900">
+        <section className="px-4 pb-6 sm:px-6 lg:px-8">
           <div className="max-w-6xl mx-auto">
             <div className="flex items-center justify-between rounded-xl border border-slate-300/80 dark:border-slate-700 bg-white dark:bg-slate-800 px-5 py-4">
               <div>
@@ -619,11 +620,11 @@ export default function RunningPage() {
           showDate={false}
           showDescription={true}
           columnsClassName="grid grid-cols-1 sm:grid-cols-3 gap-4"
-          sectionClassName="px-4 pt-2 pb-8 sm:px-6 lg:px-8 bg-sky-50 dark:bg-slate-900"
+          sectionClassName="px-4 pt-2 pb-8 sm:px-6 lg:px-8"
           containerClassName="max-w-6xl"
-          titleColor="black"
-          subtitleColor="black"
-          cardClassName="border border-slate-300/80 dark:border-slate-700 bg-white"
+          titleColor="current"
+          subtitleColor="current"
+          cardClassName="border-slate-300/80 bg-white dark:border-slate-500/90 dark:border-2 dark:bg-slate-950/40"
           useMotion={false}
           showVisibilityToggle={false}
           data-testid="run-related-categories-5"
@@ -641,6 +642,6 @@ export default function RunningPage() {
             data-testid="run-activity-modal-5"
           />
         )}
-      </main>
+      </PageShell>
     );
 }

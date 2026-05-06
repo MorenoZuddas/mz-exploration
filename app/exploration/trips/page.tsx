@@ -1,7 +1,6 @@
 import Link from 'next/link';
+import { CardGrid, Divider, PageShell, type CardGridItem } from '@/components/generic';
 import { Card } from '@/components/ui/card';
-import { CardGrid, type CardGridItem } from '@/components/generic/CardGrid';
-import { Divider } from '@/components/generic/Divider';
 
 interface Trip {
   id: string;
@@ -83,7 +82,7 @@ export default function TripsPage() {
   const countries = new Set(trips.map((trip) => trip.country));
 
   return (
-    <main className="min-h-screen bg-sky-50 dark:bg-slate-900 trip-main-1" data-testid="trip-main-1">
+    <PageShell background="sky" className="trip-main-1" data-testid="trip-main-1">
       <section className="relative w-full h-[34vh] sm:h-[38vh] overflow-hidden trip-hero-2" data-testid="trip-hero-2">
         <div
           className="absolute inset-0 bg-cover bg-center scale-105 trip-hero-background-2"
@@ -135,13 +134,13 @@ export default function TripsPage() {
         </div>
       </section>
 
-      <section className="px-4 pt-6 pb-10 sm:px-6 lg:px-8 bg-sky-50 dark:bg-slate-900 trip-cards-section-3" data-testid="trip-cards-section-3">
+      <section className="px-4 pt-6 pb-10 sm:px-6 lg:px-8 trip-cards-section-3" data-testid="trip-cards-section-3">
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 trip-cards-grid-3" data-testid="trip-cards-grid-3">
             {trips.map((trip) => (
               <Card
                 key={trip.id}
-                className="p-5 bg-white dark:bg-slate-900 border-slate-300/80 dark:border-slate-700 trip-card-3"
+                className="border-2 border-slate-300/80 dark:border-slate-500/90 p-5 bg-white dark:bg-slate-950/40 trip-card-3"
                 data-testid={`trip-card-${trip.id}-3`}
               >
                 <h2 className="text-xl font-semibold text-slate-900 dark:text-white trip-card-title-3" data-testid={`trip-card-title-${trip.id}-3`}>
@@ -180,15 +179,15 @@ export default function TripsPage() {
         showDate={false}
         showDescription={true}
         columnsClassName="grid grid-cols-1 sm:grid-cols-3 gap-4"
-        sectionClassName="px-4 pt-2 pb-8 sm:px-6 lg:px-8 bg-sky-50 dark:bg-slate-900"
+        sectionClassName="px-4 pt-2 pb-8 sm:px-6 lg:px-8"
         containerClassName="max-w-6xl"
-        titleColor="black"
-        subtitleColor="black"
-        cardClassName="border border-slate-300/80 dark:border-slate-700 bg-white"
+        titleColor="current"
+        subtitleColor="current"
+        cardClassName="border-slate-300/80 bg-white dark:border-slate-500/90 dark:border-2 dark:bg-slate-950/40"
         useMotion={false}
         showVisibilityToggle={false}
         data-testid="trip-related-categories-5"
       />
-    </main>
+    </PageShell>
   );
 }

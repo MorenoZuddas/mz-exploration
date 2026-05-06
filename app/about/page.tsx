@@ -1,8 +1,10 @@
 import Link from 'next/link';
 
+import { PageShell } from '@/components/generic';
+
 export default function AboutPage() {
   return (
-    <main className="min-h-screen bg-sky-50 dark:bg-slate-900 ab-main-1" data-testid="ab-main-1">
+    <PageShell background="sky" className="ab-main-1" data-testid="ab-main-1">
       <section className="relative w-full h-[34vh] sm:h-[38vh] overflow-hidden ab-hero-2" data-testid="ab-hero-2">
         <div
           className="absolute inset-0 bg-cover bg-center scale-105 ab-hero-background-2"
@@ -33,7 +35,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      <section className="px-4 pt-6 pb-10 sm:px-6 lg:px-8 bg-sky-50 dark:bg-slate-900 ab-content-3" data-testid="ab-content-3">
+      <section className="px-4 pt-6 pb-10 sm:px-6 lg:px-8 ab-content-3" data-testid="ab-content-3">
         <div className="max-w-4xl mx-auto">
           <p className="text-lg text-slate-700 dark:text-slate-300 leading-relaxed mb-8 ab-description-3" data-testid="ab-description-3">
             Ciao, sono Moreno. In questo progetto raccolgo e racconto attivita di running, trekking e
@@ -41,13 +43,13 @@ export default function AboutPage() {
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10 ab-cards-group-3" data-testid="ab-cards-group-3">
-            <div className="rounded-lg border border-slate-300/80 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 ab-card-mission-3" data-testid="ab-card-mission-3">
+            <div className="rounded-lg border-2 border-slate-300/80 dark:border-slate-500/90 bg-white dark:bg-slate-950/40 p-5 ab-card-mission-3" data-testid="ab-card-mission-3">
               <h2 className="font-semibold text-slate-900 dark:text-white mb-2 ab-card-title-3" data-testid="ab-card-mission-title-3">Missione</h2>
               <p className="text-sm text-slate-600 dark:text-slate-300 ab-card-text-3" data-testid="ab-card-mission-text-3">
                 Trasformare i dati delle attivita in insight semplici e utili, con un&apos;esperienza visiva pulita.
               </p>
             </div>
-            <div className="rounded-lg border border-slate-300/80 dark:border-slate-700 bg-white dark:bg-slate-900 p-5 ab-card-focus-3" data-testid="ab-card-focus-3">
+            <div className="rounded-lg border-2 border-slate-300/80 dark:border-slate-500/90 bg-white dark:bg-slate-950/40 p-5 ab-card-focus-3" data-testid="ab-card-focus-3">
               <h2 className="font-semibold text-slate-900 dark:text-white mb-2 ab-card-title-3" data-testid="ab-card-focus-title-3">Focus attuale</h2>
               <p className="text-sm text-slate-600 dark:text-slate-300 ab-card-text-3" data-testid="ab-card-focus-text-3">
                 Migliorare analisi, dettaglio attivita e gestione foto associate tramite Cloudinary.
@@ -64,6 +66,6 @@ export default function AboutPage() {
           </Link>
         </div>
       </section>
-    </main>
+    </PageShell>
   );
 }

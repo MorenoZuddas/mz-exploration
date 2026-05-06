@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { PageShell } from '@/components/generic';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ActivityPhotos } from '@/components/ActivityPhotos';
 
@@ -88,15 +89,15 @@ export default function RunningActivityDetailPage() {
 
    if (loading) {
      return (
-       <main className="p-8 running-detail-loading" data-testid="running-detail-loading">
+       <PageShell background="white" className="p-8 running-detail-loading" data-testid="running-detail-loading">
          Caricamento...
-       </main>
+       </PageShell>
      );
    }
 
    if (error || !activity) {
      return (
-       <main className="p-8 running-detail-error" data-testid="running-detail-error">
+       <PageShell background="white" className="p-8 running-detail-error" data-testid="running-detail-error">
          <Link
            href="/exploration/running"
            className="text-blue-600 hover:underline running-detail-back-link"
@@ -105,12 +106,12 @@ export default function RunningActivityDetailPage() {
            ← Torna a Running
          </Link>
          <p className="mt-4 text-red-600 running-detail-error-message">{error ?? 'Attività non trovata'}</p>
-       </main>
+       </PageShell>
      );
    }
 
    return (
-     <main className="min-h-screen bg-gradient-to-b from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 p-6 md:p-10 running-detail-main" data-testid="running-detail-main">
+     <PageShell background="white" className="p-6 md:p-10 running-detail-main" data-testid="running-detail-main">
        <div className="mx-auto max-w-5xl space-y-6 running-detail-container">
          <Link
            href="/exploration/running"
@@ -147,6 +148,6 @@ export default function RunningActivityDetailPage() {
            <Card data-testid="metric-max-hr"><CardHeader><CardTitle className="text-sm">FC max</CardTitle></CardHeader><CardContent className="text-xl font-bold">{activity.max_hr ?? '—'}</CardContent></Card>
          </section>
        </div>
-     </main>
+     </PageShell>
    );
 }

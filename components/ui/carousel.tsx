@@ -534,7 +534,9 @@ function CarouselCards<TItem>({
             return (
               <button key={index} type="button" onClick={() => carouselApi?.scrollTo(index)}
                 className={cn("h-2.5 w-2.5 rounded-full border border-slate-400/70 bg-transparent transition-all",
-                  isActive ? cn("w-6 border-slate-900 bg-slate-900", activeDotClassName) : cn("bg-slate-200/70 hover:bg-slate-300/80", dotClassName))}
+                  isActive
+                    ? cn("w-6 border-slate-900 bg-slate-900 dark:border-slate-100 dark:bg-slate-100", activeDotClassName)
+                    : cn("bg-slate-200/70 hover:bg-slate-300/80", dotClassName))}
                 aria-label={`Go to slide ${index + 1}`} aria-current={isActive ? "true" : undefined} />
             )
           })}

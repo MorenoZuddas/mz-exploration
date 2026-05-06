@@ -79,6 +79,7 @@ export default function RunningEquipmentPage() {
       title="Attrezzatura Running"
       backUrl="/exploration/running"
       items={runningEquipment}
+      background="white"
     />
   );
 }

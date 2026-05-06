@@ -67,6 +67,7 @@ export default function TrekkingEquipmentPage() {
       title="Attrezzatura Trekking"
       backUrl="/exploration/trekking"
       items={trekkingEquipment}
+      background="white"
     />
   );
 }

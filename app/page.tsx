@@ -5,6 +5,7 @@ import {
   CardGrid,
   Divider,
   Hero,
+  PageShell,
 } from '@/components/generic';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -51,7 +52,7 @@ const homeCarouselItems: HomeCarouselItem[] = [
 
 export default function Home() {
   return (
-    <main className="w-full homepage-main" data-testid="homepage-main">
+    <PageShell background="white" className="homepage-main" data-testid="homepage-main">
       {/* Hero Video Section */}
       <Hero
         title="MZ Exploration"
@@ -63,7 +64,7 @@ export default function Home() {
       />
 
       {/* Carousel Section (Running, Trekking, Trips) */}
-      <div id="hp-categories-3" className="bg-white dark:bg-slate-900 scroll-mt-20 hp-categories-3" data-testid="hp-categories-3">
+      <div id="hp-categories-3" className="scroll-mt-20 hp-categories-3" data-testid="hp-categories-3">
         <AnimatedSection className="px-4 py-8 sm:px-6 lg:px-8 hp-carousel-section-4" data-testid="hp-carousel-section-4">
           <div className="max-w-6xl mx-auto">
             <h2 className="sr-only hp-section-title-4" data-testid="hp-carousel-title-4">
@@ -79,8 +80,8 @@ export default function Home() {
               showDots
               arrowsPositionMobile="top-right"
               dotsClassName="mt-5"
-              dotClassName="border-slate-500/70 bg-slate-200/80 hover:bg-slate-300"
-              activeDotClassName="border-slate-900 bg-slate-900"
+              dotClassName="border-slate-500/70 bg-slate-200/80 hover:bg-slate-300 dark:border-slate-500 dark:bg-slate-600 dark:hover:bg-slate-500"
+              activeDotClassName="border-slate-900 bg-slate-900 dark:border-slate-100 dark:bg-slate-100"
               previousButtonProps={{
                 className: 'left-2 sm:-left-10 size-9 border border-slate-900/20 bg-slate-900/90 text-white hover:bg-black',
                 variant: 'default',
@@ -137,7 +138,7 @@ export default function Home() {
 
       {/* Latest Adventures Section */}
       <CardGrid
-        sectionClassName="px-4 py-8 sm:px-6 lg:px-8 bg-white dark:bg-slate-900"
+        sectionClassName="px-4 py-8 sm:px-6 lg:px-8"
         titleColor="current"
         subtitleColor="current"
         data-testid="hp-latest-adventures-8"
@@ -146,7 +147,7 @@ export default function Home() {
       <Divider color="current" size="sm" data-testid="hp-divider-9" />
 
       {/* Coming Soon Section */}
-      <AnimatedSection className="px-4 py-10 sm:px-6 lg:px-8 bg-white dark:bg-slate-900 hp-coming-soon-10" data-testid="hp-coming-soon-10">
+      <AnimatedSection className="px-4 py-10 sm:px-6 lg:px-8 hp-coming-soon-10" data-testid="hp-coming-soon-10">
         <div className="max-w-4xl mx-auto rounded-xl border border-dashed border-slate-300 dark:border-slate-600 bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-800 dark:to-slate-900 p-6 text-center hp-coming-soon-box-10" data-testid="hp-coming-soon-box-10">
           <p className="text-xs font-semibold tracking-[0.2em] uppercase text-slate-500 dark:text-slate-400 hp-coming-soon-label-10" data-testid="hp-coming-soon-label-10">
             Coming Soon
@@ -159,6 +160,6 @@ export default function Home() {
           </p>
         </div>
       </AnimatedSection>
-    </main>
+    </PageShell>
   );
 }
