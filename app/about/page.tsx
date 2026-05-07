@@ -1,10 +1,16 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import {
+  Activity,
   Code2,
+  Cpu,
   ExternalLink,
+  Lightbulb,
   Mail,
+  Plane,
+  Puzzle,
   Smartphone,
+  Users,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -18,9 +24,15 @@ import type { AboutContentData, AboutIconName } from './data/types';
 const about = aboutJson as AboutContentData;
 
 const iconMap: Record<AboutIconName, LucideIcon> = {
+  Activity,
   Code2,
+  Cpu,
   Smartphone,
+  Lightbulb,
   Mail,
+  Plane,
+  Puzzle,
+  Users,
   Github: Code2,
   Linkedin: Smartphone,
   ExternalLink,

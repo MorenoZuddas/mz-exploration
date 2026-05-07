@@ -185,8 +185,8 @@ function Section({ id, title, children }: { id: string; title: string; children:
   )
 }
 
-function Panel({ children }: { children: React.ReactNode }) {
-  return <div className="min-w-0 p-3 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">{children}</div>
+function Panel({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return <div className={cn("min-w-0 p-3 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900", className)}>{children}</div>
 }
 
 type PropLegendItem = { prop: string; values: string[]; description?: string }
@@ -1426,6 +1426,7 @@ function FilterSection() {
 }
 
 function StripeSection() {
+  const [imageKind, setImageKind] = useState<"pic-portrait" | "landscape">("pic-portrait")
   const [imagePosition, setImagePosition] = useState<"left" | "right">("left")
   const [imageSize, setImageSize] = useState<"sm" | "md" | "lg">("md")
   const [background, setBackground] = useState<"white" | "navy">("white")
@@ -1444,6 +1445,7 @@ function StripeSection() {
       <div className="grid lg:grid-cols-[320px_1fr] gap-4 mb-4">
         <Panel>
           <div className="grid gap-2">
+            <Ctl label="imageKind" value={imageKind} options={["pic-portrait", "landscape"]} onChange={(v) => setImageKind(v as "pic-portrait" | "landscape")} />
             <Ctl label="imagePosition" value={imagePosition} options={["left", "right"]} onChange={(v) => setImagePosition(v as "left" | "right")} />
             <Ctl label="imageSize" value={imageSize} options={["sm", "md", "lg"]} onChange={(v) => setImageSize(v as "sm" | "md" | "lg")} />
             <Ctl label="background" value={background} options={["white", "navy"]} onChange={(v) => setBackground(v as "white" | "navy")} />
@@ -1455,6 +1457,7 @@ function StripeSection() {
           <Stripe
             imageSrc="https://res.cloudinary.com/derbnvxif/image/upload/v1778058830/MZ_profile_image_vf775z.png"
             imageAlt="Demo avatar"
+            imageKind={imageKind}
             imagePosition={imagePosition}
             imageSize={imageSize}
             title="Titolo principale della Stripe"
@@ -1472,6 +1475,7 @@ function StripeSection() {
         <Stripe
           imageSrc="https://res.cloudinary.com/derbnvxif/image/upload/v1778058830/MZ_profile_image_vf775z.png"
           imageAlt="Demo"
+          imageKind="pic-portrait"
           imagePosition="left"
           imageSize="sm"
           title="Stripe white — immagine sinistra, small"
@@ -1483,6 +1487,7 @@ function StripeSection() {
         <Stripe
           imageSrc="https://res.cloudinary.com/derbnvxif/image/upload/v1778058830/MZ_profile_image_vf775z.png"
           imageAlt="Demo"
+          imageKind="landscape"
           imagePosition="right"
           imageSize="lg"
           title="Stripe navy — immagine destra, large"

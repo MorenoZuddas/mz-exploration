@@ -17,8 +17,10 @@ export interface StripeProps {
   // Image
   imageSrc: string;
   imageAlt: string;
+  imageKind?: 'pic-portrait' | 'landscape';
   imagePosition?: 'left' | 'right';
   imageSize?: 'sm' | 'md' | 'lg';
+  portraitObjectPosition?: string;
 
   // Content
   title: string;
@@ -33,6 +35,7 @@ export interface StripeProps {
   className?: string;
   animated?: boolean;
   animationDelay?: number;
+  ['data-testid']?: string;
 }
 
 const bgVariants = {
@@ -61,8 +64,10 @@ const imageSizeVariants = {
 export function Stripe({
   imageSrc,
   imageAlt,
-  imagePosition = 'left',
+  imageKind = 'pic-portrait',
+  imagePosition,
   imageSize = 'md',
+  portraitObjectPosition = '50% 18%',
   title,
   subtitle,
   text,
@@ -71,9 +76,12 @@ export function Stripe({
   className = '',
   animated = true,
   animationDelay = 0,
+  'data-testid': dataTestId = 'stripe-component',
 }: StripeProps) {
   const bgStyle = bgVariants[background];
   const imageSizeClass = imageSizeVariants[imageSize];
+  const resolvedImagePosition = imagePosition ?? (imageKind === 'landscape' ? 'right' : 'left');
+  const isLandscape = imageKind === 'landscape';
 
   // Normalizza buttons a un array
   const buttonsList = buttons
@@ -82,19 +90,42 @@ export function Stripe({
       : [buttons]
     : [];
 
-  const imageEl = (
-    <div className={cn(
-      'relative shrink-0 overflow-hidden rounded-full border-2',
-      imageSizeClass,
-      background === 'white'
-        ? 'border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800'
-        : 'border-slate-700 dark:border-slate-600 bg-slate-800 dark:bg-slate-900'
-    )}>
+  const portraitImageEl = (
+    <div
+      className={cn(
+        'relative shrink-0 overflow-hidden rounded-full border-2',
+        imageSizeClass,
+        background === 'white'
+          ? 'border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800'
+          : 'border-slate-700 dark:border-slate-600 bg-slate-800 dark:bg-slate-900'
+      )}
+    >
       <Image
         src={imageSrc}
         alt={imageAlt}
         fill
         sizes={imageSize === 'sm' ? '80px' : imageSize === 'md' ? '112px' : '144px'}
+        className="object-cover"
+        style={{ objectPosition: portraitObjectPosition }}
+        priority
+      />
+    </div>
+  );
+
+  const landscapeImageEl = (
+    <div
+      className={cn(
+        'relative overflow-hidden rounded-xl border shrink-0 w-full aspect-[4/5] sm:aspect-[3/4] lg:aspect-[4/5]',
+        background === 'white'
+          ? 'border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800'
+          : 'border-slate-700 dark:border-slate-600 bg-slate-800 dark:bg-slate-900'
+      )}
+    >
+      <Image
+        src={imageSrc}
+        alt={imageAlt}
+        fill
+        sizes="(min-width: 1024px) 35vw, 100vw"
         className="object-cover object-center"
         priority
       />
@@ -102,7 +133,7 @@ export function Stripe({
   );
 
   const contentEl = (
-    <div className="flex-1 space-y-1.5 sm:space-y-2">
+    <div className={cn('space-y-1.5 sm:space-y-2', isLandscape ? 'w-full' : 'flex-1')}>
       <h2 className={cn('text-xl font-bold leading-tight sm:text-2xl lg:text-3xl', bgStyle.textTitle)}>
         {title}
       </h2>
@@ -144,16 +175,29 @@ export function Stripe({
         bgStyle.border,
         bgStyle.borderGradient,
         'p-5 sm:p-6 lg:p-8 transition-colors duration-300',
-        'flex flex-col gap-4 sm:gap-6',
-        imagePosition === 'right' && 'md:flex-row-reverse',
-        imagePosition === 'left' && 'md:flex-row',
-        'md:items-center md:justify-between',
+        isLandscape
+          ? cn(
+              'grid gap-4 sm:gap-6 md:items-stretch',
+              resolvedImagePosition === 'right' ? 'md:grid-cols-[1fr_35%]' : 'md:grid-cols-[35%_1fr]'
+            )
+          : 'flex flex-col gap-4 sm:gap-6 md:items-center md:justify-between',
+        !isLandscape && resolvedImagePosition === 'right' && 'md:flex-row-reverse',
+        !isLandscape && resolvedImagePosition === 'left' && 'md:flex-row',
         className
       )}
-      data-testid="stripe-component"
+      data-testid={dataTestId}
     >
-      {imageEl}
-      {contentEl}
+      {isLandscape && resolvedImagePosition === 'right' ? (
+        <>
+          {contentEl}
+          <div>{landscapeImageEl}</div>
+        </>
+      ) : (
+        <>
+          <div>{isLandscape ? landscapeImageEl : portraitImageEl}</div>
+          {contentEl}
+        </>
+      )}
     </section>
   );
 
