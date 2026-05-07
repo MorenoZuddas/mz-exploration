@@ -18,6 +18,7 @@ interface HeroProps {
   tone?: 'current' | 'blue' | 'purple' | 'black';
   titleColor?: 'current' | 'blue' | 'purple' | 'black';
   subtitleColor?: 'current' | 'blue' | 'purple' | 'black';
+  'data-testid'?: string;
 }
 
 const heroSizeVariants = {
@@ -75,6 +76,7 @@ export function Hero({
   tone,
   titleColor = 'current',
   subtitleColor = 'current',
+  'data-testid': dataTestId = 'hero-section',
 }: HeroProps) {
   const resolvedTitleTone = tone ?? titleColor;
   const resolvedSubtitleTone = tone ?? subtitleColor;
@@ -84,7 +86,7 @@ export function Hero({
   return (
     <section
       className={`relative w-full ${resolvedHeightClassName} overflow-hidden hero-component ${className}`}
-      data-testid="hero-section"
+      data-testid={dataTestId}
     >
       {/* Video Background */}
       {useVideo ? (

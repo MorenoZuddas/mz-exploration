@@ -17,6 +17,7 @@ interface BadgeChipProps {
   className?: string;
   textClassName?: string;
   icon?: ReactNode;
+  'data-testid'?: string;
 }
 
 const sizeStyles: Record<BadgeChipSize, { wrapper: string; icon: string }> = {
@@ -80,6 +81,7 @@ export function BadgeChip({
   className = '',
   textClassName = '',
   icon,
+  'data-testid': dataTestId,
 }: BadgeChipProps) {
   const style = chipStyles[type];
   const sizing = sizeStyles[size];
@@ -96,6 +98,7 @@ export function BadgeChip({
   return (
     <span
       className={`inline-flex items-center gap-1.5 font-semibold ${radius} ${sizing.wrapper} ${floatClass} ${style.wrapper} ${style.text} ${className}`}
+      data-testid={dataTestId}
     >
       {iconWithSize}
       <span className={textClassName}>{text ?? style.defaultText}</span>

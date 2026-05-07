@@ -115,7 +115,8 @@ export function Stripe({
   const landscapeImageEl = (
     <div
       className={cn(
-        'relative overflow-hidden rounded-xl border shrink-0 w-full aspect-[4/5] sm:aspect-[3/4] lg:aspect-[4/5]',
+        // h-full + min-h per riempire la cella griglia senza conflitto con items-stretch
+        'relative overflow-hidden rounded-xl border w-full h-full min-h-[280px]',
         background === 'white'
           ? 'border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800'
           : 'border-slate-700 dark:border-slate-600 bg-slate-800 dark:bg-slate-900'
@@ -190,11 +191,11 @@ export function Stripe({
       {isLandscape && resolvedImagePosition === 'right' ? (
         <>
           {contentEl}
-          <div>{landscapeImageEl}</div>
+          <div className="h-full">{landscapeImageEl}</div>
         </>
       ) : (
         <>
-          <div>{isLandscape ? landscapeImageEl : portraitImageEl}</div>
+          <div className={cn(isLandscape ? 'h-full' : undefined)}>{isLandscape ? landscapeImageEl : portraitImageEl}</div>
           {contentEl}
         </>
       )}
