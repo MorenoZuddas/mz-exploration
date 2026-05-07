@@ -77,16 +77,17 @@ export default function AboutPage() {
         <Stripe
           imageSrc={about.hero.imageSrc}
           imageAlt={about.hero.imageAlt}
-          imagePosition="left"
-          imageSize="md"
+          imagePosition="right"
+          imageSize="lg"
+          imageKind="pic-portrait"
           title={about.hero.headline}
           subtitle={about.hero.tagline}
           buttons={{
             label: about.hero.ctaLabel,
             href: about.hero.ctaHref,
-            tone: 'black',
+            tone: 'white',
           }}
-          background="white"
+          background="navy"
           className="about-hero-stripe"
           data-testid="about-hero-section"
         />
