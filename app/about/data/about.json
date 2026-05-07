@@ -1,0 +1,103 @@
+{
+  "hero": {
+    "headline": "Sviluppatore Web/Mobile | Esploratore del Mondo",
+    "tagline": "Curioso per natura, amante del mondo — costruisco per capire, esploro per vivere.",
+    "imageSrc": "https://res.cloudinary.com/derbnvxif/image/upload/v1778058830/MZ_profile_image_vf775z.png",
+    "imageAlt": "Foto profilo di Moreno Zuddas, sviluppatore web/mobile",
+    "ctaLabel": "Contattami",
+    "ctaHref": "/contact"
+  },
+  "mission": {
+    "title": "La mia visione",
+    "paragraphs": [
+      "Ho iniziato a capire il mondo dai circuiti. La laurea in ingegneria elettronica mi ha insegnato a ragionare in modo preciso, a partire dai dettagli più piccoli per arrivare a sistemi complessi. Oggi faccio lo stesso con il software: costruisco applicazioni web e mobile cercando di tenere insieme rigore tecnico e semplicità d'uso.",
+      "Ma c'è una parte di me che non si accontenta dello schermo. Ho bisogno di muovermi — che sia correre, viaggiare o esplorare posti nuovi. Quella libertà non è una fuga dal lavoro: è la stessa curiosità che mi spinge a imparare, a fare domande, a non fermarmi alla prima soluzione.",
+      "MZ Exploration nasce da questo: un progetto personale dove dati, codice e movimento si incontrano. Non per dimostrare qualcosa, ma perché trovo genuinamente bello costruire cose che rispecchiano chi sei."
+    ]
+  },
+  "skills": [
+    {
+      "category": "Frontend",
+      "name": "Web Development",
+      "description": "Costruisco interfacce moderne con React, Next.js, TypeScript e Tailwind CSS.",
+      "icon": "Code2"
+    },
+    {
+      "category": "Mobile",
+      "name": "Mobile Development",
+      "description": "Sviluppo applicazioni mobile native e cross-platform con attenzione all'esperienza utente.",
+      "icon": "Smartphone"
+    },
+    {
+      "category": "Engineering",
+      "name": "Electrical Engineering",
+      "description": "Laurea triennale in ingegneria elettronica: basi solide su sistemi, segnali e hardware.",
+      "icon": "Cpu"
+    },
+    {
+      "category": "Cloud & Infra",
+      "name": "DevOps / Cloud",
+      "description": "Deploy e infrastruttura con Vercel, MongoDB Atlas e ambienti serverless.",
+      "icon": "Activity"
+    },
+    {
+      "category": "Data",
+      "name": "Data Analysis & Visualization",
+      "description": "Trasformo dati grezzi in visualizzazioni leggibili e significative.",
+      "icon": "Lightbulb"
+    },
+    {
+      "category": "CMS & Digital",
+      "name": "AEM Business Practitioner",
+      "description": "Certificato Adobe Experience Manager: gestione contenuti e digital experience su scala.",
+      "icon": "Puzzle"
+    }
+  ],
+  "passions": [
+    {
+      "title": "Tracking & Running",
+      "description": "Corro con costanza e registro ogni attività. I dati del movimento sono il cuore di MZ Exploration.",
+      "icon": "Activity"
+    },
+    {
+      "title": "Exploration & Travel",
+      "description": "Viaggiare è il modo in cui rimango curioso. Ogni posto nuovo è un sistema da capire.",
+      "icon": "Plane"
+    },
+    {
+      "title": "Tech Innovation",
+      "description": "Seguo l'evoluzione del software con interesse genuino, non per moda.",
+      "icon": "Cpu"
+    },
+    {
+      "title": "Problem Solving",
+      "description": "Mi piace smontare i problemi fino al dettaglio e ricostruire soluzioni pulite.",
+      "icon": "Puzzle"
+    }
+  ],
+  "contacts": [
+    {
+      "label": "Email",
+      "href": "mailto:morenozuddas1@gmail.com",
+      "icon": "Mail"
+    },
+    {
+      "label": "GitHub",
+      "href": "https://github.com/MorenoZuddas7",
+      "icon": "Github"
+    },
+    {
+      "label": "LinkedIn",
+      "href": "https://www.linkedin.com/in/moreno-zuddas-12321a128/",
+      "icon": "Linkedin"
+    },
+    {
+      "label": "Strava",
+      "href": "https://www.strava.com/athletes/154912379",
+      "icon": "Activity"
+    }
+  ]
+}
+
+
+

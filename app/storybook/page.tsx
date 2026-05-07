@@ -31,6 +31,7 @@ import { ActivityClickHandler } from "@/components/ActivityClickWrapper"
 import { Filter, type FilterConfig, type FilterType } from "@/components/Filter"
 import { Statistics, type StatisticsMetricKey } from "@/components/Statistics"
 import { AnimatedSection, CardGrid, Divider, Hero, PageShell, Text, type CardGridItem } from "@/components/generic"
+import { Stripe } from "@/components/Stripe"
 import { cn } from "@/lib/utils"
 
 type Tone = "current" | "blue" | "purple" | "black"
@@ -276,6 +277,7 @@ const STORYBOOK_NAV = [
   { id: "modal", label: "Modal" },
   { id: "statistics-single", label: "Statistics - Single Test" },
   { id: "statistics", label: "Statistics + Filter Sync" },
+  { id: "stripe", label: "Stripe" },
   { id: "text", label: "Text" },
 ]
 
@@ -1423,6 +1425,81 @@ function FilterSection() {
   )
 }
 
+function StripeSection() {
+  const [imagePosition, setImagePosition] = useState<"left" | "right">("left")
+  const [imageSize, setImageSize] = useState<"sm" | "md" | "lg">("md")
+  const [background, setBackground] = useState<"white" | "navy">("white")
+  const [twoButtons, setTwoButtons] = useState(false)
+  const [animated, setAnimated] = useState(true)
+
+  const buttons = twoButtons
+    ? [
+        { label: "Azione primaria", href: "#", tone: background === "white" ? "black" as const : "white" as const },
+        { label: "Secondaria", href: "#", variant: "outline" as const, tone: background === "white" ? "black" as const : "white" as const },
+      ]
+    : { label: "Contattami", href: "#", tone: background === "white" ? "black" as const : "white" as const }
+
+  return (
+    <Section id="stripe" title="Stripe">
+      <div className="grid lg:grid-cols-[320px_1fr] gap-4 mb-4">
+        <Panel>
+          <div className="grid gap-2">
+            <Ctl label="imagePosition" value={imagePosition} options={["left", "right"]} onChange={(v) => setImagePosition(v as "left" | "right")} />
+            <Ctl label="imageSize" value={imageSize} options={["sm", "md", "lg"]} onChange={(v) => setImageSize(v as "sm" | "md" | "lg")} />
+            <Ctl label="background" value={background} options={["white", "navy"]} onChange={(v) => setBackground(v as "white" | "navy")} />
+            <Ctl label="bottoni" value={twoButtons ? "2" : "1"} options={["1", "2"]} onChange={(v) => setTwoButtons(v === "2")} />
+            <Ctl label="animated" value={animated ? "true" : "false"} options={["true", "false"]} onChange={(v) => setAnimated(v === "true")} />
+          </div>
+        </Panel>
+        <Panel className={background === "navy" ? "bg-slate-900 border-slate-700" : ""}>
+          <Stripe
+            imageSrc="https://res.cloudinary.com/derbnvxif/image/upload/v1778058830/MZ_profile_image_vf775z.png"
+            imageAlt="Demo avatar"
+            imagePosition={imagePosition}
+            imageSize={imageSize}
+            title="Titolo principale della Stripe"
+            subtitle="Sottotitolo breve e chiaro"
+            text="Testo facoltativo per una descrizione aggiuntiva. Puoi usarlo per aggiungere contesto."
+            buttons={buttons}
+            background={background}
+            animated={animated}
+          />
+        </Panel>
+      </div>
+
+      <div className="mt-6 space-y-4">
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Varianti rapide</p>
+        <Stripe
+          imageSrc="https://res.cloudinary.com/derbnvxif/image/upload/v1778058830/MZ_profile_image_vf775z.png"
+          imageAlt="Demo"
+          imagePosition="left"
+          imageSize="sm"
+          title="Stripe white — immagine sinistra, small"
+          subtitle="Con un solo bottone"
+          buttons={{ label: "Scopri", href: "#", tone: "black" }}
+          background="white"
+          animated={false}
+        />
+        <Stripe
+          imageSrc="https://res.cloudinary.com/derbnvxif/image/upload/v1778058830/MZ_profile_image_vf775z.png"
+          imageAlt="Demo"
+          imagePosition="right"
+          imageSize="lg"
+          title="Stripe navy — immagine destra, large"
+          subtitle="Due bottoni, sfondo scuro"
+          text="Il testo opzionale aggiunge profondità alla composizione."
+          buttons={[
+            { label: "Principale", href: "#", tone: "white" },
+            { label: "Secondario", href: "#", variant: "outline", tone: "white" },
+          ]}
+          background="navy"
+          animated={false}
+        />
+      </div>
+    </Section>
+  )
+}
+
 function TextSection() {
   const [variant, setVariant] = useState<typeof TEXT_VARIANTS[number]>("title")
   const [tag, setTag] = useState<typeof TEXT_TAGS[number]>("h2")
@@ -1731,6 +1808,7 @@ export default function StorybookPage() {
            <ModalSection />
            <StatisticsSingleTestSection />
            <StatisticsSection />
+           <StripeSection />
            <TextSection />
         </main>
       </div>
