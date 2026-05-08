@@ -32,24 +32,24 @@ interface HeaderProps {
 
 const headerToneClasses: Record<NonNullable<HeaderProps['tone']>, { link: string; hoverBg: string; border: string }> = {
   current: {
-    link: 'hover:text-blue-400',
-    hoverBg: 'hover:bg-slate-800',
-    border: 'border-slate-700',
+    link: 'hover:text-[var(--color-comp-header-link-hover)]',
+    hoverBg: 'hover:bg-[var(--color-comp-header-hover-bg)]',
+    border: 'border-[var(--color-comp-header-border)]',
   },
   blue: {
-    link: 'hover:text-blue-200',
-    hoverBg: 'hover:bg-blue-900/30',
-    border: 'border-blue-900/70',
+    link:    'hover:text-[var(--color-comp-header-blue-link-hover)]',
+    hoverBg: 'hover:bg-[var(--color-comp-header-blue-hover-bg)]',
+    border:  'border-[var(--color-comp-header-blue-border)]',
   },
   purple: {
-    link: 'hover:text-violet-200',
-    hoverBg: 'hover:bg-violet-900/30',
-    border: 'border-violet-900/70',
+    link:    'hover:text-[var(--color-comp-header-purple-link-hover)]',
+    hoverBg: 'hover:bg-[var(--color-comp-header-purple-hover-bg)]',
+    border:  'border-[var(--color-comp-header-purple-border)]',
   },
   black: {
-    link: 'hover:text-slate-200',
-    hoverBg: 'hover:bg-black/40',
-    border: 'border-slate-600',
+    link:    'hover:text-[var(--color-comp-header-black-link-hover)]',
+    hoverBg: 'hover:bg-[var(--color-comp-header-black-hover-bg)]',
+    border:  'border-[var(--color-comp-header-black-border)]',
   },
 };
 
@@ -64,7 +64,7 @@ const defaultExplorationItems: HeaderExplorationItem[] = [
 
 export default function Header({
   className = '',
-  backgroundClassName = 'bg-slate-900 dark:bg-slate-950',
+  backgroundClassName = 'bg-[var(--color-comp-header-bg)]',
   tone = 'current',
   logoSrc = '/logo/hp-logo.svg',
   logoAlt = 'mz-exploration logo',
@@ -78,12 +78,12 @@ export default function Header({
   const isLightBg = backgroundClassName.includes('bg-white');
   const toneClasses = isLightBg
     ? {
-        link: 'text-slate-900 hover:text-slate-700',
-        hoverBg: 'hover:bg-slate-100',
-        border: 'border-slate-900/30',
+        link: 'text-[var(--color-role-text-primary)] hover:text-[var(--color-role-text-secondary)]',
+        hoverBg: 'hover:bg-[var(--color-role-surface-muted)]',
+        border: 'border-[var(--color-role-border-soft)]',
       }
     : headerToneClasses[tone];
-  const rootTextClass = isLightBg ? 'text-slate-900' : 'text-white';
+  const rootTextClass = isLightBg ? 'text-[var(--color-role-text-primary)]' : 'text-[var(--color-comp-header-text)]';
   const explorationTextColumnWidth = '5.75rem';
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isExplorationOpen, setIsExplorationOpen] = useState(false);
@@ -143,10 +143,10 @@ export default function Header({
 
               {/* Dropdown Menu */}
               <div
-                className={`absolute left-0 mt-1 w-max ${isLightBg ? 'bg-white' : 'bg-slate-800/95 backdrop-blur'} rounded-md border shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 overflow-hidden ${toneClasses.border}`}
+                className={`absolute left-0 mt-1 w-max ${isLightBg ? 'bg-[var(--color-role-surface-base)]' : 'bg-[var(--color-comp-header-dropdown-bg)] backdrop-blur'} rounded-md border shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 overflow-hidden ${toneClasses.border}`}
                 style={{ ['--exp-text-w' as string]: explorationTextColumnWidth }}
               >
-                <div className={`${isLightBg ? 'divide-y divide-slate-200' : 'divide-y divide-slate-700/80'}`}>
+                <div className={`${isLightBg ? 'divide-y divide-[var(--color-role-border-soft)]' : 'divide-y divide-[var(--color-comp-header-divide-dark)]'}`}>
                   {explorationItems.map((item) => (
                     <Link
                       key={`${item.href}-${item.label}`}
@@ -231,9 +231,9 @@ export default function Header({
               </div>
 
               {isExplorationOpen && (
-                <div className={`${isLightBg ? 'bg-white' : 'bg-slate-800/95'} rounded-md border mt-1 overflow-hidden ${toneClasses.border}`}>
-                  <div className={`${isLightBg ? 'divide-y divide-slate-200' : 'divide-y divide-slate-700/80'}`}>
-                  {explorationItems.map((item) => (
+                <div className={`${isLightBg ? 'bg-[var(--color-role-surface-base)]' : 'bg-[var(--color-comp-header-dropdown-bg)]'} rounded-md border mt-1 overflow-hidden ${toneClasses.border}`}>
+                  <div className={`${isLightBg ? 'divide-y divide-[var(--color-role-border-soft)]' : 'divide-y divide-[var(--color-comp-header-divider)]/80'}`}>
+                    {explorationItems.map((item) => (
                     <Link
                       key={`${item.href}-${item.label}-mobile`}
                       href={item.href}

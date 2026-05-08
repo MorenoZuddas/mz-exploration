@@ -29,12 +29,12 @@ const variantClasses: Record<TextVariant, string> = {
 };
 
 const toneClasses: Record<TextTone, string> = {
-  current: 'text-slate-900 dark:text-white',
-  blue: 'text-blue-700 dark:text-blue-300',
-  purple: 'text-violet-700 dark:text-violet-300',
-  black: 'text-black dark:text-slate-100',
-  navy: 'text-slate-900 dark:text-slate-100',
-  white: 'text-white',
+  current: 'text-[var(--color-tone-current-title)]',
+  blue: 'text-[var(--color-tone-blue-title)]',
+  purple: 'text-[var(--color-tone-purple-title)]',
+  black: 'text-[var(--color-tone-black-title)]',
+  navy: 'text-[var(--color-tone-navy-title)]',
+  white: 'text-[var(--color-tone-white-title)]',
 };
 
 const sizeClasses: Record<TextSize, string> = {

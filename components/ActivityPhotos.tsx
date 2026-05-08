@@ -30,10 +30,10 @@ const gridByColumns: Record<NonNullable<ActivityPhotosProps['columns']>, string>
 };
 
 const modalToneByVariant: Record<NonNullable<ActivityPhotosProps['tone']>, string> = {
-  current: 'bg-black/80',
-  blue: 'bg-blue-950/85',
-  purple: 'bg-violet-950/85',
-  black: 'bg-black/90',
+  current: 'bg-[var(--color-comp-photos-overlay-current)]',
+  blue: 'bg-[var(--color-comp-photos-overlay-blue)]',
+  purple: 'bg-[var(--color-comp-photos-overlay-purple)]',
+  black: 'bg-[var(--color-comp-photos-overlay-black)]',
 };
 
 export function ActivityPhotos({
@@ -88,7 +88,7 @@ export function ActivityPhotos({
               variant="secondary"
               tone="black"
               size="icon"
-              className="absolute right-2 top-2 z-10 h-10 w-10 rounded-full bg-black/60 text-2xl text-white hover:bg-black/75"
+              className="absolute right-2 top-2 z-10 h-10 w-10 rounded-full bg-[var(--color-comp-photos-btn-bg)] text-2xl text-white hover:bg-[var(--color-comp-photos-btn-hover)]"
               onClick={(e) => {
                 e.stopPropagation();
                 setSelectedPhoto(null);

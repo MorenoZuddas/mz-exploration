@@ -1,18 +1,18 @@
 {
   "hero": {
-    "headline": "Sviluppatore Web/Mobile | Esploratore del Mondo",
-    "tagline": "Curioso per natura, amante del mondo — costruisco per capire, esploro per vivere.",
+    "headline": "Sviluppatore Web/AEM",
+    "tagline": "Curioso per natura, amante del mondo. Costruisco per capire, esploro per vivere.",
     "imageSrc": "https://res.cloudinary.com/derbnvxif/image/upload/v1778058830/MZ_profile_image_vf775z.png",
     "imageAlt": "Foto profilo di Moreno Zuddas, sviluppatore web/mobile",
     "ctaLabel": "Contattami",
     "ctaHref": "/contact"
   },
   "mission": {
-    "title": "La mia visione",
+    "title": "La mia storia",
     "paragraphs": [
-      "Ho iniziato a capire il mondo dai circuiti. La laurea in ingegneria elettronica mi ha insegnato a ragionare in modo preciso, a partire dai dettagli più piccoli per arrivare a sistemi complessi. Oggi faccio lo stesso con il software: costruisco applicazioni web e mobile cercando di tenere insieme rigore tecnico e semplicità d'uso.",
-      "Ma c'è una parte di me che non si accontenta dello schermo. Ho bisogno di muovermi — che sia correre, viaggiare o esplorare posti nuovi. Quella libertà non è una fuga dal lavoro: è la stessa curiosità che mi spinge a imparare, a fare domande, a non fermarmi alla prima soluzione.",
-      "MZ Exploration nasce da questo: un progetto personale dove dati, codice e movimento si incontrano. Non per dimostrare qualcosa, ma perché trovo genuinamente bello costruire cose che rispecchiano chi sei."
+      "Ho iniziato a capire il mondo della tecnologia sin dai vecchi MS-DoS e Windows '95, passando attraverso i Nokia 3310, agli ipod  per poi arrivare sin qui. Nel mezzo la laurea in ingegneria elettronica mi ha insegnato a ragionare in modo preciso, a partire dai dettagli più piccoli per arrivare a sistemi complessi. Oggi faccio lo stesso con gli aspetti della mia vita: costruisco cercando di tenere insieme rigore e semplicità.",
+      "Ma c'è una parte di me che non riesce proprio a stare ferma su una sedia. Da li è nata la mia passione per la corsa e per l'endurance. Quella libertà non è una fuga dal lavoro: è la stessa curiosità che mi spinge a imparare, a fare domande, a non fermarmi alla prima difficoltà ma affrontare anche le sfide più difficili.",
+      "Questo progetto nasce dalla dinamicità: codice e movimento si incontrano per mostrare genuinamente che è bello costruire cose che rispecchiano chi sei."
     ]
   },
   "skills": [

@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 
 import { AnimatedSection, PageShell } from '@/components/generic';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, type CardTone } from '@/components/ui/card';
 import { Stripe } from '@/components/Stripe';
 
 import aboutJson from './data/about.json';
@@ -37,6 +37,9 @@ const iconMap: Record<AboutIconName, LucideIcon> = {
   Linkedin: Smartphone,
   ExternalLink,
 };
+
+const skillCardColors: CardTone[] = ['blue', 'purple', 'navy', 'crimson', 'pear', 'current'];
+const passionCardColors: CardTone[] = ['navy', 'crimson', 'pear', 'blue'];
 
 function resolveIcon(name: AboutIconName): LucideIcon {
   return iconMap[name] ?? ExternalLink;
@@ -113,22 +116,24 @@ export default function AboutPage() {
           <section data-testid="about-skills-section">
             <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 sm:text-2xl">Competenze e Background</h2>
             <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-              {about.skills.map((skill) => {
+              {about.skills.map((skill, index) => {
                 const Icon = resolveIcon(skill.icon);
+                const backgroundColor = skillCardColors[index % skillCardColors.length];
                 return (
                   <Card
                     key={`${skill.category}-${skill.name}`}
-                    className="h-full border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 transition-all duration-300 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-md"
+                    tone={backgroundColor}
+                    className="h-full transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
                   >
                     <CardHeader className="pb-3">
-                      <div className="flex items-center gap-2 text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                      <div className="flex items-center gap-2 text-xs uppercase tracking-wide opacity-80">
                         <Icon className="h-4 w-4" aria-hidden="true" />
                         <span>{skill.category}</span>
                       </div>
-                      <CardTitle className="text-lg text-slate-900 dark:text-slate-100">{skill.name}</CardTitle>
+                      <CardTitle className="text-lg">{skill.name}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">{skill.description}</p>
+                      <p className="text-sm leading-relaxed opacity-90">{skill.description}</p>
                     </CardContent>
                   </Card>
                 );
@@ -143,21 +148,23 @@ export default function AboutPage() {
           <section data-testid="about-passions-section">
             <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 sm:text-2xl">Cosa mi muove</h2>
             <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {about.passions.map((passion) => {
+              {about.passions.map((passion, index) => {
                 const Icon = resolveIcon(passion.icon);
+                const backgroundColor = passionCardColors[index % passionCardColors.length];
                 return (
                   <Card
                     key={passion.title}
-                    className="h-full border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/50 transition-all duration-300 hover:border-slate-300 dark:hover:border-slate-600 hover:shadow-md"
+                    tone={backgroundColor}
+                    className="h-full transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
                   >
                     <CardHeader className="pb-2">
-                      <CardTitle className="flex items-center gap-2 text-base text-slate-900 dark:text-slate-100 sm:text-lg">
-                        <Icon className="h-4 w-4 text-slate-500 dark:text-slate-400" aria-hidden="true" />
+                      <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+                        <Icon className="h-4 w-4 opacity-80" aria-hidden="true" />
                         {passion.title}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">{passion.description}</p>
+                      <p className="text-sm leading-relaxed opacity-90">{passion.description}</p>
                     </CardContent>
                   </Card>
                 );

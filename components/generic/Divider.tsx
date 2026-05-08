@@ -28,20 +28,20 @@ const iconMap: Record<DividerIconType, ReactNode> = {
 
 const toneVariants: Record<NonNullable<DividerProps['tone']>, { line: string; symbol: string }> = {
   current: {
-    line: 'bg-gradient-to-r from-transparent via-slate-300 to-transparent dark:via-slate-700',
-    symbol: 'text-slate-500 dark:text-slate-400',
+    line: 'bg-gradient-to-r from-transparent via-[var(--color-comp-divider-current-line)] to-transparent',
+    symbol: 'text-[var(--color-comp-divider-current-symbol)]',
   },
   blue: {
-    line: 'bg-gradient-to-r from-transparent via-blue-600 to-transparent dark:via-blue-500',
-    symbol: 'text-blue-600 dark:text-blue-400',
+    line: 'bg-gradient-to-r from-transparent via-[var(--color-comp-divider-blue-line)] to-transparent',
+    symbol: 'text-[var(--color-comp-divider-blue-symbol)]',
   },
   purple: {
-    line: 'bg-gradient-to-r from-transparent via-violet-900 to-transparent dark:via-violet-700',
-    symbol: 'text-violet-900 dark:text-violet-400',
+    line: 'bg-gradient-to-r from-transparent via-[var(--color-comp-divider-purple-line)] to-transparent',
+    symbol: 'text-[var(--color-comp-divider-purple-symbol)]',
   },
   black: {
-    line: 'bg-gradient-to-r from-transparent via-black to-transparent dark:via-slate-200',
-    symbol: 'text-black dark:text-slate-200',
+    line: 'bg-gradient-to-r from-transparent via-[var(--color-comp-divider-black-line)] to-transparent',
+    symbol: 'text-[var(--color-comp-divider-black-symbol)]',
   },
 };
 

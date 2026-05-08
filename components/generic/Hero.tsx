@@ -43,17 +43,17 @@ const heroAlignVariants = {
 } as const;
 
 const heroTitleColorVariants = {
-  current: 'text-white',
-  blue: 'text-blue-300',
-  purple: 'text-violet-300',
-  black: 'text-black dark:text-slate-200',
+  current: 'text-[var(--color-comp-hero-title-current)]',
+  blue: 'text-[var(--color-comp-hero-title-blue)]',
+  purple: 'text-[var(--color-comp-hero-title-purple)]',
+  black: 'text-[var(--color-comp-hero-title-black)]',
 } as const;
 
 const heroSubtitleColorVariants = {
-  current: 'text-white/90',
-  blue: 'text-blue-200',
-  purple: 'text-violet-200',
-  black: 'text-black/85 dark:text-slate-300',
+  current: 'text-[var(--color-comp-hero-subtitle-current)]',
+  blue: 'text-[var(--color-comp-hero-subtitle-blue)]',
+  purple: 'text-[var(--color-comp-hero-subtitle-purple)]',
+  black: 'text-[var(--color-comp-hero-subtitle-black)]',
 } as const;
 
 export function Hero({
@@ -71,7 +71,7 @@ export function Hero({
   heightClassName,
   titleClassName = 'text-3xl sm:text-4xl lg:text-5xl',
   subtitleClassName = 'text-base sm:text-lg lg:text-xl',
-  overlayClassName = 'bg-black/40',
+  overlayClassName = 'bg-[var(--color-comp-hero-overlay)]',
   contentAlign = 'center',
   tone,
   titleColor = 'current',

@@ -28,24 +28,24 @@ interface FooterProps {
 
 const footerToneClasses: Record<NonNullable<FooterProps['tone']>, { link: string; separator: string; border: string }> = {
   current: {
-    link: 'text-gray-400 hover:text-blue-400',
-    separator: 'text-gray-600',
-    border: 'border-slate-700',
+    link: 'text-[var(--color-comp-footer-link)] hover:text-[var(--color-comp-footer-link-hover)]',
+    separator: 'text-[var(--color-comp-footer-separator)]',
+    border: 'border-[var(--color-comp-footer-border)]',
   },
   blue: {
-    link: 'text-blue-300 hover:text-blue-100',
-    separator: 'text-blue-700',
-    border: 'border-blue-900/60',
+    link:      'text-[var(--color-comp-footer-blue-link)] hover:text-[var(--color-comp-footer-blue-link-hover)]',
+    separator: 'text-[var(--color-comp-footer-blue-separator)]',
+    border:    'border-[var(--color-comp-footer-blue-border)]',
   },
   purple: {
-    link: 'text-violet-300 hover:text-violet-100',
-    separator: 'text-violet-700',
-    border: 'border-violet-900/60',
+    link:      'text-[var(--color-comp-footer-purple-link)] hover:text-[var(--color-comp-footer-purple-link-hover)]',
+    separator: 'text-[var(--color-comp-footer-purple-separator)]',
+    border:    'border-[var(--color-comp-footer-purple-border)]',
   },
   black: {
-    link: 'text-slate-300 hover:text-white',
-    separator: 'text-slate-600',
-    border: 'border-slate-600',
+    link:      'text-[var(--color-comp-footer-black-link)] hover:text-[var(--color-comp-footer-black-link-hover)]',
+    separator: 'text-[var(--color-comp-footer-black-separator)]',
+    border:    'border-[var(--color-comp-footer-black-border)]',
   },
 };
 
@@ -96,7 +96,7 @@ const defaultSocialLinks: FooterSocialLink[] = [
 
 export default function Footer({
   className = '',
-  backgroundClassName = 'bg-slate-900 dark:bg-slate-950',
+  backgroundClassName = 'bg-[var(--color-comp-footer-bg)]',
   tone = 'current',
   logoSrc = '/logo/hp-logo.svg',
   logoAlt = 'mz-exploration logo',
@@ -109,12 +109,12 @@ export default function Footer({
   const isLightBg = backgroundClassName.includes('bg-white');
   const toneClasses = isLightBg
     ? {
-        link: 'text-slate-800 hover:text-slate-950',
-        separator: 'text-slate-400',
-        border: 'border-slate-300',
+        link: 'text-[var(--color-role-text-primary)] hover:text-[var(--color-role-text-secondary)]',
+        separator: 'text-[var(--color-role-text-secondary)]',
+        border: 'border-[var(--color-role-border-soft)]',
       }
     : footerToneClasses[tone];
-  const rootTextClass = isLightBg ? 'text-slate-900' : 'text-white';
+  const rootTextClass = isLightBg ? 'text-[var(--color-role-text-primary)]' : 'text-[var(--color-comp-footer-text)]';
 
   return (
     <footer className={`${backgroundClassName} ${rootTextClass} py-3 ${className}`}>
@@ -160,7 +160,7 @@ export default function Footer({
 
         {/* Copyright + Social Icons - Bottom */}
         <div className={`mt-3 pt-3 border-t ${toneClasses.border}`}>
-          <p className={`${isLightBg ? 'text-slate-400' : 'text-gray-500'} w-full text-[10px] text-center`}>{copyrightText}</p>
+          <p className={`${isLightBg ? 'text-[var(--color-role-text-secondary)]' : 'text-[var(--color-comp-footer-copyright)]'} w-full text-[10px] text-center`}>{copyrightText}</p>
         </div>
       </div>
     </footer>

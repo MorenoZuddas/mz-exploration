@@ -2,6 +2,8 @@
 
 Questa guida descrive come usare, modificare ed estendere i componenti props-based del progetto `mz-exploration`.
 
+Per la palette colori centralizzata, vedi anche `docs/COLOR_PALETTE.md`.
+
 ## Obiettivo
 
 - Usare componenti riutilizzabili con props consistenti.
@@ -12,7 +14,7 @@ Questa guida descrive come usare, modificare ed estendere i componenti props-bas
 
 ## Convenzioni globali
 
-- `tone`: tema colore (`current | blue | purple | black`)
+- `tone`: tema colore
 - `size`: taglia componente (`sm | md | lg` o varianti specifiche)
 - `className`: override CSS finale
 - `...ClassName`: override di una porzione (es. `contentClassName`, `gridClassName`)
@@ -50,7 +52,7 @@ Questa guida descrive come usare, modificare ed estendere i componenti props-bas
 
 ### Props principali
 - `variant`: `default | horizontal | vertical | stats`
-- `tone`: `current | blue | purple | black`
+- `tone`: `current | blue | purple | black | navy | crimson | pear`
 - `size`: `sm | md | lg`
 - `className`
 - `dataName`
@@ -58,7 +60,7 @@ Questa guida descrive come usare, modificare ed estendere i componenti props-bas
 ### Esempio
 
 ```tsx
-<Card variant="vertical" tone="blue" size="md" className="hover:shadow-lg" />
+<Card variant="vertical" tone="navy" size="lg" className="hover:shadow-lg" />
 ```
 
 ---

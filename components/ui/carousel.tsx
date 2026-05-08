@@ -348,11 +348,11 @@ function ExternalNavButtons({ canScrollPrev, canScrollNext, onPrev, onNext, clas
   return (
     <div className={cn("flex items-center gap-1.5", className)}>
       <button type="button" onClick={onPrev} disabled={!canScrollPrev} aria-label="Slide precedente"
-        className={cn("inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 shadow-sm transition disabled:opacity-40 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700", previousBtnClassName)}>
+        className={cn("inline-flex h-8 w-8 items-center justify-center rounded-full border border-[var(--color-comp-carousel-nav-border)] bg-[var(--color-comp-carousel-nav-bg)] text-[var(--color-comp-carousel-nav-text)] shadow-sm transition disabled:opacity-40 hover:bg-[var(--color-comp-carousel-nav-bg-hover)]", previousBtnClassName)}>
         <ArrowLeft className="h-4 w-4" />
       </button>
       <button type="button" onClick={onNext} disabled={!canScrollNext} aria-label="Slide successiva"
-        className={cn("inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 shadow-sm transition disabled:opacity-40 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700", nextBtnClassName)}>
+        className={cn("inline-flex h-8 w-8 items-center justify-center rounded-full border border-[var(--color-comp-carousel-nav-border)] bg-[var(--color-comp-carousel-nav-bg)] text-[var(--color-comp-carousel-nav-text)] shadow-sm transition disabled:opacity-40 hover:bg-[var(--color-comp-carousel-nav-bg-hover)]", nextBtnClassName)}>
         <ArrowRight className="h-4 w-4" />
       </button>
     </div>
@@ -368,7 +368,7 @@ function ExternalNavButton({ direction, canScroll, onClick, className, btnClassN
         disabled={!canScroll}
         aria-label={direction === "prev" ? "Slide precedente" : "Slide successiva"}
         className={cn(
-          "inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-300 bg-white text-slate-700 shadow-sm transition disabled:opacity-40 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700",
+          "inline-flex h-8 w-8 items-center justify-center rounded-full border border-[var(--color-comp-carousel-nav-border)] bg-[var(--color-comp-carousel-nav-bg)] text-[var(--color-comp-carousel-nav-text)] shadow-sm transition disabled:opacity-40 hover:bg-[var(--color-comp-carousel-nav-bg-hover)]",
           btnClassName
         )}
       >
@@ -476,7 +476,7 @@ function CarouselCards<TItem>({
         <div className={cn("mb-4", topRightVisible !== "hidden" && totalSlides > 1 ? "relative" : "") }>
           {(title || topRightVisible !== "hidden") && (
             <div className={cn("flex items-start justify-between gap-4", !title && topRightVisible !== "hidden" && "justify-end")}>
-              {title ? <h2 className={cn("text-xl font-bold text-slate-900 dark:text-white", titleClassName)}>{title}</h2> : null}
+              {title ? <h2 className={cn("text-xl font-bold text-[var(--color-tone-current-title)]", titleClassName)}>{title}</h2> : null}
               {topRightVisible !== "hidden" && totalSlides > 1 ? (
                 <ExternalNavButtons
                   canScrollPrev={canScrollPrev}
@@ -494,7 +494,7 @@ function CarouselCards<TItem>({
           {description ? (
             <p
               className={cn(
-                "mt-1 text-sm text-slate-600 dark:text-slate-400",
+                "mt-1 text-sm text-[var(--color-tone-current-subtitle)]",
                 topRightVisible !== "hidden" && totalSlides > 1 ? "pr-20 md:pr-0" : "",
                 descriptionClassName
               )}
@@ -533,10 +533,10 @@ function CarouselCards<TItem>({
             const isActive = index === selectedIndex
             return (
               <button key={index} type="button" onClick={() => carouselApi?.scrollTo(index)}
-                className={cn("h-2.5 w-2.5 rounded-full border border-slate-400/70 bg-transparent transition-all",
+                className={cn("h-2.5 w-2.5 rounded-full border border-[var(--color-comp-carousel-dot-border)] bg-transparent transition-all",
                   isActive
-                    ? cn("w-6 border-slate-900 bg-slate-900 dark:border-slate-100 dark:bg-slate-100", activeDotClassName)
-                    : cn("bg-slate-200/70 hover:bg-slate-300/80", dotClassName))}
+                    ? cn("w-6 border-[var(--color-comp-carousel-dot-active-border)] bg-[var(--color-comp-carousel-dot-active-bg)]", activeDotClassName)
+                    : cn("bg-[var(--color-comp-carousel-dot-bg)] hover:bg-[var(--color-comp-carousel-dot-bg-hover)]", dotClassName))}
                 aria-label={`Go to slide ${index + 1}`} aria-current={isActive ? "true" : undefined} />
             )
           })}
@@ -567,7 +567,7 @@ function DefaultCarouselCard({
   image,
   imageHeight = "h-64",
   accentLabel,
-  accentColor = "text-blue-300",
+  accentColor = "text-[var(--color-tone-blue-title)]",
   title,
   description,
   buttonText,
@@ -578,22 +578,22 @@ function DefaultCarouselCard({
   className,
 }: DefaultCarouselCardProps) {
   return (
-    <div className={cn("relative overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800", className)}>
+    <div className={cn("relative overflow-hidden rounded-xl border border-[var(--color-comp-carousel-card1-border)] bg-[var(--color-comp-carousel-card1-bg)]", className)}>
       <div className={cn("relative w-full overflow-hidden", imageHeight)}>
         {image ? (
           <Image src={image} alt={title ?? ""} fill className="object-cover" sizes="(max-width: 768px) 100vw, 900px" />
         ) : (
-          <div className="h-full w-full bg-slate-300 dark:bg-slate-700" />
+          <div className="h-full w-full bg-[var(--color-comp-carousel-card1-empty-bg)]" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-black/10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[var(--color-comp-carousel-card1-overlay)] via-black/30 to-black/10" />
       </div>
       <div className="absolute inset-0 flex items-end p-5 sm:p-6">
-        <div className="max-w-xl text-white space-y-2">
+        <div className="max-w-xl text-[var(--color-ref-white)] space-y-2">
           {accentLabel && (
             <p className={cn("text-xs uppercase tracking-[0.2em] sm:text-sm", accentColor)}>{accentLabel}</p>
           )}
           {title && <h3 className="text-2xl font-bold sm:text-3xl">{title}</h3>}
-          {description && <p className="text-xs text-white/90 sm:text-sm">{description}</p>}
+          {description && <p className="text-xs text-[var(--color-comp-carousel-card1-subtitle-text)]/90 sm:text-sm">{description}</p>}
           {buttonText && (
             buttonHref ? (
               <Button variant={buttonVariant} tone={buttonTone} size={buttonSize} radius="lg" asChild>

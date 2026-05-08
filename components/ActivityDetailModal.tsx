@@ -44,10 +44,10 @@ interface Props {
 }
 
 const modalMetricToneClasses: Record<NonNullable<Props['tone']>, string> = {
-  current: 'text-blue-600 dark:text-blue-400',
-  blue: 'text-blue-600 dark:text-blue-300',
-  purple: 'text-violet-700 dark:text-violet-300',
-  black: 'text-slate-900 dark:text-slate-100',
+  current: 'text-[var(--color-comp-modal-metric-current)]',
+  blue: 'text-[var(--color-comp-modal-metric-blue)]',
+  purple: 'text-[var(--color-comp-modal-metric-purple)]',
+  black: 'text-[var(--color-comp-modal-metric-black)]',
 };
 
 function formatDuration(durationSec: number | null): string {
@@ -135,25 +135,25 @@ export function ActivityDetailModal({
     <>
       {/* Overlay */}
       <div
-        className="fixed inset-0 bg-black/50 z-40"
+        className="fixed inset-0 bg-[var(--color-comp-modal-overlay)] z-40"
         onClick={onClose}
       />
 
       {/* Modale */}
-      <div className={`fixed inset-4 md:inset-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[90vw] md:max-w-2xl md:max-h-[90vh] bg-white dark:bg-slate-800 rounded-lg shadow-2xl z-50 overflow-y-auto ${className}`}>
+      <div className={`fixed inset-4 md:inset-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[90vw] md:max-w-2xl md:max-h-[90vh] bg-[var(--color-comp-modal-bg)] rounded-lg shadow-2xl z-50 overflow-y-auto ${className}`}>
         {/* Header */}
-        <div className="sticky top-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-6 flex justify-between items-start">
+        <div className="sticky top-0 bg-[var(--color-comp-modal-bg)] border-b border-[var(--color-comp-modal-border)] p-6 flex justify-between items-start">
           <div>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+            <h2 className="text-2xl font-bold text-[var(--color-comp-modal-title)]">
               {activity?.name || 'Caricamento...'}
             </h2>
             {activity?.date && (
-              <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+              <p className="text-sm text-[var(--color-comp-modal-subtitle)] mt-1">
                 {new Date(activity.date).toLocaleDateString('it-IT')} · {activity.location || '—'}
               </p>
             )}
           </div>
-          <Button variant="ghost" tone="black" size="icon" onClick={onClose} className="text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">
+          <Button variant="ghost" tone="black" size="icon" onClick={onClose} className="text-[var(--color-comp-modal-close-text)] hover:text-[var(--color-comp-modal-close-hover)]">
             ✕
           </Button>
         </div>
@@ -162,12 +162,12 @@ export function ActivityDetailModal({
         <div className={`p-6 space-y-6 ${contentClassName}`}>
           {loading && (
             <div className="text-center py-8">
-              <p className="text-slate-600 dark:text-slate-400">Caricamento...</p>
+              <p className="text-[var(--color-comp-modal-loading-text)]">Caricamento...</p>
             </div>
           )}
 
           {error && (
-            <div className="bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 p-4 rounded-lg">
+            <div className="bg-[var(--color-comp-modal-error-bg)] text-[var(--color-comp-modal-error-text)] p-4 rounded-lg">
               <p className="font-semibold">{error}</p>
             </div>
           )}
@@ -177,14 +177,14 @@ export function ActivityDetailModal({
               {/* Metriche principali */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <Card className="p-4" tone={tone}>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">Distanza</p>
+                  <p className="text-xs text-[var(--color-comp-modal-metric-label)] mb-1">Distanza</p>
                   <p className={`text-lg md:text-xl font-bold ${modalMetricToneClasses[tone]}`}>
                     {formatDistance(activity.distance_m)}
                   </p>
                 </Card>
 
                 <Card className="p-4" tone={tone}>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">Tempo</p>
+                  <p className="text-xs text-[var(--color-comp-modal-metric-label)] mb-1">Tempo</p>
                   <p className={`text-lg md:text-xl font-bold ${modalMetricToneClasses[tone]}`}>
                     {formatDuration(activity.duration_sec)}
                   </p>
@@ -192,7 +192,7 @@ export function ActivityDetailModal({
 
                 {activity.pace_min_per_km && (
                   <Card className="p-4" tone={tone}>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">Pace</p>
+                    <p className="text-xs text-[var(--color-comp-modal-metric-label)] mb-1">Pace</p>
                     <p className={`text-lg md:text-xl font-bold ${modalMetricToneClasses[tone]}`}>
                       {formatPace(activity.pace_min_per_km)}
                     </p>
@@ -201,7 +201,7 @@ export function ActivityDetailModal({
 
                 {activity.calories_kcal && (
                   <Card className="p-4" tone={tone}>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">Kcal</p>
+                    <p className="text-xs text-[var(--color-comp-modal-metric-label)] mb-1">Kcal</p>
                     <p className={`text-lg md:text-xl font-bold ${modalMetricToneClasses[tone]}`}>
                       {activity.calories_kcal}
                     </p>
@@ -212,7 +212,7 @@ export function ActivityDetailModal({
               {/* Foto */}
               {activity.photos && activity.photos.length > 0 && (
                 <div>
-                  <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">📸 Foto</h3>
+                  <h3 className="text-sm font-semibold text-[var(--color-comp-modal-title)] mb-3">📸 Foto</h3>
                   <ActivityPhotos photos={activity.photos} tone={tone} />
                 </div>
               )}
@@ -220,30 +220,30 @@ export function ActivityDetailModal({
               {/* Metriche aggiuntive */}
               {(activity.elevation_gain_m || activity.avg_hr || activity.max_hr || activity.avg_cadence) && (
                 <div>
-                  <h3 className="text-sm font-semibold text-slate-900 dark:text-white mb-3">Dettagli</h3>
+                  <h3 className="text-sm font-semibold text-[var(--color-comp-modal-title)] mb-3">Dettagli</h3>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
                     {activity.elevation_gain_m && (
-                      <div className="bg-slate-100 dark:bg-slate-700 p-3 rounded">
-                        <p className="text-slate-600 dark:text-slate-400">Dislivello +</p>
-                        <p className="font-semibold text-slate-900 dark:text-white">{activity.elevation_gain_m.toFixed(0)}m</p>
+                      <div className="bg-[var(--color-comp-modal-card-bg)] p-3 rounded">
+                        <p className="text-[var(--color-comp-modal-metric-label)]">Dislivello +</p>
+                        <p className="font-semibold text-[var(--color-comp-modal-title)]">{activity.elevation_gain_m.toFixed(0)}m</p>
                       </div>
                     )}
                     {activity.avg_hr && (
-                      <div className="bg-slate-100 dark:bg-slate-700 p-3 rounded">
-                        <p className="text-slate-600 dark:text-slate-400">FC Media</p>
-                        <p className="font-semibold text-slate-900 dark:text-white">{activity.avg_hr} bpm</p>
+                      <div className="bg-[var(--color-comp-modal-card-bg)] p-3 rounded">
+                        <p className="text-[var(--color-comp-modal-metric-label)]">FC Media</p>
+                        <p className="font-semibold text-[var(--color-comp-modal-title)]">{activity.avg_hr} bpm</p>
                       </div>
                     )}
                     {activity.max_hr && (
-                      <div className="bg-slate-100 dark:bg-slate-700 p-3 rounded">
-                        <p className="text-slate-600 dark:text-slate-400">FC Max</p>
-                        <p className="font-semibold text-slate-900 dark:text-white">{activity.max_hr} bpm</p>
+                      <div className="bg-[var(--color-comp-modal-card-bg)] p-3 rounded">
+                        <p className="text-[var(--color-comp-modal-metric-label)]">FC Max</p>
+                        <p className="font-semibold text-[var(--color-comp-modal-title)]">{activity.max_hr} bpm</p>
                       </div>
                     )}
                     {activity.avg_cadence && (
-                      <div className="bg-slate-100 dark:bg-slate-700 p-3 rounded">
-                        <p className="text-slate-600 dark:text-slate-400">Cadenza</p>
-                        <p className="font-semibold text-slate-900 dark:text-white">{activity.avg_cadence}</p>
+                      <div className="bg-[var(--color-comp-modal-card-bg)] p-3 rounded">
+                        <p className="text-[var(--color-comp-modal-metric-label)]">Cadenza</p>
+                        <p className="font-semibold text-[var(--color-comp-modal-title)]">{activity.avg_cadence}</p>
                       </div>
                     )}
                   </div>
@@ -251,7 +251,7 @@ export function ActivityDetailModal({
               )}
 
               {/* Azioni */}
-              <div className="flex gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+              <div className="flex gap-3 pt-4 border-t border-[var(--color-comp-modal-border)]">
                 <Button
                   onClick={onClose}
                   variant="outline"

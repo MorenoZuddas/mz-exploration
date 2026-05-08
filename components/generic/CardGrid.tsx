@@ -109,47 +109,47 @@ const defaultItems: CardGridItem[] = [
 
 const textColorVariants: Record<CardGridColor, { title: string; subtitle: string }> = {
   current: {
-    title: 'text-slate-900 dark:text-white',
-    subtitle: 'text-slate-600 dark:text-slate-400',
+    title:    'text-[var(--color-tone-current-title)]',
+    subtitle: 'text-[var(--color-tone-current-subtitle)]',
   },
   blue: {
-    title: 'text-blue-700 dark:text-blue-300',
-    subtitle: 'text-blue-600 dark:text-blue-400',
+    title:    'text-[var(--color-tone-blue-title)]',
+    subtitle: 'text-[var(--color-tone-blue-subtitle)]',
   },
   purple: {
-    title: 'text-violet-800 dark:text-violet-300',
-    subtitle: 'text-violet-700 dark:text-violet-400',
+    title:    'text-[var(--color-tone-purple-title)]',
+    subtitle: 'text-[var(--color-tone-purple-subtitle)]',
   },
   black: {
-    title: 'text-black dark:text-slate-200',
-    subtitle: 'text-black/80 dark:text-slate-300',
+    title:    'text-[var(--color-tone-black-title)]',
+    subtitle: 'text-[var(--color-tone-black-subtitle)]',
   },
 };
 
 const activityTextVariants: Record<CardGridColor, { title: string; date: string; label: string; value: string }> = {
   current: {
-    title: 'text-slate-900 dark:text-white',
-    date: 'text-slate-500 dark:text-slate-400',
-    label: 'text-slate-600 dark:text-slate-400',
-    value: 'text-slate-900 dark:text-white',
+    title: 'text-[var(--color-tone-current-title)]',
+    date:  'text-[var(--color-tone-current-subtitle)]',
+    label: 'text-[var(--color-tone-current-subtitle)]',
+    value: 'text-[var(--color-tone-current-title)]',
   },
   blue: {
-    title: 'text-blue-700 dark:text-blue-300',
-    date: 'text-blue-600 dark:text-blue-400',
-    label: 'text-blue-700 dark:text-blue-300',
-    value: 'text-blue-700 dark:text-blue-300',
+    title: 'text-[var(--color-tone-blue-title)]',
+    date:  'text-[var(--color-tone-blue-subtitle)]',
+    label: 'text-[var(--color-tone-blue-subtitle)]',
+    value: 'text-[var(--color-tone-blue-title)]',
   },
   purple: {
-    title: 'text-violet-800 dark:text-violet-300',
-    date: 'text-violet-700 dark:text-violet-400',
-    label: 'text-violet-700 dark:text-violet-300',
-    value: 'text-violet-800 dark:text-violet-200',
+    title: 'text-[var(--color-tone-purple-title)]',
+    date:  'text-[var(--color-tone-purple-subtitle)]',
+    label: 'text-[var(--color-tone-purple-subtitle)]',
+    value: 'text-[var(--color-tone-purple-title)]',
   },
   black: {
-    title: 'text-black dark:text-slate-200',
-    date: 'text-black/70 dark:text-slate-300',
-    label: 'text-black/80 dark:text-slate-300',
-    value: 'text-black dark:text-slate-200',
+    title: 'text-[var(--color-tone-black-title)]',
+    date:  'text-[var(--color-tone-black-subtitle)]',
+    label: 'text-[var(--color-tone-black-subtitle)]',
+    value: 'text-[var(--color-tone-black-title)]',
   },
 };
 
@@ -255,10 +255,10 @@ export function CardGrid({
       : titlePosition === 'right'
         ? 'w-full text-right'
         : '';
-  const baseCardSurfaceClass = 'border-slate-300/80 bg-white dark:border-slate-500/90 dark:border-2 dark:bg-slate-950/40';
-  const defaultCardTitleClass = 'text-xl text-slate-900 transition-colors group-hover:text-blue-600 dark:text-slate-100 dark:group-hover:text-blue-300';
-  const defaultCardDescriptionClass = 'text-sm text-slate-600 dark:text-slate-300';
-  const defaultCardMetaClass = 'text-sm text-slate-500 dark:text-slate-400';
+  const baseCardSurfaceClass = 'border-[var(--color-comp-cardgrid-card-border)] bg-[var(--color-comp-cardgrid-card-bg)] dark:border-2';
+  const defaultCardTitleClass = 'text-xl text-[var(--color-comp-cardgrid-card-title)] transition-colors group-hover:text-[var(--color-comp-cardgrid-card-title-hover)]';
+  const defaultCardDescriptionClass = 'text-sm text-[var(--color-comp-cardgrid-card-description)]';
+  const defaultCardMetaClass = 'text-sm text-[var(--color-comp-cardgrid-card-meta)]';
 
   return (
     <section className={`cardgrid-component ${sectionClassName} ${className}`} data-testid="cardgrid-section">
@@ -288,7 +288,7 @@ export function CardGrid({
               ) : null}
             </div>
             {(showItemsCount || (sortOptions && sortOptions.length > 0 && onSortChange)) ? (
-              <div className="ml-auto flex items-center gap-4 text-sm text-slate-600 dark:text-slate-300 cardgrid-controls">
+              <div className="ml-auto flex items-center gap-4 text-sm text-[var(--color-comp-cardgrid-controls-text)] cardgrid-controls">
                 {showItemsCount ? (
                   <span className="whitespace-nowrap cardgrid-count" data-testid="cardgrid-count">
                     {items.length} {itemsCountLabel}
@@ -299,7 +299,7 @@ export function CardGrid({
                     <span className="font-medium whitespace-nowrap">{sortLabel}</span>
                     <Select value={sortValue} onValueChange={onSortChange}>
                       <SelectTrigger
-                        className="h-9 min-w-[12.5rem] border-slate-300 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 cardgrid-sort-trigger"
+                        className="h-9 min-w-[12.5rem] border-[var(--color-comp-cardgrid-sort-border)] bg-[var(--color-comp-cardgrid-sort-bg)] text-[var(--color-comp-cardgrid-sort-text)] cardgrid-sort-trigger"
                         data-testid="cardgrid-sort-trigger"
                       >
                         <SelectValue placeholder="Seleziona" />
@@ -353,7 +353,7 @@ export function CardGrid({
                         data-testid={`activity-card-${item.id}`}
                       >
                         {item.image ? (
-                          <div className="relative h-52 w-full overflow-hidden bg-slate-200 dark:bg-slate-700 activity-card-image-wrapper">
+                          <div className="relative h-52 w-full overflow-hidden bg-[var(--color-comp-cardgrid-image-bg)] activity-card-image-wrapper">
                             <Image
                               src={item.image}
                               alt={item.title}
@@ -422,7 +422,7 @@ export function CardGrid({
                           <BadgeChip type={toBadgeType(item.type) as BadgeChipType} text={item.type} className="whitespace-nowrap" />
                         </div>
                       )}
-                      <div className="relative h-48 w-full overflow-hidden bg-slate-200 dark:bg-slate-700">
+                      <div className="relative h-48 w-full overflow-hidden bg-[var(--color-comp-cardgrid-image-bg)]">
                         <Image
                           src={item.image || fallbackImage}
                           alt={item.title}
@@ -476,7 +476,7 @@ export function CardGrid({
                        )}
                        <Card className={`${baseCardSurfaceClass} overflow-hidden hover:shadow-lg transition-shadow h-full cursor-pointer group-hover:scale-[1.02] duration-300 ${cardClassName}`}>
                          {item.image ? (
-                           <div className="relative h-52 w-full overflow-hidden bg-slate-200 dark:bg-slate-700">
+                           <div className="relative h-52 w-full overflow-hidden bg-[var(--color-comp-cardgrid-image-bg)]">
                              <Image
                                src={item.image}
                                alt={item.title}
@@ -521,7 +521,7 @@ export function CardGrid({
                                  <BadgeChip type={toBadgeType(item.type) as BadgeChipType} text={item.type} className="whitespace-nowrap" />
                                </div>
                              )}
-                       <div className="relative h-48 w-full overflow-hidden bg-slate-200 dark:bg-slate-700">
+                       <div className="relative h-48 w-full overflow-hidden bg-[var(--color-comp-cardgrid-image-bg)]">
                          <Image
                            src={item.image || fallbackImage}
                            alt={item.title}

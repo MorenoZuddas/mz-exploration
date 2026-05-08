@@ -10,10 +10,10 @@ interface LoaderProps {
 }
 
 const loaderToneClasses: Record<LoaderTone, { primary: string; secondary: string }> = {
-  current: { primary: 'border-t-blue-600 border-r-blue-600', secondary: 'border-b-blue-400' },
-  blue: { primary: 'border-t-blue-600 border-r-blue-600', secondary: 'border-b-blue-400' },
-  purple: { primary: 'border-t-violet-700 border-r-violet-700', secondary: 'border-b-violet-400' },
-  black: { primary: 'border-t-slate-900 border-r-slate-900 dark:border-t-slate-100 dark:border-r-slate-100', secondary: 'border-b-slate-500 dark:border-b-slate-300' },
+  current: { primary: '[border-top-color:var(--color-comp-loader-current-border)] [border-right-color:var(--color-comp-loader-current-border)]', secondary: '[border-bottom-color:var(--color-comp-loader-current-border-inner)]' },
+  blue:    { primary: '[border-top-color:var(--color-comp-loader-blue-border)] [border-right-color:var(--color-comp-loader-blue-border)]', secondary: '[border-bottom-color:var(--color-comp-loader-blue-border-inner)]' },
+  purple:  { primary: '[border-top-color:var(--color-comp-loader-purple-border)] [border-right-color:var(--color-comp-loader-purple-border)]', secondary: '[border-bottom-color:var(--color-comp-loader-purple-border-inner)]' },
+  black:   { primary: '[border-top-color:var(--color-comp-loader-black-border)] [border-right-color:var(--color-comp-loader-black-border)]', secondary: '[border-bottom-color:var(--color-comp-loader-black-border-inner)]' },
 };
 
 const loaderSizeClasses: Record<LoaderSize, { wrapper: string; inner: string; title: string; subtitle: string }> = {
@@ -33,7 +33,7 @@ export default function Loader({
   const sizeClass = loaderSizeClasses[size];
 
   return (
-    <div className={`fixed inset-0 z-50 flex items-center justify-center bg-white/80 dark:bg-slate-900/80 backdrop-blur-sm ${className}`}>
+    <div className={`fixed inset-0 z-50 flex items-center justify-center bg-[var(--color-comp-loader-overlay)] backdrop-blur-sm ${className}`}>
       <div className="flex flex-col items-center gap-4">
         {/* Spinner */}
         <div className={`relative ${sizeClass.wrapper}`}>
@@ -42,10 +42,10 @@ export default function Loader({
         </div>
 
         {/* Text */}
-        <p className={`text-slate-900 dark:text-white font-semibold ${sizeClass.title}`}>
+        <p className={`text-[var(--color-comp-loader-title)] font-semibold ${sizeClass.title}`}>
           {title}
         </p>
-        <p className={`text-slate-500 dark:text-slate-400 ${sizeClass.subtitle}`}>
+        <p className={`text-[var(--color-comp-loader-subtitle)] ${sizeClass.subtitle}`}>
           {subtitle}
         </p>
       </div>

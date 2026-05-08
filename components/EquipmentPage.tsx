@@ -30,23 +30,23 @@ interface EquipmentPageProps {
 }
 
 const defaultConditionClassMap: Record<EquipmentItem['condition'], string> = {
-  Nuovo: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
-  Buono: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
-  Usurato: 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300',
+  Nuovo:   'bg-[var(--color-comp-equipment-condition-new-bg)]  text-[var(--color-comp-equipment-condition-new-text)]',
+  Buono:   'bg-[var(--color-comp-equipment-condition-good-bg)] text-[var(--color-comp-equipment-condition-good-text)]',
+  Usurato: 'bg-[var(--color-comp-equipment-condition-used-bg)] text-[var(--color-comp-equipment-condition-used-text)]',
 };
 
 const toneTitleClassMap: Record<NonNullable<EquipmentPageProps['tone']>, string> = {
-  current: 'text-slate-900 dark:text-white',
-  blue: 'text-blue-700 dark:text-blue-300',
-  purple: 'text-violet-800 dark:text-violet-300',
-  black: 'text-black dark:text-slate-100',
+  current: 'text-[var(--color-tone-current-title)]',
+  blue:    'text-[var(--color-tone-blue-title)]',
+  purple:  'text-[var(--color-tone-purple-title)]',
+  black:   'text-[var(--color-tone-black-title)]',
 };
 
 const toneLinkClassMap: Record<NonNullable<EquipmentPageProps['tone']>, string> = {
-  current: 'text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300',
-  blue: 'text-blue-600 dark:text-blue-300 hover:text-blue-700 dark:hover:text-blue-200',
-  purple: 'text-violet-700 dark:text-violet-300 hover:text-violet-800 dark:hover:text-violet-200',
-  black: 'text-slate-900 dark:text-slate-200 hover:text-black dark:hover:text-white',
+  current: 'text-[var(--color-tone-current-accent)] hover:text-[var(--color-tone-current-accent-hover)]',
+  blue:    'text-[var(--color-tone-blue-accent)] hover:text-[var(--color-tone-blue-accent-hover)]',
+  purple:  'text-[var(--color-tone-purple-accent)] hover:text-[var(--color-tone-purple-accent-hover)]',
+  black:   'text-[var(--color-tone-black-accent)] hover:text-[var(--color-tone-black-accent-hover)]',
 };
 
 export default function EquipmentPage({
@@ -72,7 +72,7 @@ export default function EquipmentPage({
   return (
     <PageShell background={background} className={className}>
       {/* Header */}
-      <section className="px-4 py-12 sm:px-6 lg:px-8 border-b border-slate-200 dark:border-slate-700">
+      <section className="px-4 py-12 sm:px-6 lg:px-8 border-b border-[var(--color-comp-equipment-section-border)]">
         <div className="max-w-4xl mx-auto">
           <Link
             href={backUrl}
@@ -83,7 +83,7 @@ export default function EquipmentPage({
           <h1 className={`text-4xl sm:text-5xl font-bold mb-4 ${toneTitleClassMap[tone]}`}>
             🎽 {title}
           </h1>
-          <p className="text-lg text-slate-600 dark:text-slate-300">
+          <p className="text-lg text-[var(--color-comp-equipment-meta-text)]">
             {subtitle}
           </p>
         </div>
@@ -117,18 +117,18 @@ export default function EquipmentPage({
                       </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <p className="text-sm text-slate-600 dark:text-slate-400">
+                      <p className="text-sm text-[var(--color-comp-equipment-meta-text)]">
                         {item.description}
                       </p>
                       <div className="grid grid-cols-2 gap-4 text-sm">
                         <div>
-                          <p className="text-slate-600 dark:text-slate-400">Anno Acquisto</p>
-                          <p className="font-semibold text-slate-900 dark:text-white">{item.year}</p>
+                          <p className="text-[var(--color-comp-equipment-meta-text)]">Anno Acquisto</p>
+                          <p className="font-semibold text-[var(--color-tone-current-title)]">{item.year}</p>
                         </div>
                         {item.km && (
                           <div>
-                            <p className="text-slate-600 dark:text-slate-400">Km/Usi</p>
-                            <p className="font-semibold text-slate-900 dark:text-white">{item.km}</p>
+                            <p className="text-[var(--color-comp-equipment-meta-text)]">Km/Usi</p>
+                            <p className="font-semibold text-[var(--color-tone-current-title)]">{item.km}</p>
                           </div>
                         )}
                       </div>

@@ -44,10 +44,10 @@ interface ModalProps {
 }
 
 const modalMetricToneClasses: Record<NonNullable<ModalProps['tone']>, string> = {
-  current: 'text-blue-600 dark:text-blue-400',
-  blue: 'text-blue-600 dark:text-blue-300',
-  purple: 'text-violet-700 dark:text-violet-300',
-  black: 'text-slate-900 dark:text-slate-100',
+  current: 'text-[var(--color-comp-modal-metric-current)]',
+  blue: 'text-[var(--color-comp-modal-metric-blue)]',
+  purple: 'text-[var(--color-comp-modal-metric-purple)]',
+  black: 'text-[var(--color-comp-modal-metric-black)]',
 };
 
 function formatDuration(durationSec: number | null): string {
@@ -145,19 +145,19 @@ export function Modal({
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/50 z-40" onClick={onClose} />
+      <div className="fixed inset-0 bg-[var(--color-comp-modal-overlay)] z-40" onClick={onClose} />
 
-      <div className={`fixed inset-4 md:inset-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[90vw] md:max-w-2xl md:max-h-[90vh] bg-white dark:bg-slate-800 rounded-lg shadow-2xl z-50 overflow-y-auto ${className}`}>
-        <div className="sticky top-0 bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 p-6 flex justify-between items-start">
+      <div className={`fixed inset-4 md:inset-auto md:left-1/2 md:top-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-[90vw] md:max-w-2xl md:max-h-[90vh] bg-[var(--color-comp-modal-bg)] rounded-lg shadow-2xl z-50 overflow-y-auto ${className}`}>
+        <div className="sticky top-0 bg-[var(--color-comp-modal-bg)] border-b border-[var(--color-comp-modal-border)] p-6 flex justify-between items-start">
           <div>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">{activity?.name || 'Caricamento...'}</h2>
+            <h2 className="text-2xl font-bold text-[var(--color-comp-modal-title)]">{activity?.name || 'Caricamento...'}</h2>
             {activity?.date && (
-              <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">
+              <p className="text-sm text-[var(--color-comp-modal-subtitle)] mt-1">
                 {new Date(activity.date).toLocaleDateString('it-IT')} · {activity.location || '—'}
               </p>
             )}
           </div>
-          <Button variant="ghost" tone="black" size="icon" onClick={onClose} className="text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">
+          <Button variant="ghost" tone="black" size="icon" onClick={onClose} className="text-[var(--color-comp-modal-close-text)] hover:text-[var(--color-comp-modal-close-hover)]">
             x
           </Button>
         </div>
@@ -165,12 +165,12 @@ export function Modal({
         <div className={`p-6 space-y-6 ${contentClassName}`}>
           {loading && (
             <div className="text-center py-8">
-              <p className="text-slate-600 dark:text-slate-400">Caricamento...</p>
+              <p className="text-[var(--color-comp-modal-loading-text)]">Caricamento...</p>
             </div>
           )}
 
           {error && (
-            <div className="bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-200 p-4 rounded-lg">
+            <div className="bg-[var(--color-comp-modal-error-bg)] text-[var(--color-comp-modal-error-text)] p-4 rounded-lg">
               <p className="font-semibold">{error}</p>
             </div>
           )}
@@ -178,7 +178,7 @@ export function Modal({
            {activity && !loading && (
               <>
                 {activity.photos && activity.photos.length > 0 && (
-                  <div className="relative h-64 md:h-80 w-full overflow-hidden rounded-lg bg-slate-100 dark:bg-slate-700">
+                  <div className="relative h-64 md:h-80 w-full overflow-hidden rounded-lg bg-[var(--color-comp-modal-card-bg)]">
                     <Image
                       src={activity.photos[0].secure_url}
                       alt={activity.name}
@@ -191,29 +191,29 @@ export function Modal({
 
                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <Card className="p-4" tone={tone}>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">Distanza</p>
+                  <p className="text-xs text-[var(--color-comp-modal-metric-label)] mb-1">Distanza</p>
                   <p className={`text-lg md:text-xl font-bold ${modalMetricToneClasses[tone]}`}>{formatDistance(activity.distance_m)}</p>
                 </Card>
 
                 <Card className="p-4" tone={tone}>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">Tempo</p>
+                  <p className="text-xs text-[var(--color-comp-modal-metric-label)] mb-1">Tempo</p>
                   <p className={`text-lg md:text-xl font-bold ${modalMetricToneClasses[tone]}`}>{formatDuration(activity.duration_sec)}</p>
                 </Card>
 
                 <Card className="p-4" tone={tone}>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">Pace</p>
+                  <p className="text-xs text-[var(--color-comp-modal-metric-label)] mb-1">Pace</p>
                   <p className={`text-lg md:text-xl font-bold ${modalMetricToneClasses[tone]}`}>{formatPace(activity.pace_min_per_km)}</p>
                 </Card>
 
                 <Card className="p-4" tone={tone}>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mb-1">Kcal</p>
+                  <p className="text-xs text-[var(--color-comp-modal-metric-label)] mb-1">Kcal</p>
                   <p className={`text-lg md:text-xl font-bold ${modalMetricToneClasses[tone]}`}>{activity.calories_kcal ?? '—'}</p>
                 </Card>
               </div>
 
 
 
-              <div className="flex gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
+              <div className="flex gap-3 pt-4 border-t border-[var(--color-comp-modal-border)]">
                 <Button onClick={onClose} variant="outline" tone="black" width="full">
                   Chiudi
                 </Button>

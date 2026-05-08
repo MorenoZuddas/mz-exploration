@@ -40,18 +40,22 @@ export interface StripeProps {
 
 const bgVariants = {
   white: {
-    container: 'bg-white dark:bg-slate-900',
-    border: 'border border-slate-200 dark:border-slate-800',
+    container: 'bg-[var(--color-comp-stripe-white-bg)]',
+    border: 'border border-[var(--color-comp-stripe-white-border)]',
     borderGradient: 'dark:shadow-[inset_0_0_20px_rgba(51,65,85,0.3)]',
-    textTitle: 'text-slate-900 dark:text-slate-100',
-    textMuted: 'text-slate-600 dark:text-slate-300',
+    textTitle: 'text-[var(--color-comp-stripe-white-title)]',
+    textMuted: 'text-[var(--color-comp-stripe-white-text)]',
+    imageBorder: 'border-[var(--color-comp-stripe-white-image-border)]',
+    imageBg: 'bg-[var(--color-comp-stripe-white-image-bg)]',
   },
   navy: {
-    container: 'bg-slate-900 dark:bg-slate-950',
-    border: 'border border-slate-800 dark:border-slate-700',
+    container: 'bg-[var(--color-comp-stripe-navy-bg)]',
+    border: 'border border-[var(--color-comp-stripe-navy-border)]',
     borderGradient: 'shadow-[inset_0_0_20px_rgba(255,255,255,0.05)]',
-    textTitle: 'text-slate-100 dark:text-white',
-    textMuted: 'text-slate-300 dark:text-slate-400',
+    textTitle: 'text-[var(--color-comp-stripe-navy-title)]',
+    textMuted: 'text-[var(--color-comp-stripe-navy-text)]',
+    imageBorder: 'border-[var(--color-comp-stripe-navy-image-border)]',
+    imageBg: 'bg-[var(--color-comp-stripe-navy-image-bg)]',
   },
 };
 
@@ -95,9 +99,8 @@ export function Stripe({
       className={cn(
         'relative shrink-0 overflow-hidden rounded-full border-2',
         imageSizeClass,
-        background === 'white'
-          ? 'border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800'
-          : 'border-slate-700 dark:border-slate-600 bg-slate-800 dark:bg-slate-900'
+        bgStyle.imageBorder,
+        bgStyle.imageBg
       )}
     >
       <Image
@@ -115,11 +118,9 @@ export function Stripe({
   const landscapeImageEl = (
     <div
       className={cn(
-        // h-full + min-h per riempire la cella griglia senza conflitto con items-stretch
-        'relative overflow-hidden rounded-xl border w-full h-full min-h-[280px]',
-        background === 'white'
-          ? 'border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800'
-          : 'border-slate-700 dark:border-slate-600 bg-slate-800 dark:bg-slate-900'
+        'relative overflow-hidden rounded-xl border shrink-0 w-full aspect-[4/5] sm:aspect-[3/4] lg:aspect-[4/5]',
+        bgStyle.imageBorder,
+        bgStyle.imageBg
       )}
     >
       <Image
@@ -195,7 +196,7 @@ export function Stripe({
         </>
       ) : (
         <>
-          <div className={cn(isLandscape ? 'h-full' : undefined)}>{isLandscape ? landscapeImageEl : portraitImageEl}</div>
+          <div>{isLandscape ? landscapeImageEl : portraitImageEl}</div>
           {contentEl}
         </>
       )}

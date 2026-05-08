@@ -4,24 +4,412 @@
 @source "../lib/**/*.{ts,tsx,js,jsx}";
 
 @theme {
-  --color-background: #ffffff;
-  --color-foreground: #171717;
-  --color-card: #ffffff;
-  --color-card-foreground: #171717;
-  --color-popover: #ffffff;
-  --color-popover-foreground: #171717;
-  --color-primary: #171717;
+  /* =========================
+     1) REFERENCE TOKENS (raw)
+     ========================= */
+  --color-ref-white: #ffffff;
+  --color-ref-ink: #171717;
+  --color-ref-slate-50: #f8fafc;
+  --color-ref-slate-100: #f1f5f9;
+  --color-ref-slate-300: #d1d5db;
+  --color-ref-slate-600: #475569;
+  --color-ref-slate-700: #334155;
+  --color-ref-slate-800: #1e293b;
+  --color-ref-slate-900: #0f172a;
+  --color-ref-slate-950: #020617;
+  --color-ref-sky-50: #f0f9ff;
+  --color-ref-sky-100: #dbeafe;
+  --color-ref-crimson-600: #ba0c2f;
+  --color-ref-crimson-500: #cd2a49;
+  --color-ref-pear-500: #8db600;
+  --color-ref-pear-100: #e8f2c5;
+  --color-ref-pear-900: #465f00;
+
+  /* ======================
+     2) ROLE TOKENS (usage)
+     ====================== */
+  --color-role-surface-base: var(--color-ref-white);
+  --color-role-surface-soft: var(--color-ref-slate-50);
+  --color-role-surface-muted: var(--color-ref-slate-100);
+  --color-role-surface-strong: var(--color-ref-slate-900);
+  --color-role-surface-stronger: var(--color-ref-slate-950);
+  --color-role-text-primary: var(--color-ref-ink);
+  --color-role-text-secondary: var(--color-ref-slate-600);
+  --color-role-text-inverse: var(--color-ref-slate-100);
+  --color-role-border-soft: var(--color-ref-slate-300);
+  --color-role-border-strong: var(--color-ref-slate-800);
+
+  /* ==============================
+     3) COMPONENT TOKENS (variants)
+     ============================== */
+  --color-comp-tone-blue-bg: #eff6ff;
+  --color-comp-tone-blue-border: #bfdbfe;
+  --color-comp-tone-blue-text: var(--color-ref-slate-900);
+  --color-comp-tone-purple-bg: #f5f3ff;
+  --color-comp-tone-purple-border: #ddd6fe;
+  --color-comp-tone-purple-text: var(--color-ref-slate-900);
+  --color-comp-tone-navy-bg: var(--color-ref-slate-900);
+  --color-comp-tone-navy-border: var(--color-ref-slate-800);
+  --color-comp-tone-navy-text: var(--color-ref-slate-100);
+  --color-comp-tone-crimson-bg: var(--color-ref-crimson-600);
+  --color-comp-tone-crimson-border: var(--color-ref-crimson-600);
+  --color-comp-tone-crimson-text: var(--color-ref-white);
+  --color-comp-tone-pear-bg: var(--color-ref-pear-100);
+  --color-comp-tone-pear-border: var(--color-ref-pear-500);
+  --color-comp-tone-pear-text: var(--color-ref-slate-900);
+
+  --color-comp-stripe-white-bg: var(--color-role-surface-base);
+  --color-comp-stripe-white-border: var(--color-role-border-soft);
+  --color-comp-stripe-white-title: var(--color-role-text-primary);
+  --color-comp-stripe-white-text: var(--color-role-text-secondary);
+  --color-comp-stripe-white-image-bg: var(--color-role-surface-muted);
+  --color-comp-stripe-white-image-border: var(--color-role-border-soft);
+
+  --color-comp-stripe-navy-bg: var(--color-role-surface-strong);
+  --color-comp-stripe-navy-border: var(--color-role-border-strong);
+  --color-comp-stripe-navy-title: var(--color-role-text-inverse);
+  --color-comp-stripe-navy-text: #cbd5e1;
+  --color-comp-stripe-navy-image-bg: var(--color-ref-slate-800);
+  --color-comp-stripe-navy-image-border: var(--color-ref-slate-700);
+
+  /* Header */
+  --color-comp-header-bg: var(--color-role-surface-strong);
+  --color-comp-header-text: var(--color-ref-white);
+  --color-comp-header-link-hover: var(--color-ref-sky-100);
+  --color-comp-header-hover-bg: var(--color-ref-slate-800);
+  --color-comp-header-border: var(--color-ref-slate-700);
+  --color-comp-header-dropdown-bg: var(--color-ref-slate-800);
+  --color-comp-header-divider: var(--color-ref-slate-700);
+
+  /* Footer */
+  --color-comp-footer-bg: var(--color-role-surface-strong);
+  --color-comp-footer-text: var(--color-ref-white);
+  --color-comp-footer-link: #9ca3af;
+  --color-comp-footer-link-hover: var(--color-ref-sky-100);
+  --color-comp-footer-separator: #4b5563;
+  --color-comp-footer-border: var(--color-ref-slate-700);
+  --color-comp-footer-copyright: #6b7280;
+
+  /* Modal / ActivityDetailModal */
+  --color-comp-modal-bg: var(--color-ref-white);
+  --color-comp-modal-title: var(--color-role-text-primary);
+  --color-comp-modal-subtitle: var(--color-role-text-secondary);
+  --color-comp-modal-border: var(--color-role-border-soft);
+  --color-comp-modal-metric-current: #2563eb;
+  --color-comp-modal-metric-blue: #2563eb;
+  --color-comp-modal-metric-purple: #6d28d9;
+  --color-comp-modal-metric-black: var(--color-role-text-primary);
+
+  /* BadgeChip */
+  --color-comp-badge-running-bg: #e0f2fe;
+  --color-comp-badge-running-text: #075985;
+  --color-comp-badge-trekking-bg: #d1fae5;
+  --color-comp-badge-trekking-text: #064e3b;
+  --color-comp-badge-trip-bg: #ffedd5;
+  --color-comp-badge-trip-text: #7c2d12;
+  --color-comp-badge-books-bg: var(--color-role-surface-muted);
+  --color-comp-badge-books-text: var(--color-role-text-primary);
+  --color-comp-badge-photo-bg: #fee2e2;
+  --color-comp-badge-photo-text: #b91c1c;
+  --color-comp-badge-music-bg: var(--color-role-surface-muted);
+  --color-comp-badge-music-text: var(--color-role-text-primary);
+
+  /* Divider */
+  --color-comp-divider-current-line: var(--color-role-border-soft);
+  --color-comp-divider-current-symbol: var(--color-role-text-secondary);
+  --color-comp-divider-blue-line: #2563eb;
+  --color-comp-divider-blue-symbol: #2563eb;
+  --color-comp-divider-purple-line: #4c1d95;
+  --color-comp-divider-purple-symbol: #4c1d95;
+  --color-comp-divider-black-line: var(--color-role-text-primary);
+  --color-comp-divider-black-symbol: var(--color-role-text-primary);
+
+  /* Hero */
+  --color-comp-hero-overlay: #00000066;
+  --color-comp-hero-title-current: #ffffff;
+  --color-comp-hero-title-blue: #93c5fd;
+  --color-comp-hero-title-purple: #c4b5fd;
+  --color-comp-hero-title-black: var(--color-role-text-primary);
+  --color-comp-hero-subtitle-current: #ffffffe6;
+  --color-comp-hero-subtitle-blue: #bfdbfe;
+  --color-comp-hero-subtitle-purple: #ddd6fe;
+  --color-comp-hero-subtitle-black: var(--color-role-text-secondary);
+
+  /* =======================================================
+     6) SHARED TONE TOKENS (text/title/accent per tone)
+        Usati trasversalmente in Text, CardGrid, EquipmentPage,
+        Filter, Statistics e altri componenti con prop tone.
+     ======================================================= */
+
+  /* — current — */
+  --color-tone-current-title: var(--color-role-text-primary);
+  --color-tone-current-subtitle: var(--color-role-text-secondary);
+  --color-tone-current-accent: #2563eb;
+  --color-tone-current-accent-hover: #1d4ed8;
+  /* — blue — */
+  --color-tone-blue-title: #1d4ed8;
+  --color-tone-blue-subtitle: #2563eb;
+  --color-tone-blue-accent: #2563eb;
+  --color-tone-blue-accent-hover: #1d4ed8;
+  /* — purple — */
+  --color-tone-purple-title: #5b21b6;
+  --color-tone-purple-subtitle: #6d28d9;
+  --color-tone-purple-accent: #6d28d9;
+  --color-tone-purple-accent-hover: #5b21b6;
+  /* — black — */
+  --color-tone-black-title: #000000;
+  --color-tone-black-subtitle: #1e293b;
+  --color-tone-black-accent: #0f172a;
+  --color-tone-black-accent-hover: #000000;
+  /* — navy — */
+  --color-tone-navy-title: var(--color-role-surface-strong);
+  --color-tone-navy-subtitle: var(--color-ref-slate-800);
+  /* — white — */
+  --color-tone-white-title: var(--color-ref-white);
+
+  /* =============================================
+     7) COMPONENT TOKENS — ActivityPhotos
+     ============================================= */
+  --color-comp-photos-overlay-current: #000000cc;
+  --color-comp-photos-overlay-blue: #172554d9;
+  --color-comp-photos-overlay-purple: #2e1065d9;
+  --color-comp-photos-overlay-black: #000000e6;
+  --color-comp-photos-btn-bg: #00000099;
+  --color-comp-photos-btn-hover: #000000bf;
+
+  /* =============================================
+     8) COMPONENT TOKENS — Loader
+     ============================================= */
+  --color-comp-loader-overlay: #ffffffcc;
+  --color-comp-loader-title: var(--color-role-text-primary);
+  --color-comp-loader-subtitle: #64748b;
+  --color-comp-loader-current-border: #2563eb;
+  --color-comp-loader-current-border-inner: #60a5fa;
+  --color-comp-loader-blue-border: #2563eb;
+  --color-comp-loader-blue-border-inner: #60a5fa;
+  --color-comp-loader-purple-border: #6d28d9;
+  --color-comp-loader-purple-border-inner: #a78bfa;
+  --color-comp-loader-black-border: #0f172a;
+  --color-comp-loader-black-border-inner: #64748b;
+
+  /* =============================================
+     9) COMPONENT TOKENS — Filter
+     ============================================= */
+  --color-comp-filter-current-wrapper-border: var(--color-role-border-soft);
+  --color-comp-filter-current-wrapper-bg: var(--color-role-surface-soft);
+  --color-comp-filter-current-field-border: var(--color-role-border-soft);
+  --color-comp-filter-current-field-bg: var(--color-role-surface-base);
+  --color-comp-filter-current-text: #334155;
+  --color-comp-filter-current-icon: var(--color-role-text-secondary);
+  --color-comp-filter-blue-wrapper-border: #bfdbfe;
+  --color-comp-filter-blue-wrapper-bg: #eff6ff;
+  --color-comp-filter-blue-field-border: #bfdbfe;
+  --color-comp-filter-blue-field-bg: var(--color-role-surface-base);
+  --color-comp-filter-blue-text: #1e40af;
+  --color-comp-filter-blue-icon: #2563eb;
+  --color-comp-filter-purple-wrapper-border: #ddd6fe;
+  --color-comp-filter-purple-wrapper-bg: #f5f3ff;
+  --color-comp-filter-purple-field-border: #ddd6fe;
+  --color-comp-filter-purple-field-bg: var(--color-role-surface-base);
+  --color-comp-filter-purple-text: #5b21b6;
+  --color-comp-filter-purple-icon: #6d28d9;
+  --color-comp-filter-black-wrapper-border: #334155;
+  --color-comp-filter-black-wrapper-bg: var(--color-role-surface-strong);
+  --color-comp-filter-black-field-border: #475569;
+  --color-comp-filter-black-field-bg: var(--color-ref-slate-800);
+  --color-comp-filter-black-text: #f1f5f9;
+  --color-comp-filter-black-icon: #cbd5e1;
+
+  /* =============================================
+     10) COMPONENT TOKENS — EquipmentPage
+     ============================================= */
+  --color-comp-equipment-section-border: var(--color-role-border-soft);
+  --color-comp-equipment-meta-text: var(--color-role-text-secondary);
+  --color-comp-equipment-condition-new-bg: #dcfce7;
+  --color-comp-equipment-condition-new-text: #166534;
+  --color-comp-equipment-condition-good-bg: #fef3c7;
+  --color-comp-equipment-condition-good-text: #92400e;
+  --color-comp-equipment-condition-used-bg: #fee2e2;
+  --color-comp-equipment-condition-used-text: #991b1b;
+
+  /* =============================================
+     11) COMPONENT TOKENS — Statistics
+     ============================================= */
+  --color-comp-stats-loading-text: var(--color-role-text-secondary);
+  --color-comp-stats-bg-white: var(--color-role-surface-base);
+  --color-comp-stats-bg-blue: #eff6ff;
+  --color-comp-stats-bg-purple: #f5f3ff;
+  --color-comp-stats-bg-navy: var(--color-role-surface-strong);
+  --color-comp-stats-bg-slate: var(--color-role-surface-soft);
+  --color-comp-stats-navy-text: var(--color-ref-white);
+
+  /* =============================================
+     12) COMPONENT TOKENS — Button
+     ============================================= */
+  --color-comp-btn-blue-bg: #2563eb;
+  --color-comp-btn-blue-bg-hover: #1d4ed8;
+  --color-comp-btn-blue-text: var(--color-ref-white);
+  --color-comp-btn-blue-outline-border: #2563eb;
+  --color-comp-btn-blue-outline-text: #1d4ed8;
+  --color-comp-btn-blue-outline-bg-hover: #eff6ff;
+  --color-comp-btn-blue-secondary-bg: #dbeafe;
+  --color-comp-btn-blue-secondary-text: #1e40af;
+  --color-comp-btn-blue-secondary-bg-hover: #bfdbfe;
+  --color-comp-btn-blue-ghost-text: #1d4ed8;
+  --color-comp-btn-blue-ghost-bg-hover: #eff6ff;
+  --color-comp-btn-purple-bg: #6d28d9;
+  --color-comp-btn-purple-bg-hover: #5b21b6;
+  --color-comp-btn-purple-text: var(--color-ref-white);
+  --color-comp-btn-purple-outline-border: #6d28d9;
+  --color-comp-btn-purple-outline-text: #5b21b6;
+  --color-comp-btn-purple-outline-bg-hover: #f5f3ff;
+  --color-comp-btn-purple-secondary-bg: #ede9fe;
+  --color-comp-btn-purple-secondary-text: #5b21b6;
+  --color-comp-btn-purple-secondary-bg-hover: #ddd6fe;
+  --color-comp-btn-purple-ghost-text: #6d28d9;
+  --color-comp-btn-purple-ghost-bg-hover: #f5f3ff;
+  --color-comp-btn-black-bg: var(--color-role-surface-strong);
+  --color-comp-btn-black-bg-hover: #000000;
+  --color-comp-btn-black-text: var(--color-ref-white);
+  --color-comp-btn-black-outline-border: var(--color-role-surface-strong);
+  --color-comp-btn-black-outline-text: var(--color-role-surface-strong);
+  --color-comp-btn-black-outline-bg-hover: var(--color-role-surface-soft);
+  --color-comp-btn-black-secondary-bg: #e2e8f0;
+  --color-comp-btn-black-secondary-text: var(--color-role-surface-strong);
+  --color-comp-btn-black-secondary-bg-hover: #cbd5e1;
+  --color-comp-btn-black-ghost-text: var(--color-role-surface-strong);
+  --color-comp-btn-black-ghost-bg-hover: var(--color-role-surface-soft);
+  --color-comp-btn-navy-bg: var(--color-role-surface-strong);
+  --color-comp-btn-navy-bg-hover: var(--color-ref-slate-800);
+  --color-comp-btn-white-bg: var(--color-ref-white);
+  --color-comp-btn-white-text: var(--color-role-surface-strong);
+  --color-comp-btn-white-bg-hover: var(--color-role-surface-soft);
+
+  /* =============================================
+     13) COMPONENT TOKENS — Carousel
+     ============================================= */
+  --color-comp-carousel-nav-bg: var(--color-role-surface-base);
+  --color-comp-carousel-nav-border: var(--color-role-border-soft);
+  --color-comp-carousel-nav-text: #334155;
+  --color-comp-carousel-nav-bg-hover: var(--color-role-surface-muted);
+  --color-comp-carousel-dot-border: #94a3b8;
+  --color-comp-carousel-dot-bg: #e2e8f0;
+  --color-comp-carousel-dot-bg-hover: #cbd5e1;
+  --color-comp-carousel-dot-active-border: var(--color-role-surface-strong);
+  --color-comp-carousel-dot-active-bg: var(--color-role-surface-strong);
+  --color-comp-carousel-card1-border: var(--color-role-border-soft);
+  --color-comp-carousel-card1-bg: var(--color-role-surface-muted);
+  --color-comp-carousel-card1-empty-bg: var(--color-role-border-soft);
+  --color-comp-carousel-card1-overlay: #000000bf;
+  --color-comp-carousel-card1-subtitle-text: #e2e8f0;
+
+  /* =============================================
+     14) COMPONENT TOKENS — Header (tone: blue/purple/black)
+     ============================================= */
+  --color-comp-header-blue-link-hover: #bfdbfe;
+  --color-comp-header-blue-hover-bg: #1e3a8a4d;
+  --color-comp-header-blue-border: #1e3a8ab3;
+  --color-comp-header-purple-link-hover: #ddd6fe;
+  --color-comp-header-purple-hover-bg: #4c1d954d;
+  --color-comp-header-purple-border: #4c1d95b3;
+  --color-comp-header-black-link-hover: #e2e8f0;
+  --color-comp-header-black-hover-bg: #00000066;
+  --color-comp-header-black-border: #475569;
+  --color-comp-header-divide-dark: #33415599;
+
+  /* =============================================
+     15) COMPONENT TOKENS — Footer (tone: blue/purple/black)
+     ============================================= */
+  --color-comp-footer-blue-link: #93c5fd;
+  --color-comp-footer-blue-link-hover: #dbeafe;
+  --color-comp-footer-blue-separator: #1d4ed8;
+  --color-comp-footer-blue-border: #1e3a8a99;
+  --color-comp-footer-purple-link: #c4b5fd;
+  --color-comp-footer-purple-link-hover: #ede9fe;
+  --color-comp-footer-purple-separator: #6d28d9;
+  --color-comp-footer-purple-border: #4c1d9599;
+  --color-comp-footer-black-link: #cbd5e1;
+  --color-comp-footer-black-link-hover: var(--color-ref-white);
+  --color-comp-footer-black-separator: #475569;
+  --color-comp-footer-black-border: #475569;
+
+  /* =============================================
+     16) COMPONENT TOKENS — ActivityDetailModal / Modal
+     ============================================= */
+  --color-comp-modal-overlay: #00000080;
+  --color-comp-modal-loading-text: var(--color-role-text-secondary);
+  --color-comp-modal-error-bg: #fee2e2;
+  --color-comp-modal-error-text: #b91c1c;
+  --color-comp-modal-metric-label: var(--color-role-text-secondary);
+  --color-comp-modal-card-bg: var(--color-role-surface-muted);
+  --color-comp-modal-close-text: #64748b;
+  --color-comp-modal-close-hover: #334155;
+
+  /* =============================================
+     17) COMPONENT TOKENS — Filter (minimal variant)
+     ============================================= */
+  --color-comp-filter-minimal-text: #1e293b;
+  --color-comp-filter-minimal-border: var(--color-role-border-soft);
+  --color-comp-filter-minimal-bg: var(--color-role-surface-base);
+  --color-comp-filter-minimal-icon: #64748b;
+  --color-comp-filter-separator: var(--color-role-border-soft);
+  --color-comp-filter-active-badge-bg: var(--color-role-surface-strong);
+  --color-comp-filter-active-badge-text: var(--color-ref-white);
+  --color-comp-filter-reset-text: #1e293b;
+
+  /* =============================================
+     18) COMPONENT TOKENS — CardGrid (card surface)
+     ============================================= */
+  --color-comp-cardgrid-card-border: #cbd5e180;
+  --color-comp-cardgrid-card-bg: var(--color-role-surface-base);
+  --color-comp-cardgrid-card-title: var(--color-role-text-primary);
+  --color-comp-cardgrid-card-title-hover: #2563eb;
+  --color-comp-cardgrid-card-description: var(--color-role-text-secondary);
+  --color-comp-cardgrid-card-meta: #64748b;
+  --color-comp-cardgrid-controls-text: var(--color-role-text-secondary);
+  --color-comp-cardgrid-sort-border: var(--color-role-border-soft);
+  --color-comp-cardgrid-sort-bg: var(--color-role-surface-base);
+  --color-comp-cardgrid-sort-text: var(--color-role-text-primary);
+  --color-comp-cardgrid-image-bg: #e2e8f0;
+
+  /* =====================
+     4) PAGE BACKGROUNDS
+     ===================== */
+  --gradient-page-white: linear-gradient(180deg, var(--color-ref-white) 0%, var(--color-ref-slate-50) 100%);
+  --gradient-page-sky: linear-gradient(180deg, var(--color-ref-sky-50) 0%, var(--color-ref-sky-100) 100%);
+  --gradient-page-navy: linear-gradient(180deg, var(--color-ref-slate-900) 0%, var(--color-ref-slate-950) 100%);
+
+  /* ==========================
+     5) Brand aliases (optional)
+     ========================== */
+  --color-brand-navy: var(--color-ref-slate-900);
+  --color-brand-navy-strong: var(--color-ref-slate-950);
+  --color-brand-sky: var(--color-ref-sky-50);
+  --color-brand-sky-strong: var(--color-ref-sky-100);
+  --color-brand-crimson: var(--color-ref-crimson-600);
+  --color-brand-crimson-strong: var(--color-ref-crimson-500);
+  --color-brand-pear: var(--color-ref-pear-500);
+  --color-brand-pear-soft: var(--color-ref-pear-100);
+
+  /* Legacy aliases kept for compatibility */
+  --color-background: var(--color-role-surface-base);
+  --color-foreground: var(--color-role-text-primary);
+  --color-card: var(--color-role-surface-base);
+  --color-card-foreground: var(--color-role-text-primary);
+  --color-popover: var(--color-role-surface-base);
+  --color-popover-foreground: var(--color-role-text-primary);
+  --color-primary: var(--color-role-text-primary);
   --color-primary-foreground: #fafafa;
   --color-secondary: #e8eefc;
   --color-secondary-foreground: #1e293b;
-  --color-muted: #f1f5f9;
-  --color-muted-foreground: #475569;
+  --color-muted: var(--color-role-surface-muted);
+  --color-muted-foreground: var(--color-role-text-secondary);
   --color-accent: #dbeafe;
   --color-accent-foreground: #1e3a8a;
   --color-destructive: #dc2626;
   --color-destructive-foreground: #ffffff;
-  --color-border: #d1d5db;
-  --color-input: #d1d5db;
+  --color-border: var(--color-role-border-soft);
+  --color-input: var(--color-role-border-soft);
   --color-ring: #2563eb;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
@@ -30,24 +418,277 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --color-background: #0a0a0a;
-    --color-foreground: #ededed;
-    --color-card: #0f172a;
+    --color-ref-white: #ffffff;
+    --color-ref-ink: #ededed;
+    --color-ref-slate-50: #111827;
+    --color-ref-slate-100: #1e293b;
+    --color-ref-slate-300: #334155;
+    --color-ref-slate-600: #94a3b8;
+    --color-ref-slate-700: #334155;
+    --color-ref-slate-800: #1e293b;
+    --color-ref-slate-900: #0f172a;
+    --color-ref-slate-950: #020617;
+    --color-ref-sky-50: #0b1220;
+    --color-ref-sky-100: #172036;
+    --color-ref-crimson-600: #cd2a49;
+    --color-ref-crimson-500: #ba0c2f;
+    --color-ref-pear-500: #8db600;
+    --color-ref-pear-100: #465f00;
+    --color-ref-pear-900: #465f00;
+
+    --color-role-surface-base: #0a0a0a;
+    --color-role-surface-soft: #0f172a;
+    --color-role-surface-muted: #1e293b;
+    --color-role-surface-strong: #0f172a;
+    --color-role-surface-stronger: #020617;
+    --color-role-text-primary: #ededed;
+    --color-role-text-secondary: #94a3b8;
+    --color-role-text-inverse: #f8fafc;
+    --color-role-border-soft: #334155;
+    --color-role-border-strong: #334155;
+
+    --color-comp-tone-blue-bg: #172554;
+    --color-comp-tone-blue-border: #1e3a8a;
+    --color-comp-tone-blue-text: #e2e8f0;
+    --color-comp-tone-purple-bg: #3b0764;
+    --color-comp-tone-purple-border: #5b21b6;
+    --color-comp-tone-purple-text: #e2e8f0;
+    --color-comp-tone-navy-bg: #020617;
+    --color-comp-tone-navy-border: #334155;
+    --color-comp-tone-navy-text: #f8fafc;
+    --color-comp-tone-crimson-bg: #cd2a49;
+    --color-comp-tone-crimson-border: #cd2a49;
+    --color-comp-tone-crimson-text: #ffffff;
+    --color-comp-tone-pear-bg: #465f00;
+    --color-comp-tone-pear-border: #8db600;
+    --color-comp-tone-pear-text: #e2e8f0;
+
+    --color-comp-stripe-white-bg: #0f172a;
+    --color-comp-stripe-white-border: #334155;
+    --color-comp-stripe-white-title: #f1f5f9;
+    --color-comp-stripe-white-text: #cbd5e1;
+    --color-comp-stripe-white-image-bg: #1e293b;
+    --color-comp-stripe-white-image-border: #334155;
+
+    --color-comp-stripe-navy-bg: #020617;
+    --color-comp-stripe-navy-border: #334155;
+    --color-comp-stripe-navy-title: #f8fafc;
+    --color-comp-stripe-navy-text: #cbd5e1;
+    --color-comp-stripe-navy-image-bg: #0f172a;
+    --color-comp-stripe-navy-image-border: #334155;
+
+    /* Header dark */
+    --color-comp-header-bg: #020617;
+    --color-comp-header-text: #f8fafc;
+    --color-comp-header-link-hover: #93c5fd;
+    --color-comp-header-hover-bg: #1e293b;
+    --color-comp-header-border: #334155;
+    --color-comp-header-dropdown-bg: #0f172a;
+    --color-comp-header-divider: #334155;
+
+    /* Footer dark */
+    --color-comp-footer-bg: #020617;
+    --color-comp-footer-text: #f8fafc;
+    --color-comp-footer-link: #94a3b8;
+    --color-comp-footer-link-hover: #93c5fd;
+    --color-comp-footer-separator: #475569;
+    --color-comp-footer-border: #334155;
+    --color-comp-footer-copyright: #6b7280;
+
+    /* Modal dark */
+    --color-comp-modal-bg: #1e293b;
+    --color-comp-modal-title: #f1f5f9;
+    --color-comp-modal-subtitle: #94a3b8;
+    --color-comp-modal-border: #334155;
+    --color-comp-modal-metric-current: #60a5fa;
+    --color-comp-modal-metric-blue: #93c5fd;
+    --color-comp-modal-metric-purple: #a78bfa;
+    --color-comp-modal-metric-black: #f1f5f9;
+
+    /* BadgeChip dark */
+    --color-comp-badge-running-bg: #0c4a6e;
+    --color-comp-badge-running-text: #bae6fd;
+    --color-comp-badge-trekking-bg: #064e3b;
+    --color-comp-badge-trekking-text: #a7f3d0;
+    --color-comp-badge-trip-bg: #431407;
+    --color-comp-badge-trip-text: #fed7aa;
+    --color-comp-badge-books-bg: #1e293b;
+    --color-comp-badge-books-text: #e2e8f0;
+    --color-comp-badge-photo-bg: #991b1b66;
+    --color-comp-badge-photo-text: #fca5a5;
+    --color-comp-badge-music-bg: #1e293b;
+    --color-comp-badge-music-text: #e2e8f0;
+
+    /* Divider dark */
+    --color-comp-divider-current-line: #475569;
+    --color-comp-divider-current-symbol: #94a3b8;
+    --color-comp-divider-blue-line: #3b82f6;
+    --color-comp-divider-blue-symbol: #60a5fa;
+    --color-comp-divider-purple-line: #7c3aed;
+    --color-comp-divider-purple-symbol: #a78bfa;
+    --color-comp-divider-black-line: #e2e8f0;
+    --color-comp-divider-black-symbol: #e2e8f0;
+
+    /* Hero dark */
+    --color-comp-hero-overlay: #00000080;
+    --color-comp-hero-title-current: #ffffff;
+    --color-comp-hero-title-blue: #93c5fd;
+    --color-comp-hero-title-purple: #c4b5fd;
+    --color-comp-hero-title-black: #e2e8f0;
+    --color-comp-hero-subtitle-current: #ffffffd9;
+    --color-comp-hero-subtitle-blue: #bfdbfe;
+    --color-comp-hero-subtitle-purple: #ddd6fe;
+    --color-comp-hero-subtitle-black: #94a3b8;
+
+    /* Shared tone dark */
+    --color-tone-current-accent: #60a5fa;
+    --color-tone-current-accent-hover: #93c5fd;
+    --color-tone-blue-title: #93c5fd;
+    --color-tone-blue-subtitle: #60a5fa;
+    --color-tone-blue-accent: #93c5fd;
+    --color-tone-blue-accent-hover: #bfdbfe;
+    --color-tone-purple-title: #c4b5fd;
+    --color-tone-purple-subtitle: #a78bfa;
+    --color-tone-purple-accent: #a78bfa;
+    --color-tone-purple-accent-hover: #ddd6fe;
+    --color-tone-black-title: #f1f5f9;
+    --color-tone-black-subtitle: #cbd5e1;
+    --color-tone-black-accent: #f1f5f9;
+    --color-tone-black-accent-hover: #ffffff;
+    --color-tone-navy-title: #f1f5f9;
+    --color-tone-navy-subtitle: #cbd5e1;
+
+    /* Loader dark */
+    --color-comp-loader-overlay: #0f172acc;
+    --color-comp-loader-subtitle: #94a3b8;
+    --color-comp-loader-black-border: #f1f5f9;
+    --color-comp-loader-black-border-inner: #cbd5e1;
+
+    /* Filter dark */
+    --color-comp-filter-current-text: #e2e8f0;
+    --color-comp-filter-blue-wrapper-border: #1e40af99;
+    --color-comp-filter-blue-wrapper-bg: #1725544d;
+    --color-comp-filter-blue-field-border: #1e40afb3;
+    --color-comp-filter-blue-field-bg: #17255433;
+    --color-comp-filter-blue-text: #bfdbfe;
+    --color-comp-filter-blue-icon: #93c5fd;
+    --color-comp-filter-purple-wrapper-border: #3730a399;
+    --color-comp-filter-purple-wrapper-bg: #2e10654d;
+    --color-comp-filter-purple-field-border: #3730a3b3;
+    --color-comp-filter-purple-field-bg: #2e106533;
+    --color-comp-filter-purple-text: #ddd6fe;
+    --color-comp-filter-purple-icon: #c4b5fd;
+
+    /* EquipmentPage dark */
+    --color-comp-equipment-condition-new-bg: #14532d4d;
+    --color-comp-equipment-condition-new-text: #86efac;
+    --color-comp-equipment-condition-good-bg: #78350f4d;
+    --color-comp-equipment-condition-good-text: #fcd34d;
+    --color-comp-equipment-condition-used-bg: #991b1b4d;
+    --color-comp-equipment-condition-used-text: #fca5a5;
+
+    /* Statistics dark */
+    --color-comp-stats-bg-blue: #172554;
+    --color-comp-stats-bg-purple: #2e1065;
+    --color-comp-stats-bg-navy: #020617;
+    --color-comp-stats-bg-slate: #0f172a;
+
+    /* Button dark */
+    --color-comp-btn-blue-outline-border: #60a5fa;
+    --color-comp-btn-blue-outline-text: #93c5fd;
+    --color-comp-btn-blue-outline-bg-hover: #17255466;
+    --color-comp-btn-blue-secondary-bg: #17255466;
+    --color-comp-btn-blue-secondary-text: #bfdbfe;
+    --color-comp-btn-blue-secondary-bg-hover: #17255499;
+    --color-comp-btn-blue-ghost-text: #93c5fd;
+    --color-comp-btn-blue-ghost-bg-hover: #17255466;
+    --color-comp-btn-purple-outline-border: #a78bfa;
+    --color-comp-btn-purple-outline-text: #c4b5fd;
+    --color-comp-btn-purple-outline-bg-hover: #2e106566;
+    --color-comp-btn-purple-secondary-bg: #2e106566;
+    --color-comp-btn-purple-secondary-text: #ddd6fe;
+    --color-comp-btn-purple-secondary-bg-hover: #2e106599;
+    --color-comp-btn-purple-ghost-text: #c4b5fd;
+    --color-comp-btn-purple-ghost-bg-hover: #2e106566;
+    --color-comp-btn-black-bg: #f1f5f9;
+    --color-comp-btn-black-bg-hover: #ffffff;
+    --color-comp-btn-black-text: #0f172a;
+    --color-comp-btn-black-outline-border: #e2e8f0;
+    --color-comp-btn-black-outline-text: #f1f5f9;
+    --color-comp-btn-black-outline-bg-hover: #1e293b;
+    --color-comp-btn-black-secondary-bg: #1e293b;
+    --color-comp-btn-black-secondary-text: #f1f5f9;
+    --color-comp-btn-black-secondary-bg-hover: #334155;
+    --color-comp-btn-black-ghost-text: #f1f5f9;
+    --color-comp-btn-black-ghost-bg-hover: #1e293b;
+    --color-comp-btn-navy-bg: #020617;
+    --color-comp-btn-navy-bg-hover: #0f172a;
+
+    /* Carousel dark */
+    --color-comp-carousel-nav-bg: #1e293b;
+    --color-comp-carousel-nav-border: #334155;
+    --color-comp-carousel-nav-text: #e2e8f0;
+    --color-comp-carousel-nav-bg-hover: #334155;
+    --color-comp-carousel-dot-border: #475569;
+    --color-comp-carousel-dot-bg: #334155;
+    --color-comp-carousel-dot-bg-hover: #475569;
+    --color-comp-carousel-dot-active-border: #f1f5f9;
+    --color-comp-carousel-dot-active-bg: #f1f5f9;
+    --color-comp-carousel-card1-border: #334155;
+    --color-comp-carousel-card1-bg: #1e293b;
+    --color-comp-carousel-card1-empty-bg: #334155;
+
+    /* Filter minimal dark */
+    --color-comp-filter-minimal-text: #e2e8f0;
+    --color-comp-filter-minimal-icon: #94a3b8;
+    --color-comp-filter-active-badge-bg: #f1f5f9;
+    --color-comp-filter-active-badge-text: #0f172a;
+    --color-comp-filter-reset-text: #e2e8f0;
+
+    /* CardGrid dark */
+    --color-comp-cardgrid-card-border: #47556999;
+    --color-comp-cardgrid-card-bg: #0202171a;
+    --color-comp-cardgrid-card-title: #f1f5f9;
+    --color-comp-cardgrid-card-title-hover: #93c5fd;
+    --color-comp-cardgrid-card-description: #cbd5e1;
+    --color-comp-cardgrid-card-meta: #94a3b8;
+    --color-comp-cardgrid-controls-text: #94a3b8;
+    --color-comp-cardgrid-sort-border: #334155;
+    --color-comp-cardgrid-sort-bg: #0f172a;
+    --color-comp-cardgrid-sort-text: #f1f5f9;
+    --color-comp-cardgrid-image-bg: #334155;
+
+    --gradient-page-white: linear-gradient(180deg, #0a0a0a 0%, #111827 100%);
+    --gradient-page-sky: linear-gradient(180deg, #0b1220 0%, #172036 100%);
+    --gradient-page-navy: linear-gradient(180deg, #0f172a 0%, #020617 100%);
+
+    --color-brand-navy: var(--color-ref-slate-900);
+    --color-brand-navy-strong: var(--color-ref-slate-950);
+    --color-brand-sky: var(--color-ref-sky-50);
+    --color-brand-sky-strong: var(--color-ref-sky-100);
+    --color-brand-crimson: var(--color-ref-crimson-600);
+    --color-brand-crimson-strong: var(--color-ref-crimson-500);
+    --color-brand-pear: var(--color-ref-pear-500);
+    --color-brand-pear-soft: var(--color-ref-pear-100);
+
+    --color-background: var(--color-role-surface-base);
+    --color-foreground: var(--color-role-text-primary);
+    --color-card: var(--color-role-surface-soft);
     --color-card-foreground: #e2e8f0;
-    --color-popover: #0f172a;
+    --color-popover: var(--color-role-surface-soft);
     --color-popover-foreground: #e2e8f0;
     --color-primary: #f8fafc;
     --color-primary-foreground: #0f172a;
-    --color-secondary: #1e293b;
+    --color-secondary: var(--color-role-surface-muted);
     --color-secondary-foreground: #e2e8f0;
-    --color-muted: #1e293b;
-    --color-muted-foreground: #94a3b8;
+    --color-muted: var(--color-role-surface-muted);
+    --color-muted-foreground: var(--color-role-text-secondary);
     --color-accent: #1d4ed8;
     --color-accent-foreground: #dbeafe;
     --color-destructive: #ef4444;
     --color-destructive-foreground: #fff1f2;
-    --color-border: #334155;
-    --color-input: #334155;
+    --color-border: var(--color-role-border-soft);
+    --color-input: var(--color-role-border-soft);
     --color-ring: #60a5fa;
   }
 }
