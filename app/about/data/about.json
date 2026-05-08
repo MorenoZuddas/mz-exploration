@@ -5,29 +5,21 @@
     "imageSrc": "https://res.cloudinary.com/derbnvxif/image/upload/v1778058830/MZ_profile_image_vf775z.png",
     "imageAlt": "Foto profilo di Moreno Zuddas, sviluppatore web/mobile",
     "ctaLabel": "Contattami",
-    "ctaHref": "/contact"
+    "ctaHref": "/contact",
+    "favoriteQuote": {
+      "text": "Non smettere mai di esplorare: fuori e dentro di te.",
+      "source": "Citazione personale"
+    }
   },
   "mission": {
     "title": "La mia storia",
     "paragraphs": [
       "Ho iniziato a capire il mondo della tecnologia sin dai vecchi MS-DoS e Windows '95, passando attraverso i Nokia 3310, agli ipod  per poi arrivare sin qui. Nel mezzo la laurea in ingegneria elettronica mi ha insegnato a ragionare in modo preciso, a partire dai dettagli più piccoli per arrivare a sistemi complessi. Oggi faccio lo stesso con gli aspetti della mia vita: costruisco cercando di tenere insieme rigore e semplicità.",
-      "Ma c'è una parte di me che non riesce proprio a stare ferma su una sedia. Da li è nata la mia passione per la corsa e per l'endurance. Quella libertà non è una fuga dal lavoro: è la stessa curiosità che mi spinge a imparare, a fare domande, a non fermarmi alla prima difficoltà ma affrontare anche le sfide più difficili.",
-      "Questo progetto nasce dalla dinamicità: codice e movimento si incontrano per mostrare genuinamente che è bello costruire cose che rispecchiano chi sei."
+      "Ma c'è una parte di me che non riesce proprio a stare ferma su una sedia. Da li è nata la mia passione per la corsa e per l'endurance. Quella libertà non è una fuga dal lavoro: è la stessa curiosità che mi spinge a imparare, a fare domande, a non fermarmi ed affrontare anche le sfide più difficili.",
+      "Due passioni che sembrano lontane: codice e movimento si incontrano per mostrare genuinamente che è bello costruire cose che rispecchiano chi sei e sentirsi libero."
     ]
   },
   "skills": [
-    {
-      "category": "Frontend",
-      "name": "Web Development",
-      "description": "Costruisco interfacce moderne con React, Next.js, TypeScript e Tailwind CSS.",
-      "icon": "Code2"
-    },
-    {
-      "category": "Mobile",
-      "name": "Mobile Development",
-      "description": "Sviluppo applicazioni mobile native e cross-platform con attenzione all'esperienza utente.",
-      "icon": "Smartphone"
-    },
     {
       "category": "Engineering",
       "name": "Electrical Engineering",
@@ -35,44 +27,45 @@
       "icon": "Cpu"
     },
     {
-      "category": "Cloud & Infra",
-      "name": "DevOps / Cloud",
+      "category": "Frontend",
+      "name": "Web Development",
+      "description": "Mi piace quando tecnologia e design si incontrano e creano delle esperienze.",
+      "icon": "Code2"
+    },
+    {
+      "category": "Cloud & Infrastructure",
+      "name": "DevOps/Cloud",
       "description": "Deploy e infrastruttura con Vercel, MongoDB Atlas e ambienti serverless.",
       "icon": "Activity"
     },
     {
-      "category": "Data",
-      "name": "Data Analysis & Visualization",
-      "description": "Trasformo dati grezzi in visualizzazioni leggibili e significative.",
-      "icon": "Lightbulb"
+      "category": "CMS & Digital",
+      "name": "AEM development",
+      "description": "Certificato Adobe Experience Manager, ho utilizzato anche altri cms come Drupal e Wix.",
+      "icon": "Puzzle"
     },
     {
-      "category": "CMS & Digital",
-      "name": "AEM Business Practitioner",
-      "description": "Certificato Adobe Experience Manager: gestione contenuti e digital experience su scala.",
-      "icon": "Puzzle"
+      "category": "Actual job",
+      "name": "Deloitte Italy",
+      "description": "Sviluppatore per il Green Dot delle Big4. Lavoro su progetti di digital transformation, con focus su AEM e soluzioni cloud.",
+      "icon": "Network"
     }
   ],
   "passions": [
     {
-      "title": "Tracking & Running",
-      "description": "Corro con costanza e registro ogni attività. I dati del movimento sono il cuore di MZ Exploration.",
+      "title": "Running & Endurance",
+      "description": "Corro analizzo ogni attività. I dati e la loro interpretazione sono il cuore di questo progetto. I numeri raccontano storie, se sai ascoltarle.",
       "icon": "Activity"
     },
     {
       "title": "Exploration & Travel",
-      "description": "Viaggiare è il modo in cui rimango curioso. Ogni posto nuovo è un sistema da capire.",
+      "description": "Viaggiare ed esplorare è il modo in cui rimango curioso. Ogni posto nuovo è un sistema da capire, tra trekking e viaggi.",
       "icon": "Plane"
     },
     {
       "title": "Tech Innovation",
-      "description": "Seguo l'evoluzione del software con interesse genuino, non per moda.",
+      "description": "Passione per il progresso, da hardware a software, passando per la cybersecurity alla AI.",
       "icon": "Cpu"
-    },
-    {
-      "title": "Problem Solving",
-      "description": "Mi piace smontare i problemi fino al dettaglio e ricostruire soluzioni pulite.",
-      "icon": "Puzzle"
     }
   ],
   "contacts": [

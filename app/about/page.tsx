@@ -7,6 +7,7 @@ import {
   ExternalLink,
   Lightbulb,
   Mail,
+  Network,
   Plane,
   Puzzle,
   Smartphone,
@@ -14,8 +15,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
-import { AnimatedSection, PageShell } from '@/components/generic';
-import { Card, CardContent, CardHeader, CardTitle, type CardTone } from '@/components/ui/card';
+import { AnimatedSection, PageShell, CardGrid } from '@/components/generic';
 import { Stripe } from '@/components/Stripe';
 
 import aboutJson from './data/about.json';
@@ -27,6 +27,7 @@ const iconMap: Record<AboutIconName, LucideIcon> = {
   Activity,
   Code2,
   Cpu,
+  Network,
   Smartphone,
   Lightbulb,
   Mail,
@@ -38,8 +39,9 @@ const iconMap: Record<AboutIconName, LucideIcon> = {
   ExternalLink,
 };
 
-const skillCardColors: CardTone[] = ['blue', 'purple', 'navy', 'crimson', 'pear', 'current'];
-const passionCardColors: CardTone[] = ['navy', 'crimson', 'pear', 'blue'];
+// URLs per le immagini dei carousel
+const SKILLS_CAROUSEL_IMAGE = 'https://res.cloudinary.com/derbnvxif/image/upload/v1778058830/MZ_profile_image_vf775z.png';
+const PASSIONS_CAROUSEL_IMAGE = 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1200&q=80';
 
 function resolveIcon(name: AboutIconName): LucideIcon {
   return iconMap[name] ?? ExternalLink;
@@ -80,6 +82,7 @@ export default function AboutPage() {
         <Stripe
           imageSrc={about.hero.imageSrc}
           imageAlt={about.hero.imageAlt}
+          imageQuote={about.hero.favoriteQuote}
           imagePosition="right"
           imageSize="lg"
           imageKind="pic-portrait"
@@ -115,30 +118,24 @@ export default function AboutPage() {
         <AnimatedSection className="about-skills-4" delay={0.1}>
           <section data-testid="about-skills-section">
             <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 sm:text-2xl">Competenze e Background</h2>
-            <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-              {about.skills.map((skill, index) => {
-                const Icon = resolveIcon(skill.icon);
-                const backgroundColor = skillCardColors[index % skillCardColors.length];
-                return (
-                  <Card
-                    key={`${skill.category}-${skill.name}`}
-                    tone={backgroundColor}
-                    className="h-full transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
-                  >
-                    <CardHeader className="pb-3">
-                      <div className="flex items-center gap-2 text-xs uppercase tracking-wide opacity-80">
-                        <Icon className="h-4 w-4" aria-hidden="true" />
-                        <span>{skill.category}</span>
-                      </div>
-                      <CardTitle className="text-lg">{skill.name}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm leading-relaxed opacity-90">{skill.description}</p>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
+              {/* TODO: CardGrid flip-card con icone dinamiche - richiede uso di "use client" nel about/page */}
+              {/* <CardGrid
+                variant="flip-card"
+                title=""
+                items={about.skills.map((skill) => ({
+                  id: `${skill.category}-${skill.name}`,
+                  title: skill.name,
+                  href: "#",
+                  description: `${skill.category}: ${skill.description}`,
+                  icon: resolveIcon(skill.icon),
+                }))}
+                flipCardOrientation="horizontal"
+                flipCardImageSrc={SKILLS_CAROUSEL_IMAGE}
+                flipCardImageAlt="Background competenze"
+                tone="blue"
+                columnsClassName="grid grid-cols-1 md:grid-cols-3 gap-6"
+                useMotion={false}
+              /> */}
           </section>
         </AnimatedSection>
 
@@ -146,30 +143,25 @@ export default function AboutPage() {
 
         <AnimatedSection className="about-passions-4" delay={0.15}>
           <section data-testid="about-passions-section">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 sm:text-2xl">Cosa mi muove</h2>
-            <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-              {about.passions.map((passion, index) => {
-                const Icon = resolveIcon(passion.icon);
-                const backgroundColor = passionCardColors[index % passionCardColors.length];
-                return (
-                  <Card
-                    key={passion.title}
-                    tone={backgroundColor}
-                    className="h-full transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
-                  >
-                    <CardHeader className="pb-2">
-                      <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
-                        <Icon className="h-4 w-4 opacity-80" aria-hidden="true" />
-                        {passion.title}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-sm leading-relaxed opacity-90">{passion.description}</p>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </div>
+            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 sm:text-2xl">Passioni e Hobby</h2>
+              {/* TODO: CardGrid flip-card con icone dinamiche - richiede uso di "use client" nel about/page */}
+              {/* <CardGrid
+                variant="flip-card"
+                title=""
+                items={about.passions.map((passion) => ({
+                  id: passion.title,
+                  title: passion.title,
+                  href: "#",
+                  description: passion.description,
+                  icon: resolveIcon(passion.icon),
+                }))}
+                flipCardOrientation="horizontal"
+                flipCardImageSrc={PASSIONS_CAROUSEL_IMAGE}
+                flipCardImageAlt="Passioni e hobby"
+                tone="purple"
+                columnsClassName="grid grid-cols-1 md:grid-cols-3 gap-6"
+                useMotion={false}
+              /> */}
           </section>
         </AnimatedSection>
 

@@ -2,6 +2,7 @@ export type AboutIconName =
   | 'Code2'
   | 'Smartphone'
   | 'Cpu'
+  | 'Network'
   | 'Users'
   | 'Activity'
   | 'Plane'
@@ -19,6 +20,10 @@ export interface AboutHeroData {
   imageAlt: string;
   ctaLabel: string;
   ctaHref: string;
+  favoriteQuote?: {
+    text: string;
+    source?: string;
+  };
 }
 
 export interface AboutSkillData {

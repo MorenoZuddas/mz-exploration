@@ -21,6 +21,10 @@ export interface StripeProps {
   imagePosition?: 'left' | 'right';
   imageSize?: 'sm' | 'md' | 'lg';
   portraitObjectPosition?: string;
+  imageQuote?: {
+    text: string;
+    author?: string;
+  };
 
   // Content
   title: string;
@@ -72,6 +76,7 @@ export function Stripe({
   imagePosition,
   imageSize = 'md',
   portraitObjectPosition = '50% 18%',
+  imageQuote,
   title,
   subtitle,
   text,
@@ -112,6 +117,18 @@ export function Stripe({
         style={{ objectPosition: portraitObjectPosition }}
         priority
       />
+    </div>
+  );
+
+  const portraitMediaEl = (
+    <div className="flex shrink-0 flex-col items-center gap-2">
+      {portraitImageEl}
+      {imageQuote ? (
+        <figure className={cn('max-w-[18rem] text-center text-xs sm:text-sm', bgStyle.textMuted)}>
+          <blockquote className="italic">&ldquo;{imageQuote.text}&rdquo;</blockquote>
+          {imageQuote.author ? <figcaption className="mt-1 text-[11px] opacity-80">- {imageQuote.author}</figcaption> : null}
+        </figure>
+      ) : null}
     </div>
   );
 
@@ -196,7 +213,7 @@ export function Stripe({
         </>
       ) : (
         <>
-          <div>{isLandscape ? landscapeImageEl : portraitImageEl}</div>
+          <div>{isLandscape ? landscapeImageEl : portraitMediaEl}</div>
           {contentEl}
         </>
       )}

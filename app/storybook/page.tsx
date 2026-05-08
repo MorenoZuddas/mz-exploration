@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardMedia, 
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ChevronDown, ChevronLeft, ChevronRight, LayoutGrid, Palette } from "lucide-react"
+import { ChevronDown, ChevronLeft, ChevronRight, LayoutGrid, Palette, Activity, Code2, Lightbulb, Plane, Puzzle } from "lucide-react"
 import {
   Carousel,
   CarouselCards,
@@ -469,6 +469,7 @@ function ColorPaletteSection() {
       next[token] = computed.getPropertyValue(token).trim()
     })
 
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setValues(next)
   }, [])
 
@@ -860,12 +861,29 @@ function makeActivityItems(total: number): CardGridItem[] {
    })
  }
 
+function makeFlipCardItems(total: number): CardGridItem[] {
+  const icons = [Activity, Code2, Lightbulb, Plane, Puzzle]
+  return Array.from({ length: total }).map((_, i) => ({
+    id: `flip-card-${i + 1}`,
+    title: `Elemento ${i + 1}`,
+    href: "#",
+    description: `Descrizione del flip-card elemento ${i + 1}. Clicca per flipare e scoprire il contenuto.`,
+    icon: icons[i % icons.length],
+  }))
+}
+
 function CardGridSection() {
    const [total, setTotal] = useState("8")
    const [visible, setVisible] = useState("4")
    const [maxCards, setMaxCards] = useState("")
    const [tone, setTone] = useState<Tone>("current")
-   const [variant, setVariant] = useState<"default" | "activity">("default")
+   const [variant, setVariant] = useState<"default" | "activity" | "flip-card">("default")
+   const [gridSize, setGridSize] = useState<"full-screen" | "mid-range">("mid-range")
+   const [cardHeight, setCardHeight] = useState<"small" | "medium" | "large">("medium")
+   const [flipCardOrientation, setFlipCardOrientation] = useState<"horizontal" | "vertical">("horizontal")
+   const [flipCardItemCount, setFlipCardItemCount] = useState<"1" | "2" | "3" | "4" | "5">("3")
+   const [flipCardImageUrl, setFlipCardImageUrl] = useState("https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1200&q=80")
+   const [flipCardImageAlt, setFlipCardImageAlt] = useState("Demo flip-card background")
    const [badgePos, setBadgePos] = useState<"border" | "date-row">("border")
    const [badgeSize, setBadgeSize] = useState<"small" | "medium" | "large">("small")
    const [badgeRounded, setBadgeRounded] = useState(true)
@@ -874,88 +892,133 @@ function CardGridSection() {
    const [showBadge, setShowBadge] = useState(true)
    const [showBadgeOnImage, setShowBadgeOnImage] = useState(false)
    const [showDesc, setShowDesc] = useState(false)
-   const items = useMemo(() => (variant === "activity" ? makeActivityItems(Number(total)) : makeItems(Number(total))), [total, variant])
+    const items = useMemo(() => {
+      if (variant === "activity") return makeActivityItems(Number(total))
+      if (variant === "flip-card") return makeFlipCardItems(Number(flipCardItemCount))
+      return makeItems(Number(total))
+    }, [total, variant, flipCardItemCount])
 
   return (
     <Section id="cardgrid" title="CardGrid">
       <div className="grid lg:grid-cols-[320px_1fr] gap-4">
-        <Panel>
-           <div className="grid gap-2">
-             <Ctl label="tone" value={tone} options={CARD_TONES} onChange={setTone} />
-             <Ctl label="variant" value={variant} options={["default", "activity"]} onChange={setVariant} />
-             {variant === "activity" && (
-               <>
-                 <Ctl label="photo badge pos" value={badgePos} options={["border", "date-row"]} onChange={(v) => setBadgePos(v as "border" | "date-row")} />
-                 <Ctl label="photo badge size" value={badgeSize} options={["small", "medium", "large"]} onChange={(v) => setBadgeSize(v as "small" | "medium" | "large")} />
-                 <Ctl label="activity text color" value={activityTextColor} options={CARD_TONES} onChange={(v) => setActivityTextColor(v as Tone)} />
-                 <Toggle label="photo badge rounded" checked={badgeRounded} onChange={setBadgeRounded} />
-               </>
-             )}
-             <Ctl label="total cards" value={total} options={["3", "4", "6", "8", "10", "12"]} onChange={setTotal} />
-             <Ctl label="visible cards" value={visible} options={["3", "4", "6", "8", "10", "12"]} onChange={setVisible} />
-             <Ctl label="maxCards" value={maxCards} options={["", "1", "2", "3", "4", "6", "8"]} onChange={setMaxCards} />
-             <Toggle label="show date" checked={showDate} onChange={setShowDate} />
-             <Toggle label="show badge" checked={showBadge} onChange={setShowBadge} />
-             <Toggle label="badge on image" checked={showBadgeOnImage} onChange={setShowBadgeOnImage} />
-             <Toggle label="show desc" checked={showDesc} onChange={setShowDesc} />
-           </div>
-        </Panel>
-         <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
-           <CardGrid
-             title="CardGrid riusabile"
-             subtitle={`Totali ${total}${maxCards ? `, max ${maxCards}` : `, visibili ${visible}`}`}
-             items={items}
-             variant={variant}
-             tone={tone}
-             visibleItems={maxCards ? undefined : Number(visible)}
-             showVisibilityToggle={!maxCards}
-             showMoreLabel="Mostra tutte"
-             showLessLabel="Mostra meno"
-             useMotion={false}
-             showDate={showDate}
-             showTypeBadge={variant === "default" ? showBadge : false}
-             showBadgeOnImage={showBadgeOnImage}
-             showDescription={variant === "default" ? showDesc : false}
-             maxCards={maxCards ? Number(maxCards) : undefined}
-             activityPhotoBadgePosition={variant === "activity" ? badgePos : undefined}
-             activityPhotoBadgeSize={variant === "activity" ? badgeSize : undefined}
-             activityPhotoBadgeRounded={variant === "activity" ? badgeRounded : undefined}
-             activityTextColor={variant === "activity" ? activityTextColor : undefined}
-             sectionClassName="px-6 py-8 bg-white dark:bg-slate-900"
-           />
-         </div>
+         <Panel>
+            <div className="grid gap-2">
+              <Ctl label="tone" value={tone} options={CARD_TONES} onChange={setTone} />
+              <Ctl label="variant" value={variant} options={["default", "activity", "flip-card"]} onChange={setVariant} />
+              <Ctl label="grid size" value={gridSize} options={["full-screen", "mid-range"]} onChange={(v) => setGridSize(v as "full-screen" | "mid-range")} />
+              <Ctl label="card height" value={cardHeight} options={["small", "medium", "large"]} onChange={(v) => setCardHeight(v as "small" | "medium" | "large")} />
+              {variant === "activity" && (
+                <>
+                  <Ctl label="photo badge pos" value={badgePos} options={["border", "date-row"]} onChange={(v) => setBadgePos(v as "border" | "date-row")} />
+                  <Ctl label="photo badge size" value={badgeSize} options={["small", "medium", "large"]} onChange={(v) => setBadgeSize(v as "small" | "medium" | "large")} />
+                  <Ctl label="activity text color" value={activityTextColor} options={CARD_TONES} onChange={(v) => setActivityTextColor(v as Tone)} />
+                  <Toggle label="photo badge rounded" checked={badgeRounded} onChange={setBadgeRounded} />
+                </>
+              )}
+               {variant === "flip-card" && (
+                 <>
+                   <Ctl label="orientation" value={flipCardOrientation} options={["horizontal", "vertical"]} onChange={(v) => setFlipCardOrientation(v as "horizontal" | "vertical")} />
+                   <Ctl label="card count" value={flipCardItemCount} options={["1", "2", "3", "4", "5"]} onChange={setFlipCardItemCount} />
+                   <label className="flex flex-col gap-1 text-xs">
+                     <span className="uppercase tracking-wider text-slate-400 font-semibold">image url</span>
+                     <input value={flipCardImageUrl} onChange={(e) => setFlipCardImageUrl(e.target.value)} className="h-8 px-2 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800" />
+                   </label>
+                   <label className="flex flex-col gap-1 text-xs">
+                     <span className="uppercase tracking-wider text-slate-400 font-semibold">image alt</span>
+                     <input value={flipCardImageAlt} onChange={(e) => setFlipCardImageAlt(e.target.value)} className="h-8 px-2 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800" />
+                   </label>
+                 </>
+               )}
+               <Ctl label="total cards" value={total} options={["3", "4", "6", "8", "10", "12"]} onChange={setTotal} />
+               <Ctl label="visible cards" value={visible} options={["3", "4", "6", "8", "10", "12"]} onChange={setVisible} />
+               {variant !== "flip-card" && (
+                 <Ctl label="maxCards" value={maxCards} options={["", "1", "2", "3", "4", "6", "8", "10", "12"]} onChange={setMaxCards} />
+               )}
+               {variant !== "flip-card" && (
+                 <>
+                   <Toggle label="show date" checked={showDate} onChange={setShowDate} />
+                   <Toggle label="show badge" checked={showBadge} onChange={setShowBadge} />
+                   <Toggle label="badge on image" checked={showBadgeOnImage} onChange={setShowBadgeOnImage} />
+                   <Toggle label="show desc" checked={showDesc} onChange={setShowDesc} />
+                 </>
+               )}
+            </div>
+         </Panel>
+          <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
+            <CardGrid
+              title="CardGrid riusabile"
+              subtitle={variant === "flip-card" ? `Flip Cards - ${flipCardItemCount} elementi` : `Totali ${total}${maxCards ? `, max ${maxCards}` : `, visibili ${visible}`}`}
+              items={variant === "flip-card" ? makeItems(Number(flipCardItemCount)) : items}
+              variant={variant}
+              tone={tone}
+              visibleItems={variant !== "flip-card" && maxCards ? undefined : Number(visible)}
+              showVisibilityToggle={variant !== "flip-card" && !maxCards}
+              showMoreLabel="Mostra tutte"
+              showLessLabel="Mostra meno"
+              useMotion={false}
+              showDate={showDate}
+              showTypeBadge={variant === "default" ? showBadge : false}
+              showBadgeOnImage={showBadgeOnImage}
+              showDescription={variant === "default" ? showDesc : false}
+              maxCards={variant !== "flip-card" && maxCards ? Number(maxCards) : undefined}
+              activityPhotoBadgePosition={variant === "activity" ? badgePos : undefined}
+              activityPhotoBadgeSize={variant === "activity" ? badgeSize : undefined}
+              activityPhotoBadgeRounded={variant === "activity" ? badgeRounded : undefined}
+              activityTextColor={variant === "activity" ? activityTextColor : undefined}
+              flipCardOrientation={variant === "flip-card" ? flipCardOrientation : undefined}
+              flipCardImageSrc={variant === "flip-card" ? flipCardImageUrl : undefined}
+              flipCardImageAlt={variant === "flip-card" ? flipCardImageAlt : undefined}
+              gridSize={gridSize}
+              cardHeight={cardHeight}
+              sectionClassName="px-6 py-8 bg-white dark:bg-slate-900"
+            />
+          </div>
       </div>
 
-       <Panel>
-         <div className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
-           <p className="font-semibold uppercase tracking-wider">📅 Data attività:</p>
-           <p>Le card mostrano la data dell&apos;attività nel formato italiano (es: &quot;1 aprile 2026&quot;). Utilizza il toggle <span className="font-medium">&quot;show date&quot;</span> per mostrare o nascondere le date sulle card.</p>
-           <p><span className="font-medium">&quot;badge on image&quot;</span> sposta il BadgeChip dalla riga titolo alla parte alta della foto (overlay).</p>
-           <p><span className="font-medium">Variant &quot;activity&quot;</span>: card per attività running con foto opzionale, titolo, data, distanza e tempo.</p>
-           <p className="mt-3 font-semibold uppercase tracking-wider">🎲 maxCards:</p>
-           <p>La prop <span className="font-medium">maxCards</span> limita il numero di card visualizzate in modo diretto (senza toggle &quot;Mostra tutte&quot;). Utile per mostrare un numero fisso di card, es: 4 card per riga. Lascia vuoto per usare il sistema di pagina con toggle.</p>
-         </div>
-       </Panel>
+        <Panel>
+          <div className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
+            <p className="font-semibold uppercase tracking-wider">📅 Data attività:</p>
+            <p>Le card mostrano la data dell&apos;attività nel formato italiano (es: &quot;1 aprile 2026&quot;). Utilizza il toggle <span className="font-medium">&quot;show date&quot;</span> per mostrare o nascondere le date sulle card.</p>
+            <p><span className="font-medium">&quot;badge on image&quot;</span> sposta il BadgeChip dalla riga titolo alla parte alta della foto (overlay).</p>
+            <p><span className="font-medium">Variant &quot;activity&quot;</span>: card per attività running con foto opzionale, titolo, data, distanza e tempo.</p>
+            <p className="mt-3 font-semibold uppercase tracking-wider">📏 Grid e Card Height (TUTTE le varianti):</p>
+            <p><span className="font-medium">gridSize</span>: &quot;full-screen&quot; = 4 colonne (lg), &quot;mid-range&quot; = 3 colonne (md). Funziona per default, activity E flip-card!</p>
+            <p><span className="font-medium">cardHeight</span>: &quot;small&quot; (h-32), &quot;medium&quot; (h-44), &quot;large&quot; (h-56). Le card mantengono altezza fissa indipendentemente dall&apos;immagine.</p>
+            <p className="mt-3 font-semibold uppercase tracking-wider">🎲 maxCards:</p>
+            <p>La prop <span className="font-medium">maxCards</span> limita il numero di card visualizzate in modo diretto (senza toggle &quot;Mostra tutte&quot;). Utile per mostrare un numero fisso di card, es: 4 card per riga. Lascia vuoto per usare il sistema di pagina con toggle.</p>
+          </div>
+        </Panel>
 
-       <div className="mt-4">
-         <PropsLegend
-           items={[
-             { prop: "tone", values: [...CARD_TONES] },
-             { prop: "variant", values: ["default", "activity"] },
-             { prop: "total cards", values: ["3", "4", "6", "8", "10", "12"] },
-             { prop: "visible cards", values: ["3", "4", "6", "8", "10", "12"] },
-             { prop: "maxCards", values: ["", "1", "2", "3", "4", "6", "8"] },
-             { prop: "activityPhotoBadgePosition", values: ["border", "date-row"] },
-             { prop: "activityPhotoBadgeSize", values: ["small", "medium", "large"] },
-             { prop: "activityPhotoBadgeRounded", values: ["true", "false"] },
-             { prop: "activityTextColor", values: [...CARD_TONES] },
-             { prop: "showDate", values: ["true", "false"] },
-             { prop: "showTypeBadge", values: ["true", "false"] },
-             { prop: "showBadgeOnImage", values: ["true", "false"] },
-             { prop: "showDescription", values: ["true", "false"] },
-           ]}
-         />
-       </div>
+          <div className="mt-4">
+            <PropsLegend
+              items={[
+                { prop: "tone", values: [...CARD_TONES] },
+                { prop: "variant", values: ["default", "activity", "flip-card"] },
+                { prop: "gridSize", values: ["full-screen", "mid-range"], description: "full-screen = 4 colonne (lg), mid-range = 3 colonne (md). Funziona per TUTTE le varianti!" },
+                { prop: "cardHeight", values: ["small", "medium", "large"], description: "Altezza immagine: small=h-32, medium=h-44, large=h-56. Card mantengono altezza fissa indipendentemente dall'immagine." },
+                { prop: "total cards", values: ["3", "4", "6", "8", "10", "12"] },
+                { prop: "visible cards", values: ["3", "4", "6", "8", "10", "12"] },
+                ...(variant !== "flip-card" ? [{ prop: "maxCards", values: ["", "1", "2", "3", "4", "6", "8", "10", "12"] }] : []),
+                ...(variant === "activity" ? [
+                  { prop: "activityPhotoBadgePosition", values: ["border", "date-row"] },
+                  { prop: "activityPhotoBadgeSize", values: ["small", "medium", "large"] },
+                  { prop: "activityPhotoBadgeRounded", values: ["true", "false"] },
+                  { prop: "activityTextColor", values: [...CARD_TONES] },
+                ] : []),
+                ...(variant !== "flip-card" ? [
+                  { prop: "showDate", values: ["true", "false"] },
+                  { prop: "showTypeBadge", values: ["true", "false"] },
+                  { prop: "showBadgeOnImage", values: ["true", "false"] },
+                  { prop: "showDescription", values: ["true", "false"] },
+                ] : []),
+                ...(variant === "flip-card" ? [
+                  { prop: "flipCardOrientation", values: ["horizontal", "vertical"], description: "Orientation per il flip-card (vertical = 1 colonna, indipendentemente da gridSize)" },
+                  { prop: "flipCardImageSrc", values: ["string (URL)"], description: "URL immagine da spezzare per il background delle card" },
+                  { prop: "flipCardImageAlt", values: ["string"], description: "Testo alt per accessibilità" },
+                ] : []),
+              ]}
+            />
+          </div>
     </Section>
   )
 }
@@ -2105,14 +2168,14 @@ export default function StorybookPage() {
           <div className="my-8 h-px bg-slate-200 dark:bg-slate-700" aria-hidden="true" />
           <h2 className="mb-4 text-xl font-bold text-slate-900 dark:text-slate-100">Componenti (A-Z)</h2>
 
-          <ActivityComponentsSection />
-          <AnimatedSectionDemo />
-          <BadgeChipSection />
-          <ButtonSection />
-          <CardSection />
-          <CardGridSection />
-          <CarouselShowcaseSection />
-          <DividerSection />
+            <ActivityComponentsSection />
+            <AnimatedSectionDemo />
+            <BadgeChipSection />
+            <ButtonSection />
+            <CardSection />
+            <CardGridSection />
+            <CarouselShowcaseSection />
+           <DividerSection />
            <FilterSection />
            <HeaderFooterSection />
            <HeroSection />
