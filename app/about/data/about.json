@@ -7,7 +7,7 @@
     "ctaLabel": "Contattami",
     "ctaHref": "/contact",
     "favoriteQuote": {
-      "text": "Non smettere mai di esplorare: fuori e dentro di te.",
+      "text": "Non smettere mai di sognare la versione migliore di te stesso.",
       "source": "Citazione personale"
     }
   },
@@ -24,48 +24,56 @@
       "category": "Engineering",
       "name": "Electrical Engineering",
       "description": "Laurea triennale in ingegneria elettronica: basi solide su sistemi, segnali e hardware.",
-      "icon": "Cpu"
+      "icon": "Cpu",
+      "tone": "blue"
     },
     {
       "category": "Frontend",
       "name": "Web Development",
       "description": "Mi piace quando tecnologia e design si incontrano e creano delle esperienze.",
-      "icon": "Code2"
+      "icon": "Code2",
+      "tone": "purple"
     },
     {
       "category": "Cloud & Infrastructure",
       "name": "DevOps/Cloud",
       "description": "Deploy e infrastruttura con Vercel, MongoDB Atlas e ambienti serverless.",
-      "icon": "Activity"
+      "icon": "Activity",
+      "tone": "navy"
     },
     {
       "category": "CMS & Digital",
       "name": "AEM development",
       "description": "Certificato Adobe Experience Manager, ho utilizzato anche altri cms come Drupal e Wix.",
-      "icon": "Puzzle"
+      "icon": "Puzzle",
+      "tone": "crimson"
     },
     {
       "category": "Actual job",
       "name": "Deloitte Italy",
       "description": "Sviluppatore per il Green Dot delle Big4. Lavoro su progetti di digital transformation, con focus su AEM e soluzioni cloud.",
-      "icon": "Network"
+      "icon": "Network",
+      "tone": "pear"
     }
   ],
   "passions": [
     {
       "title": "Running & Endurance",
       "description": "Corro analizzo ogni attività. I dati e la loro interpretazione sono il cuore di questo progetto. I numeri raccontano storie, se sai ascoltarle.",
-      "icon": "Activity"
+      "icon": "Activity",
+      "tone": "blue"
     },
     {
       "title": "Exploration & Travel",
       "description": "Viaggiare ed esplorare è il modo in cui rimango curioso. Ogni posto nuovo è un sistema da capire, tra trekking e viaggi.",
-      "icon": "Plane"
+      "icon": "Plane",
+      "tone": "purple"
     },
     {
       "title": "Tech Innovation",
       "description": "Passione per il progresso, da hardware a software, passando per la cybersecurity alla AI.",
-      "icon": "Cpu"
+      "icon": "Cpu",
+      "tone": "pear"
     }
   ],
   "contacts": [

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -11,7 +11,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { BadgeChip } from '@/components/BadgeChip';
 import type { BadgeChipType } from '@/components/BadgeChip';
 import type { BadgeChipSize } from '@/components/BadgeChip';
-import { ExternalLink, type LucideIcon } from 'lucide-react';
+import {
+  Activity,
+  Code2,
+  Cpu,
+  ExternalLink,
+  Lightbulb,
+  Mail,
+  Network,
+  Plane,
+  Puzzle,
+  Smartphone,
+  Users,
+  type LucideIcon,
+} from 'lucide-react';
 
 export type CardGridType = 'running' | 'track_running' | 'trekking' | 'trip';
 export type CardGridColor = 'current' | 'blue' | 'purple' | 'black';
@@ -20,11 +33,26 @@ export type CardGridTitlePosition = 'left' | 'center' | 'right';
 export type CardGridOrientation = 'horizontal' | 'vertical';
 export type CardGridSize = 'full-screen' | 'mid-range';
 export type CardHeightVariant = 'small' | 'medium' | 'large';
+export type CardGridIconName =
+  | 'Code2'
+  | 'Smartphone'
+  | 'Cpu'
+  | 'Network'
+  | 'Users'
+  | 'Activity'
+  | 'Plane'
+  | 'Lightbulb'
+  | 'Puzzle'
+  | 'Mail'
+  | 'Github'
+  | 'Linkedin'
+  | 'ExternalLink';
 
 export interface CardGridItem {
   id: string;
   title: string;
   href: string;
+  category?: string;
   image?: string;
   type?: CardGridType;
   date?: string;
@@ -35,6 +63,8 @@ export interface CardGridItem {
   kcal?: string;
   hasPhoto?: boolean; // Se true, mostra il badge "Photo" sulla card activity
   icon?: LucideIcon; // Per flip-card variant
+  iconName?: CardGridIconName; // Nome serializzabile icona per flip-card (server -> client safe)
+  flipCardTone?: string; // Colore esplicito per flip-card: 'blue'|'purple'|'pear'|'crimson'|'navy'|'black'
 }
 
 export interface CardGridSortOption {
@@ -182,6 +212,51 @@ const toneClasses: Record<string, string> = {
    pear: 'bg-[var(--color-comp-tone-pear-bg)] text-[var(--color-comp-tone-pear-text)] border-[var(--color-comp-tone-pear-border)]',
 };
 
+const flipCardPaletteClasses = [
+  'bg-[var(--color-comp-tone-blue-bg)] text-[var(--color-comp-tone-blue-text)] border-[var(--color-comp-tone-blue-border)]',
+  'bg-[var(--color-comp-tone-purple-bg)] text-[var(--color-comp-tone-purple-text)] border-[var(--color-comp-tone-purple-border)]',
+  'bg-[var(--color-comp-tone-pear-bg)] text-[var(--color-comp-tone-pear-text)] border-[var(--color-comp-tone-pear-border)]',
+  'bg-[var(--color-comp-tone-crimson-bg)] text-[var(--color-comp-tone-crimson-text)] border-[var(--color-comp-tone-crimson-border)]',
+  'bg-[var(--color-comp-tone-navy-bg)] text-[var(--color-comp-tone-navy-text)] border-[var(--color-comp-tone-navy-border)]',
+];
+
+const flipCardToneMap: Record<string, string> = {
+  blue:    flipCardPaletteClasses[0],
+  purple:  flipCardPaletteClasses[1],
+  pear:    flipCardPaletteClasses[2],
+  crimson: flipCardPaletteClasses[3],
+  navy:    flipCardPaletteClasses[4],
+  current: toneClasses.current,
+  black:   toneClasses.black,
+};
+
+function getFlipCardToneClass(tone?: string, fallbackIndex?: number): string {
+  if (tone && flipCardToneMap[tone]) return flipCardToneMap[tone];
+  const idx = (fallbackIndex ?? 0) % flipCardPaletteClasses.length;
+  return flipCardPaletteClasses[idx];
+}
+
+const flipCardIconMap: Record<CardGridIconName, LucideIcon> = {
+   Activity,
+   Code2,
+   Cpu,
+   Network,
+   Smartphone,
+   Lightbulb,
+   Mail,
+   Plane,
+   Puzzle,
+   Users,
+   Github: Code2,
+   Linkedin: Smartphone,
+   ExternalLink,
+};
+
+function resolveFlipCardIcon(name?: CardGridIconName): LucideIcon {
+  if (!name) return ExternalLink;
+  return flipCardIconMap[name] ?? ExternalLink;
+}
+
 // full-screen = card grandi (poche colonne), mid-range = card medie (più colonne)
 const gridSizeVariants: Record<CardGridSize, string> = {
    'full-screen': 'grid grid-cols-1 sm:grid-cols-2 gap-6',
@@ -192,15 +267,15 @@ const gridSizeVariants: Record<CardGridSize, string> = {
 const cardHeightVariants: Record<CardHeightVariant, { image: string; flipCard: string }> = {
    small: {
      image:    'h-36',
-     flipCard:  'h-48 sm:h-52',
+     flipCard:  'h-32 sm:h-36',
    },
    medium: {
      image:    'h-48',
-     flipCard:  'h-64 sm:h-72',
+     flipCard:  'h-36 sm:h-40',
    },
    large: {
      image:    'h-60',
-     flipCard:  'h-80 sm:h-96',
+     flipCard:  'h-40 sm:h-44',
    },
 };
 
@@ -211,20 +286,31 @@ function FlipCard({
    totalItems,
    columns,
    index,
-   tone,
    heightClass,
+   backToneClass,
 }: {
-   item: { id: string; title: string; description: string; icon: LucideIcon };
+   item: { id: string; title: string; description: string; icon: LucideIcon; category?: string };
    imageSrc: string;
    imageAlt?: string;
    totalItems: number;
    columns: number;
    index: number;
-   tone: string;
    heightClass: string;
+   backToneClass: string;
 }) {
   const [isFlipped, setIsFlipped] = useState(false);
+  // Lazy init: legge direttamente il valore al mount (solo client), poi si aggiorna via listener
+  const [isDesktop, setIsDesktop] = useState<boolean>(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(min-width: 768px)').matches : false
+  );
   const Icon = item.icon;
+
+  useEffect(() => {
+    const mq = window.matchMedia('(min-width: 768px)');
+    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
 
   const col = index % columns;
   const row = Math.floor(index / columns);
@@ -232,10 +318,26 @@ function FlipCard({
   const bgPositionY = `${-(row * 100)}%`;
   const rows = Math.ceil(totalItems / columns);
 
-   return (
-     <div
-       className={`${heightClass} cursor-pointer perspective`}
-       onClick={() => setIsFlipped(!isFlipped)}
+  // Mobile/tablet (<768px): card piatta come default, nessun flip
+  if (!isDesktop) {
+    return (
+      <div className={`rounded-xl border p-3 flex flex-col gap-1.5 shadow-sm ${backToneClass}`}>
+        {item.category ? (
+          <p className="text-[10px] font-semibold uppercase tracking-wide opacity-70">{item.category}</p>
+        ) : null}
+        <div className="flex items-center gap-1.5">
+          <Icon className="h-4 w-4 opacity-90 shrink-0" aria-hidden="true" />
+          <h3 className="text-sm font-semibold leading-tight">{item.title}</h3>
+        </div>
+        <p className="text-xs leading-snug opacity-90">{item.description}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={`${heightClass} cursor-pointer perspective`}
+      onClick={() => setIsFlipped(!isFlipped)}
       role="button"
       tabIndex={0}
       aria-pressed={isFlipped}
@@ -255,7 +357,7 @@ function FlipCard({
         }}
       >
          <div
-           className="absolute w-full h-full rounded-xl overflow-hidden border-2 border-slate-200 dark:border-slate-700 shadow-md hover:shadow-lg transition-shadow"
+           className="absolute w-full h-full rounded-xl overflow-hidden border border-[var(--color-comp-cardgrid-card-border)] shadow-sm"
            style={{
              backfaceVisibility: 'hidden',
            }}
@@ -270,23 +372,24 @@ function FlipCard({
              role="img"
              aria-label={imageAlt || item.title}
            />
-          <div className="absolute inset-0 bg-black/20" aria-hidden="true" />
+          <div className="absolute inset-0 bg-black/15" aria-hidden="true" />
         </div>
 
         <div
-          className={`absolute w-full h-full rounded-xl border-2 p-4 sm:p-5 flex flex-col items-center justify-center text-center shadow-md hover:shadow-lg transition-shadow ${toneClasses[tone] || toneClasses.current}`}
+          className={`absolute w-full h-full rounded-xl border p-3 sm:p-4 flex flex-col items-center justify-center text-center shadow-sm ${backToneClass}`}
           style={{
             backfaceVisibility: 'hidden',
             transform: 'rotateY(180deg)',
           }}
         >
-          <div className="flex items-center justify-center">
-            <div className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-current/20 bg-current/10">
-              <Icon className="h-6 w-6" aria-hidden="true" />
-            </div>
+          {item.category ? (
+            <p className="text-[10px] font-semibold uppercase tracking-wide opacity-70">{item.category}</p>
+          ) : null}
+          <div className="mt-1 flex items-center gap-1.5 justify-center">
+            <Icon className="h-3.5 w-3.5 opacity-90 shrink-0" aria-hidden="true" />
+            <h3 className="text-sm sm:text-base font-semibold leading-tight">{item.title}</h3>
           </div>
-          <h3 className="mt-3 text-sm sm:text-base font-semibold leading-tight">{item.title}</h3>
-          <p className="mt-2 text-xs sm:text-sm leading-relaxed opacity-90 line-clamp-4">{item.description}</p>
+          <p className="mt-1.5 text-xs sm:text-sm leading-snug opacity-95 overflow-visible">{item.description}</p>
         </div>
       </div>
     </div>
@@ -324,7 +427,7 @@ export function CardGrid({
    showItemsCount = false,
    itemsCountLabel = 'attività',
    tone,
-   sectionClassName = 'px-4 py-16 sm:px-6 lg:px-8',
+   sectionClassName = 'px-4 pt-8 pb-8 sm:px-6 lg:px-8',
    titleColor = 'current',
    subtitleColor = 'current',
    titlePosition = 'left',
@@ -356,7 +459,9 @@ export function CardGrid({
 
    // For flip-card, build grid class based on gridSize and orientation
    const flipCardGridClass = flipCardOrientation === 'vertical'
-     ? 'grid gap-4 sm:gap-5 grid-cols-1'
+     ? gridSize === 'full-screen'
+       ? 'grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+       : 'grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3'
      : gridSize === 'full-screen'
        ? 'grid gap-4 sm:gap-5 grid-cols-1 sm:grid-cols-2'
        : 'grid gap-4 sm:gap-5 grid-cols-1 sm:grid-cols-2 md:grid-cols-3';
@@ -475,15 +580,16 @@ export function CardGrid({
                    id: item.id,
                    title: item.title,
                    description: item.description || '',
-                   icon: item.icon || ExternalLink,
+                    category: item.category,
+                      icon: item.icon || resolveFlipCardIcon(item.iconName),
                  }}
                  imageSrc={flipCardImageSrc}
                  imageAlt={flipCardImageAlt}
                  totalItems={displayedItems.length}
-                 columns={flipCardOrientation === 'vertical' ? 1 : (gridSize === 'full-screen' ? 2 : 3)}
+                 columns={flipCardOrientation === 'vertical' ? 3 : (gridSize === 'full-screen' ? 2 : 3)}
                  index={index}
-                 tone={tone || 'current'}
                  heightClass={cardHeightClass.flipCard}
+                 backToneClass={getFlipCardToneClass(item.flipCardTone, index)}
                />
              ))}
           </div>

@@ -40,7 +40,7 @@ const iconMap: Record<AboutIconName, LucideIcon> = {
 };
 
 // URLs per le immagini dei carousel
-const SKILLS_CAROUSEL_IMAGE = 'https://res.cloudinary.com/derbnvxif/image/upload/v1778058830/MZ_profile_image_vf775z.png';
+const SKILLS_CAROUSEL_IMAGE = 'https://res.cloudinary.com/derbnvxif/image/upload/q_auto/f_auto/v1776171153/cld-sample-2.jpg';
 const PASSIONS_CAROUSEL_IMAGE = 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1200&q=80';
 
 function resolveIcon(name: AboutIconName): LucideIcon {
@@ -84,7 +84,7 @@ export default function AboutPage() {
           imageAlt={about.hero.imageAlt}
           imageQuote={about.hero.favoriteQuote}
           imagePosition="right"
-          imageSize="lg"
+          imageSize="md"
           imageKind="pic-portrait"
           title={about.hero.headline}
           subtitle={about.hero.tagline}
@@ -94,6 +94,7 @@ export default function AboutPage() {
             tone: 'white',
           }}
           background="navy"
+          size="sm"
           className="about-hero-stripe"
           data-testid="about-hero-section"
         />
@@ -118,50 +119,53 @@ export default function AboutPage() {
         <AnimatedSection className="about-skills-4" delay={0.1}>
           <section data-testid="about-skills-section">
             <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 sm:text-2xl">Competenze e Background</h2>
-              {/* TODO: CardGrid flip-card con icone dinamiche - richiede uso di "use client" nel about/page */}
-              {/* <CardGrid
-                variant="flip-card"
-                title=""
-                items={about.skills.map((skill) => ({
-                  id: `${skill.category}-${skill.name}`,
-                  title: skill.name,
-                  href: "#",
-                  description: `${skill.category}: ${skill.description}`,
-                  icon: resolveIcon(skill.icon),
-                }))}
-                flipCardOrientation="horizontal"
-                flipCardImageSrc={SKILLS_CAROUSEL_IMAGE}
-                flipCardImageAlt="Background competenze"
-                tone="blue"
-                columnsClassName="grid grid-cols-1 md:grid-cols-3 gap-6"
-                useMotion={false}
-              /> */}
+            <CardGrid
+              variant="flip-card"
+              title=""
+              subtitle=""
+              items={about.skills.map((skill) => ({
+                id: `${skill.category}-${skill.name}`,
+                title: skill.name,
+                href: '#',
+                category: skill.category,
+                description: skill.description,
+                iconName: skill.icon,
+                flipCardTone: skill.tone,
+              }))}
+              flipCardOrientation="horizontal"
+              flipCardImageSrc={SKILLS_CAROUSEL_IMAGE}
+              flipCardImageAlt="Background competenze"
+              tone="blue"
+              gridSize="mid-range"
+              cardHeight="medium"
+              useMotion={false}
+            />
           </section>
         </AnimatedSection>
-
-        <div className="my-8 h-px bg-slate-200 dark:bg-slate-800/90" aria-hidden="true" />
 
         <AnimatedSection className="about-passions-4" delay={0.15}>
           <section data-testid="about-passions-section">
             <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 sm:text-2xl">Passioni e Hobby</h2>
-              {/* TODO: CardGrid flip-card con icone dinamiche - richiede uso di "use client" nel about/page */}
-              {/* <CardGrid
-                variant="flip-card"
-                title=""
-                items={about.passions.map((passion) => ({
-                  id: passion.title,
-                  title: passion.title,
-                  href: "#",
-                  description: passion.description,
-                  icon: resolveIcon(passion.icon),
-                }))}
-                flipCardOrientation="horizontal"
-                flipCardImageSrc={PASSIONS_CAROUSEL_IMAGE}
-                flipCardImageAlt="Passioni e hobby"
-                tone="purple"
-                columnsClassName="grid grid-cols-1 md:grid-cols-3 gap-6"
-                useMotion={false}
-              /> */}
+            <CardGrid
+              variant="flip-card"
+              title=""
+              subtitle=""
+              items={about.passions.map((passion) => ({
+                id: passion.title,
+                title: passion.title,
+                href: '#',
+                description: passion.description,
+                iconName: passion.icon,
+                flipCardTone: passion.tone,
+              }))}
+              flipCardOrientation="vertical"
+              flipCardImageSrc={PASSIONS_CAROUSEL_IMAGE}
+              flipCardImageAlt="Passioni e hobby"
+              tone="purple"
+              gridSize="mid-range"
+              cardHeight="small"
+              useMotion={false}
+            />
           </section>
         </AnimatedSection>
 

@@ -31,12 +31,14 @@ export interface AboutSkillData {
   name: string;
   description: string;
   icon: AboutIconName;
+  tone?: string; // Colore della flip-card: 'blue'|'purple'|'pear'|'crimson'|'navy'|'black'
 }
 
 export interface AboutPassionData {
   title: string;
   description: string;
   icon: AboutIconName;
+  tone?: string; // Colore della flip-card
 }
 
 export interface AboutContactData {

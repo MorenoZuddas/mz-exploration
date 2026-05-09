@@ -36,6 +36,7 @@ export interface StripeProps {
 
   // Style
   background?: 'white' | 'navy';
+  size?: 'sm' | 'md' | 'lg'; // sm = compatta, md = default, lg = spaziosa
   className?: string;
   animated?: boolean;
   animationDelay?: number;
@@ -69,6 +70,12 @@ const imageSizeVariants = {
   lg: 'h-28 w-28 sm:h-36 sm:w-36',
 };
 
+const stripeSizeVariants = {
+  sm: 'p-3 sm:p-4',
+  md: 'p-5 sm:p-6 lg:p-8',
+  lg: 'p-8 sm:p-10 lg:p-12',
+};
+
 export function Stripe({
   imageSrc,
   imageAlt,
@@ -82,6 +89,7 @@ export function Stripe({
   text,
   buttons,
   background = 'white',
+  size = 'md',
   className = '',
   animated = true,
   animationDelay = 0,
@@ -89,6 +97,7 @@ export function Stripe({
 }: StripeProps) {
   const bgStyle = bgVariants[background];
   const imageSizeClass = imageSizeVariants[imageSize];
+  const stripePadding = stripeSizeVariants[size];
   const resolvedImagePosition = imagePosition ?? (imageKind === 'landscape' ? 'right' : 'left');
   const isLandscape = imageKind === 'landscape';
 
@@ -193,7 +202,8 @@ export function Stripe({
         bgStyle.container,
         bgStyle.border,
         bgStyle.borderGradient,
-        'p-5 sm:p-6 lg:p-8 transition-colors duration-300',
+        stripePadding,
+        'transition-colors duration-300',
         isLandscape
           ? cn(
               'grid gap-4 sm:gap-6 md:items-stretch',
