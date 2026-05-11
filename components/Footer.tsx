@@ -4,6 +4,7 @@ import type { CSSProperties } from 'react';
 import {
   ActivityIcon,
   GithubIcon,
+  InstagramIcon,
   LinkedinIcon,
   MailIcon,
   SOCIAL_BRAND_COLORS,
@@ -72,6 +73,7 @@ function SocialIconButton({ type, href, variant, size, scheme }: {
 
   const iconEl = type === 'github' ? <GithubIcon className={s.icon} />
     : type === 'linkedin' ? <LinkedinIcon className={s.icon} />
+    : type === 'instagram' ? <InstagramIcon className={s.icon} />
     : type === 'email' ? <MailIcon className={s.icon} aria-hidden="true" />
     : <ActivityIcon className={s.icon} aria-hidden="true" />;
 
@@ -120,6 +122,7 @@ const defaultNavLinks: FooterNavLink[] = [
 ];
 
 const defaultSocialLinks: FooterSocialLink[] = [
+  { type: 'instagram', href: 'https://www.instagram.com/morenozuddas?igsh=bXJpZTU4cWN0MHY=' },
   { type: 'linkedin', href: 'https://www.linkedin.com/in/moreno-zuddas-12321a128/' },
   { type: 'github',   href: 'https://github.com/MorenoZuddas7' },
   { type: 'strava',   href: 'https://www.strava.com/athletes/154912379' },
@@ -178,7 +181,7 @@ export default function Footer({
           <div className="flex items-center gap-2 shrink-0">
             {socialLinks.map((link) => (
               <SocialIconButton
-                key={link.type}
+                key={`${link.type}-${link.href}`}
                 type={link.type}
                 href={link.href}
                 variant={socialVariant}

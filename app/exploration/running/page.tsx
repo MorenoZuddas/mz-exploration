@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ShirtIcon, SlidersHorizontalIcon } from '@/components/Icons';
+import { ShirtIcon, SlidersHorizontalIcon, TrophyIcon } from '@/components/Icons';
 import { Filter, type FilterConfig, type FilterState } from '@/components/Filter';
 import { Modal } from '@/components/Modal';
 import { Divider, PageShell, CardGrid, type CardGridItem } from '@/components/generic';
@@ -443,22 +443,34 @@ export default function RunningPage() {
           {/* Gradient: forte in basso per leggere sia testo che stats */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/15 run-hero-overlay-2" />
 
-          {/* Back link */}
-          <Link
-            href="/exploration"
-            className="absolute top-6 left-6 sm:left-10 hidden sm:inline-flex items-center gap-1.5 text-white hover:text-white text-sm font-medium transition z-10 run-back-link-2"
-            data-testid="run-back-link-2"
-          >
-            ← Exploration
-          </Link>
+           {/* Back link */}
+           <Link
+             href="/exploration"
+             className="absolute top-6 left-6 sm:left-10 hidden sm:inline-flex items-center gap-1.5 text-white hover:text-white text-sm font-medium transition z-10 run-back-link-2"
+             data-testid="run-back-link-2"
+           >
+             ← Exploration
+           </Link>
 
-          <Link
-            href="/exploration/running/equipment"
-            className="absolute top-6 right-6 sm:right-10 hidden sm:inline-flex items-center gap-1.5 text-white/75 hover:text-white text-sm font-medium transition z-10 run-equipment-link-2"
-            data-testid="run-equipment-link-2"
-          >
-            Attrezzatura <ShirtIcon className="h-4 w-4" />
-          </Link>
+           {/* Action links - Attrezzatura & FIDAL */}
+           <div className="absolute top-6 right-6 sm:right-10 hidden sm:flex flex-col gap-4 z-10 run-action-links-2">
+             <Link
+               href="/exploration/running/equipment"
+               className="inline-flex items-center gap-1.5 text-white/75 hover:text-white text-sm font-medium transition run-equipment-link-2"
+               data-testid="run-equipment-link-2"
+             >
+               Attrezzatura <ShirtIcon className="h-4 w-4" />
+             </Link>
+             <a
+               href="https://www.fidal.it/atleta/Moreno-Zuddas/iKmRlJWobWQ%3D"
+               target="_blank"
+               rel="noopener noreferrer"
+               className="inline-flex items-center gap-1.5 text-white/75 hover:text-white text-sm font-medium transition run-fidal-link-2"
+               data-testid="run-fidal-link-2"
+             >
+               FIDAL <TrophyIcon className="h-4 w-4" />
+             </a>
+           </div>
 
           {/* Content in basso */}
           <div className="absolute inset-0 flex flex-col items-center justify-end px-6 pb-7 sm:px-10 sm:pb-8 run-hero-content-2">
