@@ -45,6 +45,7 @@ import {
   Smartphone,
   SportShoe,
   Timer,
+  Trophy,
   Users,
   X,
   Zap,
@@ -83,6 +84,7 @@ export const SlidersHorizontalIcon = SlidersHorizontal;
 export const SmartphoneIcon = Smartphone;
 export const SportShoeIcon = SportShoe;
 export const TimerIcon = Timer;
+export const TrophyIcon = Trophy;
 export const UsersIcon = Users;
 export const XIcon = X;
 export const ZapIcon = Zap;
@@ -108,14 +110,22 @@ export function LinkedinIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+export function InstagramIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
+      <path d="M12 2.2c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.22.41.56.22.96.49 1.38.91.42.42.69.82.91 1.38.16.42.36 1.05.41 2.22.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.22-.22.56-.49.96-.91 1.38-.42.42-.82.69-1.38.91-.42.16-1.05.36-2.22.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.22-.41a3.72 3.72 0 0 1-1.38-.91 3.72 3.72 0 0 1-.91-1.38c-.16-.42-.36-1.05-.41-2.22C2.21 15.58 2.2 15.2 2.2 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.22.22-.56.49-.96.91-1.38.42-.42.82-.69 1.38-.91.42-.16 1.05-.36 2.22-.41 1.27-.06 1.65-.07 4.85-.07Zm0 1.8c-3.15 0-3.52.01-4.77.07-1.06.05-1.63.23-2.01.37-.5.19-.86.43-1.24.81-.38.38-.62.74-.81 1.24-.14.38-.32.95-.37 2.01-.06 1.25-.07 1.62-.07 4.77s.01 3.52.07 4.77c.05 1.06.23 1.63.37 2.01.19.5.43.86.81 1.24.38.38.74.62 1.24.81.38.14.95.32 2.01.37 1.25.06 1.62.07 4.77.07s3.52-.01 4.77-.07c1.06-.05 1.63-.23 2.01-.37.5-.19.86-.43 1.24-.81.38-.38.62-.74.81-1.24.14-.38.32-.95.37-2.01.06-1.25.07-1.62.07-4.77s-.01-3.52-.07-4.77c-.05-1.06-.23-1.63-.37-2.01a3.35 3.35 0 0 0-.81-1.24 3.35 3.35 0 0 0-1.24-.81c-.38-.14-.95-.32-2.01-.37-1.25-.06-1.62-.07-4.77-.07Zm0 3.07a4.93 4.93 0 1 1 0 9.86 4.93 4.93 0 0 1 0-9.86Zm0 1.8a3.13 3.13 0 1 0 0 6.26 3.13 3.13 0 0 0 0-6.26Zm6.28-2.21a1.15 1.15 0 1 1 0 2.3 1.15 1.15 0 0 1 0-2.3Z" />
+    </svg>
+  );
+}
+
 // ── IconName: union di tutti i nomi icona del sito ────────────────────
 
 export type IconName =
   // Social
-  | 'github' | 'linkedin' | 'mail' | 'activity' | 'strava'
+  | 'github' | 'linkedin' | 'instagram' | 'mail' | 'activity' | 'strava'
   // Sport / domain
   | 'sport-shoe' | 'mountain' | 'plane-takeoff' | 'backpack'
-  | 'footprints' | 'route' | 'gauge' | 'timer' | 'ruler' | 'map-pin'
+  | 'footprints' | 'route' | 'gauge' | 'timer' | 'trophy' | 'ruler' | 'map-pin'
   // UI generica
   | 'chevron-down' | 'chevron-left' | 'chevron-right' | 'x'
   | 'external-link' | 'sliders-horizontal' | 'zap'
@@ -137,6 +147,7 @@ export const ICON_REGISTRY: Record<IconName, IconComponent> = {
   // Social
   github:           GithubIcon,
   linkedin:         LinkedinIcon,
+  instagram:        InstagramIcon,
   mail:             Mail,
   activity:         Activity,
   strava:           Activity, // alias
@@ -150,6 +161,7 @@ export const ICON_REGISTRY: Record<IconName, IconComponent> = {
   route:            Route,
   gauge:            Gauge,
   timer:            Timer,
+  trophy:           Trophy,
   ruler:            Ruler,
   'map-pin':        MapPin,
 
@@ -190,11 +202,11 @@ export const ICON_REGISTRY: Record<IconName, IconComponent> = {
 export const ICON_CATEGORIES: { label: string; icons: IconName[] }[] = [
   {
     label: 'Social',
-    icons: ['github', 'linkedin', 'mail', 'activity', 'strava'],
+    icons: ['github', 'linkedin', 'instagram', 'mail', 'activity', 'strava'],
   },
   {
     label: 'Sport & Domain',
-    icons: ['sport-shoe', 'mountain', 'plane-takeoff', 'backpack', 'footprints', 'route', 'gauge', 'timer', 'ruler', 'map-pin'],
+    icons: ['sport-shoe', 'mountain', 'plane-takeoff', 'backpack', 'footprints', 'route', 'gauge', 'timer', 'trophy', 'ruler', 'map-pin'],
   },
   {
     label: 'Content',
@@ -248,7 +260,7 @@ const ICON_SCHEME_STYLE: Record<IconScheme, CSSProperties> = {
 };
 
 /** Icone custom SVG (non LucideIcon): non accettano `size`/`strokeWidth` prop diretti */
-const CUSTOM_ICONS = new Set<IconName>(['github', 'linkedin']);
+const CUSTOM_ICONS = new Set<IconName>(['github', 'linkedin', 'instagram']);
 
 // ── Componente <Icon> ─────────────────────────────────────────────────
 
@@ -304,18 +316,20 @@ export function Icon({
 
 // ── Mappe dati social (retrocompatibilità) ────────────────────────────
 
-export type SocialType = 'github' | 'linkedin' | 'email' | 'strava';
+export type SocialType = 'github' | 'linkedin' | 'instagram' | 'email' | 'strava';
 
 export const SOCIAL_BRAND_COLORS: Record<SocialType, string> = {
   github:   '#171515',
   linkedin: '#0077B5',
-  email:    '#FF5722',
+  instagram: '#E4405F',
+  email:    '#DB4437',
   strava:   '#FC4C02',
 };
 
 export const SOCIAL_LABELS: Record<SocialType, string> = {
   github:   'GitHub',
   linkedin: 'LinkedIn',
+  instagram: 'Instagram',
   email:    'Email',
   strava:   'Strava',
 };
