@@ -1,6 +1,6 @@
 'use client';
 
-import { ListMusic, Library, Camera, PlaneTakeoff, Mountain, SportShoe } from 'lucide-react';
+import { Icon } from '@/components/Icons';
 import { cloneElement, isValidElement, type ReactNode } from 'react';
 
 export type BadgeChipType = 'running' | 'trekking' | 'trip' | 'books' | 'photo' | 'music';
@@ -17,6 +17,7 @@ interface BadgeChipProps {
   className?: string;
   textClassName?: string;
   icon?: ReactNode;
+  'data-testid'?: string;
 }
 
 const sizeStyles: Record<BadgeChipSize, { wrapper: string; icon: string }> = {
@@ -33,40 +34,40 @@ const floatPositionStyles: Record<BadgeChipPosition, string> = {
 
 const chipStyles: Record<BadgeChipType, { wrapper: string; text: string; defaultText: string; icon: ReactNode }> = {
   running: {
-    wrapper: 'bg-sky-100',
-    text: 'text-sky-800',
+    wrapper: 'bg-[var(--color-comp-badge-running-bg)]',
+    text: 'text-[var(--color-comp-badge-running-text)]',
     defaultText: 'Running',
-    icon: <SportShoe className="h-3.5 w-3.5" strokeWidth={2.25} />,
+    icon: <Icon name="sport-shoe" size="sm" strokeWidth={2.25} />,
   },
   trekking: {
-    wrapper: 'bg-emerald-100',
-    text: 'text-emerald-800',
+    wrapper: 'bg-[var(--color-comp-badge-trekking-bg)]',
+    text: 'text-[var(--color-comp-badge-trekking-text)]',
     defaultText: 'Trekking',
-    icon: <Mountain className="h-3.5 w-3.5" />,
+    icon: <Icon name="mountain" size="sm" />,
   },
   trip: {
-    wrapper: 'bg-orange-100',
-    text: 'text-orange-800',
+    wrapper: 'bg-[var(--color-comp-badge-trip-bg)]',
+    text: 'text-[var(--color-comp-badge-trip-text)]',
     defaultText: 'Trip',
-    icon: <PlaneTakeoff className="h-3.5 w-3.5" />,
+    icon: <Icon name="plane-takeoff" size="sm" />,
   },
   books: {
-    wrapper: 'bg-slate-100 dark:bg-slate-800',
-    text: 'text-slate-800 dark:text-slate-200',
+    wrapper: 'bg-[var(--color-comp-badge-books-bg)]',
+    text: 'text-[var(--color-comp-badge-books-text)]',
     defaultText: 'Books',
-    icon: <Library className="h-3.5 w-3.5" />,
+    icon: <Icon name="library" size="sm" />,
   },
   photo: {
-    wrapper: 'bg-red-100 dark:bg-red-900/40',
-    text: 'text-red-700 dark:text-red-300',
+    wrapper: 'bg-[var(--color-comp-badge-photo-bg)]',
+    text: 'text-[var(--color-comp-badge-photo-text)]',
     defaultText: 'Photo',
-    icon: <Camera className="h-3.5 w-3.5" />,
+    icon: <Icon name="camera" size="sm" />,
   },
   music: {
-    wrapper: 'bg-slate-100 dark:bg-slate-800',
-    text: 'text-slate-800 dark:text-slate-200',
+    wrapper: 'bg-[var(--color-comp-badge-music-bg)]',
+    text: 'text-[var(--color-comp-badge-music-text)]',
     defaultText: 'Music',
-    icon: <ListMusic className="h-3.5 w-3.5" />,
+    icon: <Icon name="list-music" size="sm" />,
   },
 };
 
@@ -80,6 +81,7 @@ export function BadgeChip({
   className = '',
   textClassName = '',
   icon,
+  'data-testid': dataTestId,
 }: BadgeChipProps) {
   const style = chipStyles[type];
   const sizing = sizeStyles[size];
@@ -96,14 +98,10 @@ export function BadgeChip({
   return (
     <span
       className={`inline-flex items-center gap-1.5 font-semibold ${radius} ${sizing.wrapper} ${floatClass} ${style.wrapper} ${style.text} ${className}`}
+      data-testid={dataTestId}
     >
       {iconWithSize}
       <span className={textClassName}>{text ?? style.defaultText}</span>
     </span>
   );
 }
-
-
-
-
-

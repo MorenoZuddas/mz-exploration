@@ -4,11 +4,11 @@ import React, { useEffect, useMemo, useState } from "react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import type { ButtonSize, ButtonTone, ButtonVariant } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardMedia, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardMedia, CardTitle, type CardTone } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronDown, ChevronLeft, ChevronRight, LayoutGrid, Palette, Activity, Code2, Lightbulb, Plane, Puzzle } from "lucide-react"
 import {
   Carousel,
   CarouselCards,
@@ -31,6 +31,8 @@ import { ActivityClickHandler } from "@/components/ActivityClickWrapper"
 import { Filter, type FilterConfig, type FilterType } from "@/components/Filter"
 import { Statistics, type StatisticsMetricKey } from "@/components/Statistics"
 import { AnimatedSection, CardGrid, Divider, Hero, PageShell, Text, type CardGridItem } from "@/components/generic"
+import { Stripe } from "@/components/Stripe"
+import { Icon, ICON_CATEGORIES, type IconName, SOCIAL_BRAND_COLORS } from "@/components/Icons"
 import { cn } from "@/lib/utils"
 
 type Tone = "current" | "blue" | "purple" | "black"
@@ -46,6 +48,7 @@ const CAROUSEL_ACCENT_COLORS = ["text-blue-300", "text-emerald-300", "text-viole
 const CAROUSEL_IMAGE_HEIGHTS = ["h-[16rem]", "h-[18rem]", "h-[20rem]", "h-[22rem]"] as const
 const CARD_VARIANTS: CardVariant[] = ["default", "horizontal", "vertical"]
 const CARD_TONES: Tone[] = ["current", "blue", "purple", "black"]
+const CARD_COLORS: CardTone[] = ["current", "blue", "purple", "black", "navy", "crimson", "pear"]
 const CARD_SIZES: CardSize[] = ["sm", "md", "lg"]
 const HERO_ALIGNS: HeroAlign[] = ["center", "left", "right"]
 const HERO_SIZES = {
@@ -184,11 +187,174 @@ function Section({ id, title, children }: { id: string; title: string; children:
   )
 }
 
-function Panel({ children }: { children: React.ReactNode }) {
-  return <div className="min-w-0 p-3 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900">{children}</div>
+function Panel({ children, className = "" }: { children: React.ReactNode; className?: string }) {
+  return <div className={cn("min-w-0 p-3 sm:p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900", className)}>{children}</div>
 }
 
 type PropLegendItem = { prop: string; values: string[]; description?: string }
+type PaletteTokenCategory = "ref" | "role" | "comp" | "page" | "brand"
+type PaletteCategoryMeta = {
+  id: PaletteTokenCategory
+  title: string
+  description: string
+  impact: string
+  tokens: string[]
+}
+
+const COLOR_PALETTE_CATEGORIES: PaletteCategoryMeta[] = [
+  {
+    id: "ref",
+    title: "Reference Tokens",
+    description: "Palette base (raw). Sono i colori sorgente da cui dipende il resto.",
+    impact: "Impatto alto: modifica globale a cascata.",
+    tokens: [
+      "--color-ref-white",
+      "--color-ref-ink",
+      "--color-ref-slate-50",
+      "--color-ref-slate-100",
+      "--color-ref-slate-300",
+      "--color-ref-slate-600",
+      "--color-ref-slate-700",
+      "--color-ref-slate-800",
+      "--color-ref-slate-900",
+      "--color-ref-slate-950",
+      "--color-ref-sky-50",
+      "--color-ref-sky-100",
+      "--color-ref-crimson-600",
+      "--color-ref-crimson-500",
+      "--color-ref-pear-500",
+      "--color-ref-pear-100",
+      "--color-ref-pear-900",
+    ],
+  },
+  {
+    id: "role",
+    title: "Role Tokens",
+    description: "Ruoli UI trasversali: superfici, testi, bordi.",
+    impact: "Impatto medio-alto: cambia look sistemico.",
+    tokens: [
+      "--color-role-surface-base",
+      "--color-role-surface-soft",
+      "--color-role-surface-muted",
+      "--color-role-surface-strong",
+      "--color-role-surface-stronger",
+      "--color-role-text-primary",
+      "--color-role-text-secondary",
+      "--color-role-text-inverse",
+      "--color-role-border-soft",
+      "--color-role-border-strong",
+    ],
+  },
+  {
+    id: "comp",
+    title: "Component Tokens",
+    description: "Varianti locali dei componenti (Card, Stripe, Header, Footer, Badge, Divider, Hero, Modal).",
+    impact: "Impatto mirato: cambia solo il componente/famiglia.",
+    tokens: [
+      "--color-comp-tone-blue-bg",
+      "--color-comp-tone-blue-border",
+      "--color-comp-tone-blue-text",
+      "--color-comp-tone-purple-bg",
+      "--color-comp-tone-purple-border",
+      "--color-comp-tone-purple-text",
+      "--color-comp-tone-navy-bg",
+      "--color-comp-tone-navy-border",
+      "--color-comp-tone-navy-text",
+      "--color-comp-tone-crimson-bg",
+      "--color-comp-tone-crimson-border",
+      "--color-comp-tone-crimson-text",
+      "--color-comp-tone-pear-bg",
+      "--color-comp-tone-pear-border",
+      "--color-comp-tone-pear-text",
+      "--color-comp-stripe-white-bg",
+      "--color-comp-stripe-white-border",
+      "--color-comp-stripe-white-title",
+      "--color-comp-stripe-white-text",
+      "--color-comp-stripe-white-image-bg",
+      "--color-comp-stripe-white-image-border",
+      "--color-comp-stripe-navy-bg",
+      "--color-comp-stripe-navy-border",
+      "--color-comp-stripe-navy-title",
+      "--color-comp-stripe-navy-text",
+      "--color-comp-stripe-navy-image-bg",
+      "--color-comp-stripe-navy-image-border",
+      "--color-comp-header-bg",
+      "--color-comp-header-text",
+      "--color-comp-header-link-hover",
+      "--color-comp-header-hover-bg",
+      "--color-comp-header-border",
+      "--color-comp-header-dropdown-bg",
+      "--color-comp-header-divider",
+      "--color-comp-footer-bg",
+      "--color-comp-footer-text",
+      "--color-comp-footer-link",
+      "--color-comp-footer-link-hover",
+      "--color-comp-footer-separator",
+      "--color-comp-footer-border",
+      "--color-comp-footer-copyright",
+      "--color-comp-modal-bg",
+      "--color-comp-modal-title",
+      "--color-comp-modal-subtitle",
+      "--color-comp-modal-border",
+      "--color-comp-modal-metric-current",
+      "--color-comp-modal-metric-blue",
+      "--color-comp-modal-metric-purple",
+      "--color-comp-modal-metric-black",
+      "--color-comp-badge-running-bg",
+      "--color-comp-badge-running-text",
+      "--color-comp-badge-trekking-bg",
+      "--color-comp-badge-trekking-text",
+      "--color-comp-badge-trip-bg",
+      "--color-comp-badge-trip-text",
+      "--color-comp-badge-books-bg",
+      "--color-comp-badge-books-text",
+      "--color-comp-badge-photo-bg",
+      "--color-comp-badge-photo-text",
+      "--color-comp-badge-music-bg",
+      "--color-comp-badge-music-text",
+      "--color-comp-divider-current-line",
+      "--color-comp-divider-current-symbol",
+      "--color-comp-divider-blue-line",
+      "--color-comp-divider-blue-symbol",
+      "--color-comp-divider-purple-line",
+      "--color-comp-divider-purple-symbol",
+      "--color-comp-divider-black-line",
+      "--color-comp-divider-black-symbol",
+      "--color-comp-hero-overlay",
+      "--color-comp-hero-title-current",
+      "--color-comp-hero-title-blue",
+      "--color-comp-hero-title-purple",
+      "--color-comp-hero-title-black",
+      "--color-comp-hero-subtitle-current",
+      "--color-comp-hero-subtitle-blue",
+      "--color-comp-hero-subtitle-purple",
+      "--color-comp-hero-subtitle-black",
+    ],
+  },
+  {
+    id: "page",
+    title: "Page Backgrounds",
+    description: "Gradienti pagina di alto livello.",
+    impact: "Impatto alto su tutte le pagine che usano PageShell.",
+    tokens: ["--gradient-page-white", "--gradient-page-sky", "--gradient-page-navy"],
+  },
+  {
+    id: "brand",
+    title: "Brand Aliases",
+    description: "Alias leggibili per naming business/prodotto.",
+    impact: "Impatto variabile: dipende da dove vengono usati.",
+    tokens: [
+      "--color-brand-navy",
+      "--color-brand-navy-strong",
+      "--color-brand-sky",
+      "--color-brand-sky-strong",
+      "--color-brand-crimson",
+      "--color-brand-crimson-strong",
+      "--color-brand-pear",
+      "--color-brand-pear-soft",
+    ],
+  },
+]
 
 const PROP_DESCRIPTIONS: Record<string, string> = {
   tone: "Tema colore del componente.",
@@ -259,7 +425,17 @@ function PropsLegend({ items }: { items: PropLegendItem[] }) {
   )
 }
 
-const STORYBOOK_NAV = [
+const PALETTE_NAV = [
+  { id: "color-palette", label: "Color Palette" },
+  { id: "color-palette-ref", label: "Reference Tokens" },
+  { id: "color-palette-role", label: "Role Tokens" },
+  { id: "color-palette-comp", label: "Component Tokens" },
+  { id: "color-palette-page", label: "Page Backgrounds" },
+  { id: "color-palette-brand", label: "Brand Aliases" },
+  { id: "color-palette-props", label: "Props" },
+] as const
+
+const COMPONENTS_NAV = [
   { id: "activity-components", label: "Activity Components" },
   { id: "animated", label: "AnimatedSection" },
   { id: "badge-chip", label: "Badge / Chip" },
@@ -271,17 +447,229 @@ const STORYBOOK_NAV = [
   { id: "filter", label: "Filter" },
   { id: "header-footer", label: "Header + Footer" },
   { id: "hero", label: "Hero" },
+  { id: "icons", label: "Icons" },
   { id: "input-select", label: "Input + Select" },
   { id: "loader", label: "Loader" },
   { id: "modal", label: "Modal" },
   { id: "statistics-single", label: "Statistics - Single Test" },
   { id: "statistics", label: "Statistics + Filter Sync" },
+  { id: "stripe", label: "Stripe" },
   { id: "text", label: "Text" },
-]
+] as const
+
+const STORYBOOK_NAV = [...PALETTE_NAV, ...COMPONENTS_NAV]
+
+function ColorPaletteSection() {
+  const [values, setValues] = useState<Record<string, string>>({})
+
+  useEffect(() => {
+    const root = document.documentElement
+    const computed = getComputedStyle(root)
+    const next: Record<string, string> = {}
+
+    COLOR_PALETTE_CATEGORIES.flatMap((group) => group.tokens).forEach((token) => {
+      next[token] = computed.getPropertyValue(token).trim()
+    })
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setValues(next)
+  }, [])
+
+  return (
+    <Section id="color-palette" title="Color Palette">
+      <div className="grid gap-4">
+        {COLOR_PALETTE_CATEGORIES.map((group) => (
+          <Panel key={group.id}>
+            <div id={`color-palette-${group.id}`} className="scroll-mt-24" />
+            <div className="mb-3">
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">{group.title}</h3>
+              <p className="text-xs text-slate-600 dark:text-slate-300">{group.description}</p>
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">{group.impact}</p>
+            </div>
+
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              {group.tokens.map((token) => {
+                const isGradient = token.startsWith("--gradient-page-")
+                const value = values[token] ?? ""
+
+                return (
+                  <div key={token} className="rounded-lg border border-slate-200 dark:border-slate-700 p-2 bg-white dark:bg-slate-950">
+                    <div
+                      className="h-10 rounded border border-slate-200 dark:border-slate-700"
+                      style={
+                        isGradient
+                          ? { backgroundImage: `var(${token})` }
+                          : { backgroundColor: `var(${token})` }
+                      }
+                    />
+                    <p className="mt-2 text-[11px] font-medium text-slate-800 dark:text-slate-200 break-all">{token}</p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 break-all">{value || "(vuoto)"}</p>
+                  </div>
+                )
+              })}
+            </div>
+          </Panel>
+        ))}
+      </div>
+      {/* Tone Cheat Sheet */}
+      <div id="color-palette-props" className="mt-4 scroll-mt-24">
+        <Panel>
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">Tone Cheat Sheet — cosa scrivere nella prop</p>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 mb-4">
+            Quando un componente accetta una prop <code className="bg-slate-100 dark:bg-slate-800 rounded px-1">tone</code> o <code className="bg-slate-100 dark:bg-slate-800 rounded px-1">flipCardTone</code>, usa i valori nella prima colonna. La colonna <em>Tipo</em> indica se è chiaro (light) o scuro (dark).
+          </p>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs border-collapse">
+              <thead>
+                <tr className="border-b border-slate-200 dark:border-slate-700 text-left text-[11px] uppercase tracking-wider text-slate-500">
+                  <th className="pb-2 pr-4 font-semibold">Valore prop</th>
+                  <th className="pb-2 pr-4 font-semibold">Sfondo</th>
+                  <th className="pb-2 pr-4 font-semibold">Testo</th>
+                  <th className="pb-2 pr-4 font-semibold">Tipo</th>
+                  <th className="pb-2 pr-4 font-semibold">Componenti</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                {[
+                  {
+                    value: "current",
+                    bg: "var(--color-comp-cardgrid-card-bg, #ffffff)",
+                    border: "var(--color-comp-cardgrid-card-border, #e2e8f0)",
+                    textSample: "var(--color-comp-cardgrid-card-title, #0f172a)",
+                    type: "adaptive",
+                    desc: "Segue il tema (light/dark) dell'app",
+                    components: "CardGrid, Button, Text, Card",
+                  },
+                  {
+                    value: "blue",
+                    bg: "#eff6ff",
+                    border: "#bfdbfe",
+                    textSample: "#0f172a",
+                    type: "light",
+                    desc: "Azzurro tenue, testo scuro",
+                    components: "CardGrid, flip-card, Button, Card, Divider",
+                  },
+                  {
+                    value: "purple",
+                    bg: "#f5f3ff",
+                    border: "#ddd6fe",
+                    textSample: "#0f172a",
+                    type: "light",
+                    desc: "Viola tenue, testo scuro",
+                    components: "CardGrid, flip-card, Button, Card, Divider",
+                  },
+                  {
+                    value: "navy",
+                    bg: "#0f172a",
+                    border: "#1e293b",
+                    textSample: "#f1f5f9",
+                    type: "dark",
+                    desc: "Blu notte scuro, testo chiaro",
+                    components: "flip-card (flipCardTone), Button",
+                  },
+                  {
+                    value: "crimson",
+                    bg: "#ba0c2f",
+                    border: "#ba0c2f",
+                    textSample: "#ffffff",
+                    type: "dark",
+                    desc: "Rosso intenso, testo bianco",
+                    components: "flip-card (flipCardTone)",
+                  },
+                  {
+                    value: "pear",
+                    bg: "#e8f2c5",
+                    border: "#8db600",
+                    textSample: "#0f172a",
+                    type: "light",
+                    desc: "Verde pera, testo scuro",
+                    components: "flip-card (flipCardTone)",
+                  },
+                  {
+                    value: "black",
+                    bg: "#0f172a",
+                    border: "#334155",
+                    textSample: "#f1f5f9",
+                    type: "dark",
+                    desc: "Quasi nero, testo chiaro",
+                    components: "CardGrid, Button, Card, Text",
+                  },
+                  {
+                    value: "white",
+                    bg: "#ffffff",
+                    border: "#e2e8f0",
+                    textSample: "#0f172a",
+                    type: "light",
+                    desc: "Bianco puro, testo scuro",
+                    components: "Button, Stripe (background)",
+                  },
+                ].map((row) => (
+                  <tr key={row.value} className="align-middle">
+                    <td className="py-2 pr-4">
+                      <code className="rounded bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-slate-800 dark:text-slate-100">
+                        {row.value}
+                      </code>
+                    </td>
+                    <td className="py-2 pr-4">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="inline-block h-5 w-5 flex-shrink-0 rounded border border-slate-300 dark:border-slate-600 shadow-sm"
+                          style={{ backgroundColor: row.bg }}
+                          title={row.bg}
+                        />
+                        <span
+                          className="inline-block h-5 w-5 flex-shrink-0 rounded-full border-2 shadow-sm"
+                          style={{ backgroundColor: row.textSample, borderColor: row.border }}
+                          title={`testo: ${row.textSample}`}
+                        />
+                      </div>
+                    </td>
+                    <td className="py-2 pr-4 text-[11px] text-slate-600 dark:text-slate-400">{row.desc}</td>
+                    <td className="py-2 pr-4">
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                        row.type === "dark"
+                          ? "bg-slate-800 text-slate-100"
+                          : row.type === "adaptive"
+                            ? "bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-300"
+                            : "bg-slate-100 text-slate-700"
+                      }`}>
+                        {row.type}
+                      </span>
+                    </td>
+                    <td className="py-2 text-[11px] text-slate-500 dark:text-slate-400">{row.components}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-950/30 p-3 text-[11px] text-amber-800 dark:text-amber-200 space-y-1">
+            <p className="font-semibold">⚠️ Attenzione: non tutti i valori funzionano su tutti i componenti</p>
+            <p><code className="rounded bg-amber-100 dark:bg-amber-900/50 px-1">navy</code>, <code className="rounded bg-amber-100 dark:bg-amber-900/50 px-1">crimson</code>, <code className="rounded bg-amber-100 dark:bg-amber-900/50 px-1">pear</code> sono disponibili solo per <strong>flip-card</strong> tramite la prop <code className="rounded bg-amber-100 dark:bg-amber-900/50 px-1">flipCardTone</code> su ogni item.</p>
+            <p><code className="rounded bg-amber-100 dark:bg-amber-900/50 px-1">CardGrid tone</code> accetta solo: <strong>current · blue · purple · black</strong>.</p>
+            <p><code className="rounded bg-amber-100 dark:bg-amber-900/50 px-1">headerColor</code> su CardGrid accetta: <strong>current · blue · purple · black</strong>.</p>
+          </div>
+        </Panel>
+        <div className="mt-3">
+          <PropsLegend
+            items={[
+              { prop: "ref", values: ["raw palette"], description: "Colori sorgente." },
+              { prop: "role", values: ["surface/text/border"], description: "Ruoli UI globali." },
+              { prop: "comp", values: ["component variants"], description: "Override mirati per componente." },
+              { prop: "page", values: ["gradients"], description: "Sfondi pagina di alto livello." },
+              { prop: "brand", values: ["business aliases"], description: "Alias di naming prodotto." },
+            ]}
+          />
+        </div>
+      </div>
+    </Section>
+  )
+}
 
 function StorybookSidebar() {
   const [activeSectionId, setActiveSectionId] = useState<string>(STORYBOOK_NAV[0]?.id ?? "")
   const [isOpen, setIsOpen] = useState(true)
+  const [isPaletteOpen, setIsPaletteOpen] = useState(true)
+  const [isComponentsOpen, setIsComponentsOpen] = useState(true)
 
   useEffect(() => {
     const sections = STORYBOOK_NAV
@@ -290,26 +678,27 @@ function StorybookSidebar() {
 
     if (sections.length === 0) return
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((entry) => entry.isIntersecting)
-          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)
+    const updateActiveFromScroll = () => {
+      const offset = 160
+      const nearest = sections
+        .map((section) => ({ id: section.id, distance: Math.abs(section.getBoundingClientRect().top - offset) }))
+        .sort((a, b) => a.distance - b.distance)[0]
 
-        if (visible[0]?.target?.id) {
-          setActiveSectionId(visible[0].target.id)
-        }
-      },
-      {
-        root: null,
-        rootMargin: "-25% 0px -55% 0px",
-        threshold: [0.1, 0.25, 0.5],
-      }
-    )
+      if (nearest?.id) setActiveSectionId(nearest.id)
+    }
 
-    sections.forEach((section) => observer.observe(section))
+    const updateActiveWithRaf = () => {
+      window.requestAnimationFrame(updateActiveFromScroll)
+    }
 
-    return () => observer.disconnect()
+    updateActiveFromScroll()
+    window.addEventListener("scroll", updateActiveWithRaf, { passive: true })
+    window.addEventListener("resize", updateActiveWithRaf)
+
+    return () => {
+      window.removeEventListener("scroll", updateActiveWithRaf)
+      window.removeEventListener("resize", updateActiveWithRaf)
+    }
   }, [])
 
   return (
@@ -332,30 +721,87 @@ function StorybookSidebar() {
           >
             {isOpen ? <ChevronLeft className="w-[17px] h-[17px]" /> : <ChevronRight className="w-[17px] h-[17px]" />}
           </button>
-          {isOpen ? <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Componenti (A-Z)</p> : null}
+          {isOpen ? <p className="text-[11px] font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-300">Storybook</p> : null}
         </div>
 
         {/* Contenuto sidebar (sparisce quando chiuso) */}
         {isOpen && (
           <div className="min-h-0 flex-1 overflow-y-auto pr-1">
             <nav className="space-y-1">
-              {STORYBOOK_NAV.map((item) => (
-                <a
-                  key={item.id}
-                  href={`#${item.id}`}
-                  onClick={() => setActiveSectionId(item.id)}
-                  className={cn(
-                    "block rounded-md px-2 py-1 text-[13px] transition-colors truncate",
-                    activeSectionId === item.id
-                      ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"
-                      : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white"
-                  )}
-                  aria-current={activeSectionId === item.id ? "true" : undefined}
-                  title={item.label}
-                >
-                  {item.label}
-                </a>
-              ))}
+              <button
+                type="button"
+                onClick={() => setIsPaletteOpen((prev) => !prev)}
+                className="w-full flex items-center justify-between rounded-md px-2 py-1 text-violet-700 hover:bg-violet-50 dark:text-violet-300 dark:hover:bg-violet-900/20"
+                aria-expanded={isPaletteOpen}
+                aria-controls="palette-menu-group"
+                title="Color Palette"
+              >
+                <span className="flex items-center gap-2 min-w-0">
+                  <Palette className="h-3.5 w-3.5 shrink-0" />
+                  <span className="text-[10px] font-semibold uppercase tracking-wider truncate">Color Palette</span>
+                </span>
+                <ChevronDown className={cn("h-3.5 w-3.5 shrink-0 transition-transform", !isPaletteOpen && "-rotate-90")} />
+              </button>
+
+              {isPaletteOpen && (
+                <div id="palette-menu-group" className="space-y-1">
+                  {PALETTE_NAV.map((item) => (
+                    <a
+                      key={item.id}
+                      href={`#${item.id}`}
+                      onClick={() => setActiveSectionId(item.id)}
+                      className={cn(
+                        "block rounded-md px-2 py-1 text-[13px] transition-colors truncate",
+                        activeSectionId === item.id
+                          ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"
+                          : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white"
+                      )}
+                      aria-current={activeSectionId === item.id ? "true" : undefined}
+                      title={item.label}
+                    >
+                      {item.label}
+                    </a>
+                  ))}
+                </div>
+              )}
+
+              <div className="my-2 h-px bg-slate-200 dark:bg-slate-700" />
+              <button
+                type="button"
+                onClick={() => setIsComponentsOpen((prev) => !prev)}
+                className="w-full flex items-center justify-between rounded-md px-2 py-1 text-emerald-700 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-900/20"
+                aria-expanded={isComponentsOpen}
+                aria-controls="components-menu-group"
+                title="Componenti (A-Z)"
+              >
+                <span className="flex items-center gap-2 min-w-0">
+                  <LayoutGrid className="h-3.5 w-3.5 shrink-0" />
+                  <span className="text-[10px] font-semibold uppercase tracking-wider truncate">Componenti (A-Z)</span>
+                </span>
+                <ChevronDown className={cn("h-3.5 w-3.5 shrink-0 transition-transform", !isComponentsOpen && "-rotate-90")} />
+              </button>
+
+              {isComponentsOpen && (
+                <div id="components-menu-group" className="space-y-1">
+                  {COMPONENTS_NAV.map((item) => (
+                    <a
+                      key={item.id}
+                      href={`#${item.id}`}
+                      onClick={() => setActiveSectionId(item.id)}
+                      className={cn(
+                        "block rounded-md px-2 py-1 text-[13px] transition-colors truncate",
+                        activeSectionId === item.id
+                          ? "bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900"
+                          : "text-slate-600 dark:text-slate-300 hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-slate-800 dark:hover:text-white"
+                      )}
+                      aria-current={activeSectionId === item.id ? "true" : undefined}
+                      title={item.label}
+                    >
+                      {item.label}
+                    </a>
+                  ))}
+                </div>
+              )}
             </nav>
           </div>
         )}
@@ -366,7 +812,7 @@ function StorybookSidebar() {
 
 function CardSection() {
   const [variant, setVariant] = useState<CardVariant>("default")
-  const [tone, setTone] = useState<Tone>("current")
+  const [tone, setTone] = useState<CardTone>("current")
   const [size, setSize] = useState<CardSize>("md")
   const [withImage, setWithImage] = useState(true)
   const [imagePos, setImagePos] = useState<"top" | "left">("top")
@@ -377,17 +823,18 @@ function CardSection() {
   const [b2t, setB2t] = useState<ButtonTone>("current")
   const [dataName, setDataName] = useState("storybook-card")
   const [customClass, setCustomClass] = useState("")
+  const isLeftImage = withImage && variant !== "horizontal" && imagePos === "left"
   const body = (
     <Card
       variant={variant}
       tone={tone}
       size={size}
       dataName={dataName || undefined}
-      className={`${variant === "horizontal" && withImage ? "overflow-hidden" : ""} ${customClass}`.trim()}
+      className={`${(variant === "horizontal" && withImage) || isLeftImage ? "overflow-hidden" : ""} ${isLeftImage ? "flex flex-row" : ""} ${customClass}`.trim()}
     >
       {withImage && variant !== "horizontal" && imagePos === "top" ? <div className="h-28 bg-gradient-to-r from-blue-600 to-violet-600" /> : null}
       {withImage && variant === "horizontal" ? <CardMedia className="w-28 bg-gradient-to-b from-blue-600 to-violet-600" /> : null}
-      {withImage && variant !== "horizontal" && imagePos === "left" ? <div className="w-24 bg-gradient-to-b from-blue-600 to-violet-600" /> : null}
+      {isLeftImage ? <CardMedia className="w-28 bg-gradient-to-b from-blue-600 to-violet-600" /> : null}
       <div className={withImage && (variant === "horizontal" || imagePos === "left") ? "flex-1" : ""}>
         <CardHeader>
           <CardTitle>Card demo</CardTitle>
@@ -414,7 +861,7 @@ function CardSection() {
         <Panel>
           <div className="grid gap-2">
             <Ctl label="variant" value={variant} options={CARD_VARIANTS} onChange={setVariant} />
-            <Ctl label="tone" value={tone} options={CARD_TONES} onChange={setTone} />
+            <Ctl label="tone" value={tone} options={CARD_COLORS} onChange={setTone} />
             <Ctl label="size" value={size} options={CARD_SIZES} onChange={setSize} />
             {variant !== "horizontal" ? <Ctl label="image position" value={imagePos} options={["top", "left"]} onChange={setImagePos} /> : null}
             <Toggle label="show image" checked={withImage} onChange={setWithImage} />
@@ -443,7 +890,7 @@ function CardSection() {
         <PropsLegend
           items={[
             { prop: "variant", values: [...CARD_VARIANTS] },
-            { prop: "tone", values: [...CARD_TONES] },
+            { prop: "tone", values: [...CARD_COLORS] },
             { prop: "size", values: [...CARD_SIZES] },
             { prop: "imagePos", values: ["top", "left"] },
             { prop: "CardMedia", values: ["slot immagine per horizontal"] },
@@ -555,12 +1002,29 @@ function makeActivityItems(total: number): CardGridItem[] {
    })
  }
 
+function makeFlipCardItems(total: number): CardGridItem[] {
+  const icons = [Activity, Code2, Lightbulb, Plane, Puzzle]
+  return Array.from({ length: total }).map((_, i) => ({
+    id: `flip-card-${i + 1}`,
+    title: `Elemento ${i + 1}`,
+    href: "#",
+    description: `Descrizione del flip-card elemento ${i + 1}. Clicca per flipare e scoprire il contenuto.`,
+    icon: icons[i % icons.length],
+  }))
+}
+
 function CardGridSection() {
    const [total, setTotal] = useState("8")
    const [visible, setVisible] = useState("4")
    const [maxCards, setMaxCards] = useState("")
    const [tone, setTone] = useState<Tone>("current")
-   const [variant, setVariant] = useState<"default" | "activity">("default")
+   const [variant, setVariant] = useState<"default" | "activity" | "flip-card">("default")
+   const [flipCardOrientation, setFlipCardOrientation] = useState<"horizontal" | "vertical">("horizontal")
+   const [flipCardWidth, setFlipCardWidth] = useState<"small" | "medium" | "large">("large")
+    const [flipCardColumns, setFlipCardColumns] = useState<"1" | "2" | "3" | "4">("3")
+    const [flipCardCenterIncompleteRow, setFlipCardCenterIncompleteRow] = useState(true)
+   const [flipCardItemCount, setFlipCardItemCount] = useState<"1" | "2" | "3" | "4" | "5">("3")
+   const [flipCardImageUrl, setFlipCardImageUrl] = useState("https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1200&q=80")
    const [badgePos, setBadgePos] = useState<"border" | "date-row">("border")
    const [badgeSize, setBadgeSize] = useState<"small" | "medium" | "large">("small")
    const [badgeRounded, setBadgeRounded] = useState(true)
@@ -569,7 +1033,12 @@ function CardGridSection() {
    const [showBadge, setShowBadge] = useState(true)
    const [showBadgeOnImage, setShowBadgeOnImage] = useState(false)
    const [showDesc, setShowDesc] = useState(false)
-   const items = useMemo(() => (variant === "activity" ? makeActivityItems(Number(total)) : makeItems(Number(total))), [total, variant])
+   const [cardHeight, setCardHeight] = useState<"small" | "medium" | "large">("medium")
+    const items = useMemo(() => {
+      if (variant === "activity") return makeActivityItems(Number(total))
+      if (variant === "flip-card") return makeFlipCardItems(Number(flipCardItemCount))
+      return makeItems(Number(total))
+    }, [total, variant, flipCardItemCount])
 
   return (
     <Section id="cardgrid" title="CardGrid">
@@ -577,7 +1046,10 @@ function CardGridSection() {
         <Panel>
            <div className="grid gap-2">
              <Ctl label="tone" value={tone} options={CARD_TONES} onChange={setTone} />
-             <Ctl label="variant" value={variant} options={["default", "activity"]} onChange={setVariant} />
+             <Ctl label="variant" value={variant} options={["default", "activity", "flip-card"]} onChange={setVariant} />
+             {(variant === "default" || variant === "flip-card") && (
+               <Ctl label="cardHeight" value={cardHeight} options={["small", "medium", "large"]} onChange={(v) => setCardHeight(v as "small" | "medium" | "large")} />
+             )}
              {variant === "activity" && (
                <>
                  <Ctl label="photo badge pos" value={badgePos} options={["border", "date-row"]} onChange={(v) => setBadgePos(v as "border" | "date-row")} />
@@ -586,24 +1058,40 @@ function CardGridSection() {
                  <Toggle label="photo badge rounded" checked={badgeRounded} onChange={setBadgeRounded} />
                </>
              )}
-             <Ctl label="total cards" value={total} options={["3", "4", "6", "8", "10", "12"]} onChange={setTotal} />
-             <Ctl label="visible cards" value={visible} options={["3", "4", "6", "8", "10", "12"]} onChange={setVisible} />
-             <Ctl label="maxCards" value={maxCards} options={["", "1", "2", "3", "4", "6", "8"]} onChange={setMaxCards} />
-             <Toggle label="show date" checked={showDate} onChange={setShowDate} />
-             <Toggle label="show badge" checked={showBadge} onChange={setShowBadge} />
-             <Toggle label="badge on image" checked={showBadgeOnImage} onChange={setShowBadgeOnImage} />
-             <Toggle label="show desc" checked={showDesc} onChange={setShowDesc} />
+              {variant === "flip-card" && (
+                <>
+                  <Ctl label="orientation" value={flipCardOrientation} options={["horizontal", "vertical"]} onChange={(v) => setFlipCardOrientation(v as "horizontal" | "vertical")} />
+                   <Ctl label="flip card width" value={flipCardWidth} options={["small", "medium", "large"]} onChange={(v) => setFlipCardWidth(v as "small" | "medium" | "large")} />
+                  <Ctl label="flip card columns" value={flipCardColumns} options={["1", "2", "3", "4"]} onChange={(v) => setFlipCardColumns(v as "1" | "2" | "3" | "4")} />
+                  <Toggle label="center incomplete row" checked={flipCardCenterIncompleteRow} onChange={setFlipCardCenterIncompleteRow} />
+                  <Ctl label="card count" value={flipCardItemCount} options={["1", "2", "3", "4", "5"]} onChange={setFlipCardItemCount} />
+                  <label className="flex flex-col gap-1 text-xs">
+                    <span className="uppercase tracking-wider text-slate-400 font-semibold">image url</span>
+                    <input value={flipCardImageUrl} onChange={(e) => setFlipCardImageUrl(e.target.value)} className="h-8 px-2 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800" />
+                  </label>
+                </>
+              )}
+              <Ctl label="total cards" value={total} options={["3", "4", "6", "8", "10", "12"]} onChange={setTotal} />
+              <Ctl label="visible cards" value={visible} options={["3", "4", "6", "8", "10", "12"]} onChange={setVisible} />
+              {variant !== "flip-card" && (
+                <Ctl label="maxCards" value={maxCards} options={["", "1", "2", "3", "4", "6", "8", "10", "12"]} onChange={setMaxCards} />
+              )}
+              <Toggle label="show date" checked={showDate} onChange={setShowDate} />
+              <Toggle label="show badge" checked={showBadge} onChange={setShowBadge} />
+              <Toggle label="badge on image" checked={showBadgeOnImage} onChange={setShowBadgeOnImage} />
+              <Toggle label="show desc" checked={showDesc} onChange={setShowDesc} />
            </div>
         </Panel>
          <div className="rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700">
            <CardGrid
              title="CardGrid riusabile"
-             subtitle={`Totali ${total}${maxCards ? `, max ${maxCards}` : `, visibili ${visible}`}`}
+             subtitle={variant === "flip-card" ? `Flip Cards - ${flipCardItemCount} elementi` : `Totali ${total}${maxCards ? `, max ${maxCards}` : `, visibili ${visible}`}`}
              items={items}
              variant={variant}
              tone={tone}
-             visibleItems={maxCards ? undefined : Number(visible)}
-             showVisibilityToggle={!maxCards}
+             cardHeight={variant === "activity" ? undefined : cardHeight}
+             visibleItems={variant !== "flip-card" && maxCards ? undefined : Number(visible)}
+             showVisibilityToggle={variant !== "flip-card" && !maxCards}
              showMoreLabel="Mostra tutte"
              showLessLabel="Mostra meno"
              useMotion={false}
@@ -611,11 +1099,17 @@ function CardGridSection() {
              showTypeBadge={variant === "default" ? showBadge : false}
              showBadgeOnImage={showBadgeOnImage}
              showDescription={variant === "default" ? showDesc : false}
-             maxCards={maxCards ? Number(maxCards) : undefined}
+             maxCards={variant !== "flip-card" && maxCards ? Number(maxCards) : undefined}
              activityPhotoBadgePosition={variant === "activity" ? badgePos : undefined}
              activityPhotoBadgeSize={variant === "activity" ? badgeSize : undefined}
              activityPhotoBadgeRounded={variant === "activity" ? badgeRounded : undefined}
              activityTextColor={variant === "activity" ? activityTextColor : undefined}
+             flipCardOrientation={variant === "flip-card" ? flipCardOrientation : undefined}
+             flipCardWidth={variant === "flip-card" ? flipCardWidth : undefined}
+             flipCardColumns={variant === "flip-card" ? Number(flipCardColumns) as 1 | 2 | 3 | 4 : undefined}
+             flipCardCenterIncompleteRow={variant === "flip-card" ? flipCardCenterIncompleteRow : undefined}
+             flipCardImageSrc={variant === "flip-card" ? flipCardImageUrl : undefined}
+             flipCardImageAlt={variant === "flip-card" ? "Demo flip-card" : undefined}
              sectionClassName="px-6 py-8 bg-white dark:bg-slate-900"
            />
          </div>
@@ -623,34 +1117,45 @@ function CardGridSection() {
 
        <Panel>
          <div className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
-           <p className="font-semibold uppercase tracking-wider">📅 Data attività:</p>
+           <p className="font-semibold uppercase tracking-wider"> Data attività:</p>
            <p>Le card mostrano la data dell&apos;attività nel formato italiano (es: &quot;1 aprile 2026&quot;). Utilizza il toggle <span className="font-medium">&quot;show date&quot;</span> per mostrare o nascondere le date sulle card.</p>
            <p><span className="font-medium">&quot;badge on image&quot;</span> sposta il BadgeChip dalla riga titolo alla parte alta della foto (overlay).</p>
            <p><span className="font-medium">Variant &quot;activity&quot;</span>: card per attività running con foto opzionale, titolo, data, distanza e tempo.</p>
-           <p className="mt-3 font-semibold uppercase tracking-wider">🎲 maxCards:</p>
+           <p className="mt-3 font-semibold uppercase tracking-wider"> maxCards:</p>
            <p>La prop <span className="font-medium">maxCards</span> limita il numero di card visualizzate in modo diretto (senza toggle &quot;Mostra tutte&quot;). Utile per mostrare un numero fisso di card, es: 4 card per riga. Lascia vuoto per usare il sistema di pagina con toggle.</p>
          </div>
        </Panel>
 
-       <div className="mt-4">
-         <PropsLegend
-           items={[
-             { prop: "tone", values: [...CARD_TONES] },
-             { prop: "variant", values: ["default", "activity"] },
-             { prop: "total cards", values: ["3", "4", "6", "8", "10", "12"] },
-             { prop: "visible cards", values: ["3", "4", "6", "8", "10", "12"] },
-             { prop: "maxCards", values: ["", "1", "2", "3", "4", "6", "8"] },
-             { prop: "activityPhotoBadgePosition", values: ["border", "date-row"] },
-             { prop: "activityPhotoBadgeSize", values: ["small", "medium", "large"] },
-             { prop: "activityPhotoBadgeRounded", values: ["true", "false"] },
-             { prop: "activityTextColor", values: [...CARD_TONES] },
-             { prop: "showDate", values: ["true", "false"] },
-             { prop: "showTypeBadge", values: ["true", "false"] },
-             { prop: "showBadgeOnImage", values: ["true", "false"] },
-             { prop: "showDescription", values: ["true", "false"] },
-           ]}
-         />
-       </div>
+         <div className="mt-4">
+           <PropsLegend
+             items={[
+               { prop: "tone", values: [...CARD_TONES] },
+               { prop: "variant", values: ["default", "activity", "flip-card"] },
+               ...(variant !== "activity" ? [{ prop: "cardHeight", values: ["small", "medium", "large"] }] : []),
+               { prop: "total cards", values: ["3", "4", "6", "8", "10", "12"] },
+               { prop: "visible cards", values: ["3", "4", "6", "8", "10", "12"] },
+               ...(variant !== "flip-card" ? [{ prop: "maxCards", values: ["", "1", "2", "3", "4", "6", "8", "10", "12"] }] : []),
+               ...(variant === "activity" ? [
+                 { prop: "activityPhotoBadgePosition", values: ["border", "date-row"] },
+                 { prop: "activityPhotoBadgeSize", values: ["small", "medium", "large"] },
+                 { prop: "activityPhotoBadgeRounded", values: ["true", "false"] },
+                 { prop: "activityTextColor", values: [...CARD_TONES] },
+               ] : []),
+               { prop: "showDate", values: ["true", "false"] },
+               { prop: "showTypeBadge", values: ["true", "false"] },
+               { prop: "showBadgeOnImage", values: ["true", "false"] },
+               { prop: "showDescription", values: ["true", "false"] },
+               ...(variant === "flip-card" ? [
+                 { prop: "flipCardOrientation", values: ["horizontal", "vertical"], description: "Orientation per il flip-card (vertical = 1 colonna)" },
+                  { prop: "flipCardWidth", values: ["small (50%)", "medium (75%)", "large (100%)"], description: "Larghezza card su desktop" },
+                  { prop: "flipCardColumns", values: ["1", "2", "3", "4"], description: "Numero di card per riga su desktop" },
+                  { prop: "flipCardCenterIncompleteRow", values: ["true", "false"], description: "Centra l'ultima riga se incompleta" },
+                 { prop: "flipCardImageSrc", values: ["string (URL)"], description: "URL immagine da spezzare per il background delle card" },
+                 { prop: "flipCardImageAlt", values: ["string"], description: "Testo alt per accessibilità" },
+               ] : []),
+             ]}
+           />
+         </div>
     </Section>
   )
 }
@@ -1423,6 +1928,86 @@ function FilterSection() {
   )
 }
 
+function StripeSection() {
+  const [imageKind, setImageKind] = useState<"pic-portrait" | "landscape">("pic-portrait")
+  const [imagePosition, setImagePosition] = useState<"left" | "right">("left")
+  const [imageSize, setImageSize] = useState<"sm" | "md" | "lg">("md")
+  const [background, setBackground] = useState<"white" | "navy">("white")
+  const [twoButtons, setTwoButtons] = useState(false)
+  const [animated, setAnimated] = useState(true)
+
+  const buttons = twoButtons
+    ? [
+        { label: "Azione primaria", href: "#", tone: background === "white" ? "black" as const : "white" as const },
+        { label: "Secondaria", href: "#", variant: "outline" as const, tone: background === "white" ? "black" as const : "white" as const },
+      ]
+    : { label: "Contattami", href: "#", tone: background === "white" ? "black" as const : "white" as const }
+
+  return (
+    <Section id="stripe" title="Stripe">
+      <div className="grid lg:grid-cols-[320px_1fr] gap-4 mb-4">
+        <Panel>
+          <div className="grid gap-2">
+            <Ctl label="imageKind" value={imageKind} options={["pic-portrait", "landscape"]} onChange={(v) => setImageKind(v as "pic-portrait" | "landscape")} />
+            <Ctl label="imagePosition" value={imagePosition} options={["left", "right"]} onChange={(v) => setImagePosition(v as "left" | "right")} />
+            <Ctl label="imageSize" value={imageSize} options={["sm", "md", "lg"]} onChange={(v) => setImageSize(v as "sm" | "md" | "lg")} />
+            <Ctl label="background" value={background} options={["white", "navy"]} onChange={(v) => setBackground(v as "white" | "navy")} />
+            <Ctl label="bottoni" value={twoButtons ? "2" : "1"} options={["1", "2"]} onChange={(v) => setTwoButtons(v === "2")} />
+            <Ctl label="animated" value={animated ? "true" : "false"} options={["true", "false"]} onChange={(v) => setAnimated(v === "true")} />
+          </div>
+        </Panel>
+        <Panel className={background === "navy" ? "bg-slate-900 border-slate-700" : ""}>
+          <Stripe
+            imageSrc="https://res.cloudinary.com/derbnvxif/image/upload/v1778058830/MZ_profile_image_vf775z.png"
+            imageAlt="Demo avatar"
+            imageKind={imageKind}
+            imagePosition={imagePosition}
+            imageSize={imageSize}
+            title="Titolo principale della Stripe"
+            subtitle="Sottotitolo breve e chiaro"
+            text="Testo facoltativo per una descrizione aggiuntiva. Puoi usarlo per aggiungere contesto."
+            buttons={buttons}
+            background={background}
+            animated={animated}
+          />
+        </Panel>
+      </div>
+
+      <div className="mt-6 space-y-4">
+        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Varianti rapide</p>
+        <Stripe
+          imageSrc="https://res.cloudinary.com/derbnvxif/image/upload/v1778058830/MZ_profile_image_vf775z.png"
+          imageAlt="Demo"
+          imageKind="pic-portrait"
+          imagePosition="left"
+          imageSize="sm"
+          title="Stripe white — immagine sinistra, small"
+          subtitle="Con un solo bottone"
+          buttons={{ label: "Scopri", href: "#", tone: "black" }}
+          background="white"
+          animated={false}
+        />
+        <Stripe
+          imageSrc="https://res.cloudinary.com/derbnvxif/image/upload/v1778058830/MZ_profile_image_vf775z.png"
+          imageAlt="Demo"
+          imageKind="landscape"
+          imagePosition="right"
+          imageSize="lg"
+          title="Stripe navy — immagine destra, large"
+          subtitle="Due bottoni, sfondo scuro"
+          text="Il testo opzionale aggiunge profondità alla composizione."
+          buttons={[
+            { label: "Principale", href: "#", tone: "white" },
+            { label: "Secondario", href: "#", variant: "outline", tone: "white" },
+          ]}
+          background="navy"
+          animated={false}
+        />
+      </div>
+    </Section>
+  )
+}
+
 function TextSection() {
   const [variant, setVariant] = useState<typeof TEXT_VARIANTS[number]>("title")
   const [tag, setTag] = useState<typeof TEXT_TAGS[number]>("h2")
@@ -1702,6 +2287,86 @@ function AnimatedSectionDemo() {
   )
 }
 
+function IconsSection() {
+  const [selectedSize, setSelectedSize] = useState<"xs" | "sm" | "md" | "lg" | "xl">("md")
+  const [selectedScheme, setSelectedScheme] = useState<"inherit" | "light" | "dark">("inherit")
+  const [selectedStrokeWidth, setSelectedStrokeWidth] = useState(2)
+
+  return (
+    <Section id="icons" title="Icons">
+      <div className="grid lg:grid-cols-[320px_1fr] gap-4 mb-4">
+        <Panel>
+          <div className="grid gap-2">
+            <Ctl label="size" value={selectedSize} options={["xs", "sm", "md", "lg", "xl"]} onChange={(v) => setSelectedSize(v as "xs" | "sm" | "md" | "lg" | "xl")} />
+            <Ctl label="scheme" value={selectedScheme} options={["inherit", "light", "dark"]} onChange={(v) => setSelectedScheme(v as "inherit" | "light" | "dark")} />
+            <label className="flex flex-col gap-1 text-xs">
+              <span className="uppercase tracking-wider text-slate-400 font-semibold">strokeWidth</span>
+              <input
+                type="number"
+                step="0.5"
+                min="1"
+                max="3"
+                value={selectedStrokeWidth}
+                onChange={(e) => setSelectedStrokeWidth(Number(e.target.value))}
+                className="h-8 px-2 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
+              />
+            </label>
+          </div>
+        </Panel>
+        <Panel>
+          <p className="text-xs text-slate-500 mb-3">Totali: {ICON_CATEGORIES.flatMap(c => c.icons).length} icone organizzate in {ICON_CATEGORIES.length} categorie</p>
+        </Panel>
+      </div>
+
+      {ICON_CATEGORIES.map((category) => (
+        <Panel key={category.label}>
+          <h3 className="text-sm font-semibold mb-3 text-slate-900 dark:text-slate-100">{category.label}</h3>
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
+            {category.icons.map((iconName) => (
+              <div key={iconName} className="flex flex-col items-center gap-2 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                <Icon name={iconName} size={selectedSize} scheme={selectedScheme} strokeWidth={selectedStrokeWidth} />
+                <p className="text-[10px] text-center text-slate-600 dark:text-slate-400 truncate w-full" title={iconName}>
+                  {iconName}
+                </p>
+              </div>
+            ))}
+          </div>
+        </Panel>
+      ))}
+
+      <Panel>
+        <h3 className="text-sm font-semibold mb-3">Social Brand Colors</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {Object.entries(SOCIAL_BRAND_COLORS).map(([key, color]) => (
+            <div key={key} className="rounded-lg border border-slate-200 dark:border-slate-700 p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-6 h-6 rounded" style={{ backgroundColor: color }} />
+                <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">{key}</span>
+              </div>
+              <p className="text-[10px] font-mono text-slate-600 dark:text-slate-400">{color}</p>
+            </div>
+          ))}
+        </div>
+      </Panel>
+
+      <div className="mt-4">
+        <PropsLegend
+          items={[
+            { prop: "name", values: ["IconName (string union)"] },
+            { prop: "size", values: ["xs", "sm", "md", "lg", "xl"] },
+            { prop: "scheme", values: ["inherit", "light", "dark"] },
+            { prop: "strokeWidth", values: ["number (default 2)"] },
+            { prop: "className", values: ["string (optional)"] },
+            { prop: "aria-label", values: ["string (optional)"] },
+            { prop: "aria-hidden", values: ["boolean | 'true' | 'false' (default true)"] },
+          ]}
+        />
+      </div>
+    </Section>
+  )
+}
+
+
 export default function StorybookPage() {
   return (
     <PageShell background="white" className="text-slate-900 dark:text-slate-100">
@@ -1715,23 +2380,30 @@ export default function StorybookPage() {
             </Button>
           </div>
           <p className="text-slate-500 mb-8">Pagina unica con varianti e controlli per tutti i componenti principali.</p>
-          <ActivityComponentsSection />
-          <AnimatedSectionDemo />
-          <BadgeChipSection />
-          <ButtonSection />
-          <CardSection />
-          <CardGridSection />
-          <CarouselShowcaseSection />
-          <DividerSection />
-           <FilterSection />
-           <HeaderFooterSection />
-           <HeroSection />
-           <InputSelectSection />
-           <LoaderSection />
-           <ModalSection />
-           <StatisticsSingleTestSection />
-           <StatisticsSection />
-           <TextSection />
+          <ColorPaletteSection />
+
+          <div className="my-8 h-px bg-slate-200 dark:bg-slate-700" aria-hidden="true" />
+          <h2 className="mb-4 text-xl font-bold text-slate-900 dark:text-slate-100">Componenti (A-Z)</h2>
+
+            <ActivityComponentsSection />
+            <AnimatedSectionDemo />
+            <BadgeChipSection />
+            <ButtonSection />
+            <CardSection />
+            <CardGridSection />
+            <CarouselShowcaseSection />
+            <DividerSection />
+            <FilterSection />
+            <HeaderFooterSection />
+            <HeroSection />
+            <IconsSection />
+            <InputSelectSection />
+            <LoaderSection />
+            <ModalSection />
+            <StatisticsSingleTestSection />
+            <StatisticsSection />
+            <StripeSection />
+            <TextSection />
         </main>
       </div>
     </PageShell>

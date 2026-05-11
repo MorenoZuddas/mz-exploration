@@ -3,14 +3,17 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 
 type CardVariant = 'default' | 'horizontal' | 'vertical'
-type CardTone = 'current' | 'blue' | 'purple' | 'black'
+export type CardTone = 'current' | 'blue' | 'purple' | 'black' | 'navy' | 'crimson' | 'pear'
 type CardSize = 'sm' | 'md' | 'lg'
 
 const cardToneClasses: Record<CardTone, string> = {
   current: 'border-border bg-card text-card-foreground',
-  blue: 'border-blue-200 bg-blue-50/60 text-slate-900 dark:border-blue-800/50 dark:bg-blue-950/30 dark:text-slate-100',
-  purple: 'border-violet-200 bg-violet-50/60 text-slate-900 dark:border-violet-800/50 dark:bg-violet-950/30 dark:text-slate-100',
-  black: 'border-slate-800 bg-slate-900 text-slate-100 dark:border-slate-200 dark:bg-slate-100 dark:text-slate-900',
+  blue: 'border-[var(--color-comp-tone-blue-border)] bg-[var(--color-comp-tone-blue-bg)] text-[var(--color-comp-tone-blue-text)]',
+  purple: 'border-[var(--color-comp-tone-purple-border)] bg-[var(--color-comp-tone-purple-bg)] text-[var(--color-comp-tone-purple-text)]',
+  black: 'border-[var(--color-role-surface-strong)] bg-[var(--color-role-surface-strong)] text-[var(--color-role-text-inverse)]',
+  navy: 'border-[var(--color-comp-tone-navy-border)] bg-[var(--color-comp-tone-navy-bg)] text-[var(--color-comp-tone-navy-text)]',
+  crimson: 'border-[var(--color-comp-tone-crimson-border)] bg-[var(--color-comp-tone-crimson-bg)] text-[var(--color-comp-tone-crimson-text)]',
+  pear: 'border-[var(--color-comp-tone-pear-border)] bg-[var(--color-comp-tone-pear-bg)] text-[var(--color-comp-tone-pear-text)]',
 }
 
 const cardSizeClasses: Record<CardSize, string> = {
@@ -27,11 +30,12 @@ const Card = React.forwardRef<
     tone?: CardTone;
     size?: CardSize;
   }
->(({ className, dataName, variant = 'default', tone = 'current', size = 'md', ...props }, ref) => (
+>(({ className, dataName, variant = 'default', tone = 'current', size = 'md', ...props }, ref) => {
+  return (
   <div
     ref={ref}
     className={cn(
-      "rounded-lg border shadow-sm",
+      "group/card rounded-lg border shadow-sm",
       cardToneClasses[tone],
       cardSizeClasses[size],
       variant === 'horizontal' && "flex flex-row",
@@ -39,9 +43,11 @@ const Card = React.forwardRef<
       className
     )}
     data-name={dataName}
+    data-size={size}
     {...props}
   />
-))
+  )
+})
 Card.displayName = "Card"
 
 const CardMedia = React.forwardRef<
@@ -62,7 +68,10 @@ const CardHeader = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("flex flex-col space-y-1.5 p-6", className)}
+    className={cn(
+      "flex flex-col space-y-1.5 p-6 group-data-[size=sm]/card:p-4 group-data-[size=lg]/card:p-8",
+      className
+    )}
     {...props}
   />
 ))
@@ -75,7 +84,7 @@ const CardTitle = React.forwardRef<
   <h2
     ref={ref}
     className={cn(
-      "text-2xl font-semibold leading-none tracking-tight",
+      "text-2xl font-semibold leading-none tracking-tight group-data-[size=sm]/card:text-xl group-data-[size=lg]/card:text-3xl",
       className
     )}
     {...props}
@@ -99,7 +108,14 @@ const CardContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
+  <div
+    ref={ref}
+    className={cn(
+      "p-6 pt-0 group-data-[size=sm]/card:px-4 group-data-[size=sm]/card:pb-4 group-data-[size=lg]/card:px-8 group-data-[size=lg]/card:pb-8",
+      className
+    )}
+    {...props}
+  />
 ))
 CardContent.displayName = "CardContent"
 
@@ -109,7 +125,10 @@ const CardFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <div
     ref={ref}
-    className={cn("flex items-center p-6 pt-0", className)}
+    className={cn(
+      "flex items-center p-6 pt-0 group-data-[size=sm]/card:px-4 group-data-[size=sm]/card:pb-4 group-data-[size=lg]/card:px-8 group-data-[size=lg]/card:pb-8",
+      className
+    )}
     {...props}
   />
 ))

@@ -382,24 +382,24 @@ export function Statistics({
   }[columns];
 
   const bgClass = {
-    white: 'bg-white',
-    blue: 'bg-blue-50 dark:bg-blue-950',
-    purple: 'bg-purple-50 dark:bg-purple-950',
-    navy: 'bg-slate-900 dark:bg-slate-950',
-    slate: 'bg-slate-50 dark:bg-slate-900',
+    white:  'bg-[var(--color-comp-stats-bg-white)]',
+    blue:   'bg-[var(--color-comp-stats-bg-blue)]',
+    purple: 'bg-[var(--color-comp-stats-bg-purple)]',
+    navy:   'bg-[var(--color-comp-stats-bg-navy)]',
+    slate:  'bg-[var(--color-comp-stats-bg-slate)]',
   }[backgroundColor];
 
   const toneClass = backgroundColor === 'navy'
-    ? 'text-white'
+    ? 'text-[var(--color-comp-stats-navy-text)]'
     : {
-      current: 'text-blue-600 dark:text-blue-400',
-      blue: 'text-blue-600 dark:text-blue-300',
-      purple: 'text-violet-700 dark:text-violet-300',
-      black: 'text-slate-900 dark:text-slate-100',
+      current: 'text-[var(--color-tone-current-accent)]',
+      blue:    'text-[var(--color-tone-blue-accent)]',
+      purple:  'text-[var(--color-tone-purple-accent)]',
+      black:   'text-[var(--color-tone-black-accent)]',
     }[tone];
 
   if (loading) {
-    return <p className="text-sm text-slate-500">Caricamento statistiche...</p>;
+    return <p className="text-sm text-[var(--color-comp-stats-loading-text)]">Caricamento statistiche...</p>;
   }
 
   return (

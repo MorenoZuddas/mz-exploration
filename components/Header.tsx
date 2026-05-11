@@ -3,7 +3,13 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ChevronDown, Mountain, PlaneTakeoff, SportShoe, type LucideIcon } from 'lucide-react';
+import {
+  ChevronDownIcon,
+  MountainIcon,
+  PlaneTakeoffIcon,
+  SportShoeIcon,
+  type LucideIcon,
+} from '@/components/Icons';
 
 export interface HeaderNavLink {
   label: React.ReactNode;
@@ -32,24 +38,24 @@ interface HeaderProps {
 
 const headerToneClasses: Record<NonNullable<HeaderProps['tone']>, { link: string; hoverBg: string; border: string }> = {
   current: {
-    link: 'hover:text-blue-400',
-    hoverBg: 'hover:bg-slate-800',
-    border: 'border-slate-700',
+    link: 'hover:text-[var(--color-comp-header-link-hover)]',
+    hoverBg: 'hover:bg-[var(--color-comp-header-hover-bg)]',
+    border: 'border-[var(--color-comp-header-border)]',
   },
   blue: {
-    link: 'hover:text-blue-200',
-    hoverBg: 'hover:bg-blue-900/30',
-    border: 'border-blue-900/70',
+    link:    'hover:text-[var(--color-comp-header-blue-link-hover)]',
+    hoverBg: 'hover:bg-[var(--color-comp-header-blue-hover-bg)]',
+    border:  'border-[var(--color-comp-header-blue-border)]',
   },
   purple: {
-    link: 'hover:text-violet-200',
-    hoverBg: 'hover:bg-violet-900/30',
-    border: 'border-violet-900/70',
+    link:    'hover:text-[var(--color-comp-header-purple-link-hover)]',
+    hoverBg: 'hover:bg-[var(--color-comp-header-purple-hover-bg)]',
+    border:  'border-[var(--color-comp-header-purple-border)]',
   },
   black: {
-    link: 'hover:text-slate-200',
-    hoverBg: 'hover:bg-black/40',
-    border: 'border-slate-600',
+    link:    'hover:text-[var(--color-comp-header-black-link-hover)]',
+    hoverBg: 'hover:bg-[var(--color-comp-header-black-hover-bg)]',
+    border:  'border-[var(--color-comp-header-black-border)]',
   },
 };
 
@@ -57,14 +63,14 @@ const defaultAboutLink: HeaderNavLink = { label: 'Chi Sono', href: '/about' };
 const defaultContactLink: HeaderNavLink = { label: 'Contatti', href: '/contact' };
 const defaultExplorationLink: HeaderNavLink = { label: 'Exploration', href: '/exploration' };
 const defaultExplorationItems: HeaderExplorationItem[] = [
-  { label: 'Running', href: '/exploration/running', icon: SportShoe },
-  { label: 'Trekking', href: '/exploration/trekking', icon: Mountain },
-  { label: 'Trips', href: '/exploration/trips', icon: PlaneTakeoff },
+  { label: 'Running', href: '/exploration/running', icon: SportShoeIcon },
+  { label: 'Trekking', href: '/exploration/trekking', icon: MountainIcon },
+  { label: 'Trips', href: '/exploration/trips', icon: PlaneTakeoffIcon },
 ];
 
 export default function Header({
   className = '',
-  backgroundClassName = 'bg-slate-900 dark:bg-slate-950',
+  backgroundClassName = 'bg-[var(--color-comp-header-bg)]',
   tone = 'current',
   logoSrc = '/logo/hp-logo.svg',
   logoAlt = 'mz-exploration logo',
@@ -78,12 +84,12 @@ export default function Header({
   const isLightBg = backgroundClassName.includes('bg-white');
   const toneClasses = isLightBg
     ? {
-        link: 'text-slate-900 hover:text-slate-700',
-        hoverBg: 'hover:bg-slate-100',
-        border: 'border-slate-900/30',
+        link: 'text-[var(--color-role-text-primary)] hover:text-[var(--color-role-text-secondary)]',
+        hoverBg: 'hover:bg-[var(--color-role-surface-muted)]',
+        border: 'border-[var(--color-role-border-soft)]',
       }
     : headerToneClasses[tone];
-  const rootTextClass = isLightBg ? 'text-slate-900' : 'text-white';
+  const rootTextClass = isLightBg ? 'text-[var(--color-role-text-primary)]' : 'text-[var(--color-comp-header-text)]';
   const explorationTextColumnWidth = '5.75rem';
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isExplorationOpen, setIsExplorationOpen] = useState(false);
@@ -137,16 +143,16 @@ export default function Header({
               >
                 <span className="inline-grid grid-cols-[var(--exp-text-w)_12px] items-center gap-x-[2px] leading-none">
                   <span className="w-[var(--exp-text-w)] text-left">{explorationLink.label}</span>
-                  <ChevronDown className="h-[12px] w-[12px] justify-self-end group-hover:rotate-180 transition-transform" />
+                  <ChevronDownIcon className="h-[12px] w-[12px] justify-self-end group-hover:rotate-180 transition-transform" />
                 </span>
               </Link>
 
               {/* Dropdown Menu */}
               <div
-                className={`absolute left-0 mt-1 w-max ${isLightBg ? 'bg-white' : 'bg-slate-800/95 backdrop-blur'} rounded-md border shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 overflow-hidden ${toneClasses.border}`}
+                className={`absolute left-0 mt-1 w-max ${isLightBg ? 'bg-[var(--color-role-surface-base)]' : 'bg-[var(--color-comp-header-dropdown-bg)] backdrop-blur'} rounded-md border shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 overflow-hidden ${toneClasses.border}`}
                 style={{ ['--exp-text-w' as string]: explorationTextColumnWidth }}
               >
-                <div className={`${isLightBg ? 'divide-y divide-slate-200' : 'divide-y divide-slate-700/80'}`}>
+                <div className={`${isLightBg ? 'divide-y divide-[var(--color-role-border-soft)]' : 'divide-y divide-[var(--color-comp-header-divide-dark)]'}`}>
                   {explorationItems.map((item) => (
                     <Link
                       key={`${item.href}-${item.label}`}
@@ -155,7 +161,7 @@ export default function Header({
                     >
                       <span className="inline-grid grid-cols-[var(--exp-text-w)_12px] items-center gap-x-[2px] leading-none">
                         <span className="w-[var(--exp-text-w)] text-left">{item.label}</span>
-                        <item.icon className="h-[12px] w-[12px] justify-self-end" strokeWidth={item.icon === SportShoe ? 2.25 : undefined} />
+                        <item.icon className="h-[12px] w-[12px] justify-self-end" strokeWidth={item.icon === SportShoeIcon ? 2.25 : undefined} />
                       </span>
                     </Link>
                   ))}
@@ -222,7 +228,7 @@ export default function Header({
                   aria-label={isExplorationOpen ? 'Chiudi sotto-menu Exploration' : 'Apri sotto-menu Exploration'}
                   aria-expanded={isExplorationOpen}
                 >
-                  <ChevronDown
+                  <ChevronDownIcon
                     className={`w-3.5 h-3.5 transition-transform ${
                       isExplorationOpen ? 'rotate-180' : ''
                     }`}
@@ -231,9 +237,9 @@ export default function Header({
               </div>
 
               {isExplorationOpen && (
-                <div className={`${isLightBg ? 'bg-white' : 'bg-slate-800/95'} rounded-md border mt-1 overflow-hidden ${toneClasses.border}`}>
-                  <div className={`${isLightBg ? 'divide-y divide-slate-200' : 'divide-y divide-slate-700/80'}`}>
-                  {explorationItems.map((item) => (
+                <div className={`${isLightBg ? 'bg-[var(--color-role-surface-base)]' : 'bg-[var(--color-comp-header-dropdown-bg)]'} rounded-md border mt-1 overflow-hidden ${toneClasses.border}`}>
+                  <div className={`${isLightBg ? 'divide-y divide-[var(--color-role-border-soft)]' : 'divide-y divide-[var(--color-comp-header-divider)]/80'}`}>
+                    {explorationItems.map((item) => (
                     <Link
                       key={`${item.href}-${item.label}-mobile`}
                       href={item.href}
@@ -241,7 +247,7 @@ export default function Header({
                       className={`flex items-center justify-between gap-3 px-4 py-2 ${toneClasses.hoverBg} ${toneClasses.link} transition-colors text-sm`}
                     >
                       <span>{item.label}</span>
-                      <item.icon className="h-[12px] w-[12px] shrink-0" strokeWidth={item.icon === SportShoe ? 2.25 : undefined} />
+                      <item.icon className="h-[12px] w-[12px] shrink-0" strokeWidth={item.icon === SportShoeIcon ? 2.25 : undefined} />
                     </Link>
                   ))}
                   </div>

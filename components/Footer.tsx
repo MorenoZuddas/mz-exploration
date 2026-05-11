@@ -1,6 +1,22 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import type { ReactNode } from 'react';
+import type { CSSProperties } from 'react';
+import {
+  ActivityIcon,
+  GithubIcon,
+  InstagramIcon,
+  LinkedinIcon,
+  MailIcon,
+  SOCIAL_BRAND_COLORS,
+  SOCIAL_LABELS,
+  type SocialType,
+} from '@/components/Icons';
+
+// ── Social icon types ────────────────────────────────────────────────
+type SocialIconType = SocialType;
+type SocialIconVariant = 'solid' | 'outline' | 'ghost';
+type SocialIconSize = 'sm' | 'md' | 'lg' | 'xl';
+type SocialColorScheme = 'light' | 'dark';
 
 export interface FooterNavLink {
   label: string;
@@ -8,9 +24,8 @@ export interface FooterNavLink {
 }
 
 export interface FooterSocialLink {
-  label: string;
+  type: SocialIconType;
   href: string;
-  icon: ReactNode;
 }
 
 interface FooterProps {
@@ -23,29 +38,80 @@ interface FooterProps {
   logoHeight?: number;
   navLinks?: FooterNavLink[];
   socialLinks?: FooterSocialLink[];
+  socialVariant?: SocialIconVariant;
+  socialSize?: SocialIconSize;
   copyrightText?: string;
 }
 
+const SOCIAL_ICON_SIZES: Record<SocialIconSize, { icon: string; wrapper: string }> = {
+  sm: { icon: 'h-4 w-4', wrapper: 'p-1.5' },
+  md: { icon: 'h-5 w-5', wrapper: 'p-2' },
+  lg: { icon: 'h-6 w-6', wrapper: 'p-2.5' },
+  xl: { icon: 'h-8 w-8', wrapper: 'p-3' },
+};
+
+function getSocialStyle(variant: SocialIconVariant, color: string, scheme: SocialColorScheme): CSSProperties {
+  const resolved = scheme === 'dark' ? '#FFFFFF' : color;
+  if (variant === 'solid') {
+    return scheme === 'dark'
+      ? { backgroundColor: 'rgba(255,255,255,0.12)', borderColor: 'rgba(255,255,255,0.35)', color: '#FFFFFF' }
+      : { backgroundColor: color, borderColor: color, color: '#FFFFFF' };
+  }
+  if (variant === 'outline') return { backgroundColor: 'transparent', borderColor: resolved, color: resolved };
+  return { backgroundColor: 'transparent', borderColor: 'transparent', color: resolved };
+}
+
+function SocialIconButton({ type, href, variant, size, scheme }: {
+  type: SocialIconType; href: string;
+  variant: SocialIconVariant; size: SocialIconSize; scheme: SocialColorScheme;
+}) {
+  const isExternal = /^https?:\/\//.test(href);
+  const s = SOCIAL_ICON_SIZES[size];
+  const focusCls = scheme === 'dark'
+    ? 'focus-visible:ring-white/60 focus-visible:ring-offset-slate-900'
+    : 'focus-visible:ring-slate-400 focus-visible:ring-offset-white';
+
+  const iconEl = type === 'github' ? <GithubIcon className={s.icon} />
+    : type === 'linkedin' ? <LinkedinIcon className={s.icon} />
+    : type === 'instagram' ? <InstagramIcon className={s.icon} />
+    : type === 'email' ? <MailIcon className={s.icon} aria-hidden="true" />
+    : <ActivityIcon className={s.icon} aria-hidden="true" />;
+
+  return (
+    <a
+      href={href}
+      target={isExternal ? '_blank' : undefined}
+      rel={isExternal ? 'noopener noreferrer' : undefined}
+      aria-label={SOCIAL_LABELS[type]}
+      className={`inline-flex items-center justify-center rounded-full border transition-all duration-200 hover:scale-110 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 ${focusCls} ${s.wrapper}`}
+      style={getSocialStyle(variant, SOCIAL_BRAND_COLORS[type], scheme)}
+    >
+      {iconEl}
+    </a>
+  );
+}
+
+// ── Costanti Footer ───────────────────────────────────────────────────
 const footerToneClasses: Record<NonNullable<FooterProps['tone']>, { link: string; separator: string; border: string }> = {
   current: {
-    link: 'text-gray-400 hover:text-blue-400',
-    separator: 'text-gray-600',
-    border: 'border-slate-700',
+    link: 'text-[var(--color-comp-footer-link)] hover:text-[var(--color-comp-footer-link-hover)]',
+    separator: 'text-[var(--color-comp-footer-separator)]',
+    border: 'border-[var(--color-comp-footer-border)]',
   },
   blue: {
-    link: 'text-blue-300 hover:text-blue-100',
-    separator: 'text-blue-700',
-    border: 'border-blue-900/60',
+    link: 'text-[var(--color-comp-footer-blue-link)] hover:text-[var(--color-comp-footer-blue-link-hover)]',
+    separator: 'text-[var(--color-comp-footer-blue-separator)]',
+    border: 'border-[var(--color-comp-footer-blue-border)]',
   },
   purple: {
-    link: 'text-violet-300 hover:text-violet-100',
-    separator: 'text-violet-700',
-    border: 'border-violet-900/60',
+    link: 'text-[var(--color-comp-footer-purple-link)] hover:text-[var(--color-comp-footer-purple-link-hover)]',
+    separator: 'text-[var(--color-comp-footer-purple-separator)]',
+    border: 'border-[var(--color-comp-footer-purple-border)]',
   },
   black: {
-    link: 'text-slate-300 hover:text-white',
-    separator: 'text-slate-600',
-    border: 'border-slate-600',
+    link: 'text-[var(--color-comp-footer-black-link)] hover:text-[var(--color-comp-footer-black-link-hover)]',
+    separator: 'text-[var(--color-comp-footer-black-separator)]',
+    border: 'border-[var(--color-comp-footer-black-border)]',
   },
 };
 
@@ -56,47 +122,17 @@ const defaultNavLinks: FooterNavLink[] = [
 ];
 
 const defaultSocialLinks: FooterSocialLink[] = [
-  {
-    label: 'LinkedIn',
-    href: 'https://www.linkedin.com/in/moreno-zuddas-12321a128/',
-    icon: (
-      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-      </svg>
-    ),
-  },
-  {
-    label: 'GitHub',
-    href: 'https://github.com/MorenoZuddas7',
-    icon: (
-      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-      </svg>
-    ),
-  },
-  {
-    label: 'Strava',
-    href: 'https://www.strava.com',
-    icon: (
-      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M15.387 1.395c-.967.715-1.334 2.618-1.334 5.289 0 2.671.367 4.574 1.334 5.289.967.715 2.335.715 3.302 0 .967-.715 1.334-2.618 1.334-5.289 0-2.671-.367-4.574-1.334-5.289-.967-.715-2.335-.715-3.302 0zm-4.899 5.289c0-2.671-.367-4.574-1.334-5.289-.967-.715-2.335-.715-3.302 0-.967.715-1.334 2.618-1.334 5.289 0 2.671.367 4.574 1.334 5.289.967.715 2.335.715 3.302 0 .967-.715 1.334-2.618 1.334-5.289z"/>
-      </svg>
-    ),
-  },
-  {
-    label: 'Email',
-    href: 'mailto:moreno@example.com',
-    icon: (
-      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-        <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
-      </svg>
-    ),
-  },
+    { type: 'email',    href: 'mailto:morenozuddas1@gmail.com' },
+    { type: 'github',   href: 'https://github.com/MorenoZuddas7' },
+    { type: 'instagram', href: 'https://www.instagram.com/morenozuddas?igsh=bXJpZTU4cWN0MHY=' },
+    { type: 'linkedin', href: 'https://www.linkedin.com/in/moreno-zuddas-12321a128/' },
+    { type: 'strava',   href: 'https://www.strava.com/athletes/154912379' },
 ];
 
+// ── Componente Footer ─────────────────────────────────────────────────
 export default function Footer({
   className = '',
-  backgroundClassName = 'bg-slate-900 dark:bg-slate-950',
+  backgroundClassName = 'bg-[var(--color-comp-footer-bg)]',
   tone = 'current',
   logoSrc = '/logo/hp-logo.svg',
   logoAlt = 'mz-exploration logo',
@@ -104,63 +140,63 @@ export default function Footer({
   logoHeight = 150,
   navLinks = defaultNavLinks,
   socialLinks = defaultSocialLinks,
+  socialVariant = 'outline',
+  socialSize = 'sm',
   copyrightText = '© 2026 Moreno Zuddas. All rights reserved.',
 }: FooterProps) {
   const isLightBg = backgroundClassName.includes('bg-white');
+  const socialScheme: SocialColorScheme = isLightBg ? 'light' : 'dark';
   const toneClasses = isLightBg
     ? {
-        link: 'text-slate-800 hover:text-slate-950',
-        separator: 'text-slate-400',
-        border: 'border-slate-300',
+        link: 'text-[var(--color-role-text-primary)] hover:text-[var(--color-role-text-secondary)]',
+        separator: 'text-[var(--color-role-text-secondary)]',
+        border: 'border-[var(--color-role-border-soft)]',
       }
     : footerToneClasses[tone];
-  const rootTextClass = isLightBg ? 'text-slate-900' : 'text-white';
+  const rootTextClass = isLightBg
+    ? 'text-[var(--color-role-text-primary)]'
+    : 'text-[var(--color-comp-footer-text)]';
 
   return (
     <footer className={`${backgroundClassName} ${rootTextClass} py-3 ${className}`}>
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex flex-col md:flex-row items-center justify-between gap-3">
-          {/* Logo + Brand - Left */}
+          {/* Logo */}
           <div className="flex items-center gap-3">
-            <Image
-              src={logoSrc}
-              alt={logoAlt}
-              width={logoWidth}
-              height={logoHeight}
-              className="opacity-75 w-[90px] h-auto md:w-[150px]"
-            />
+            <Image src={logoSrc} alt={logoAlt} width={logoWidth} height={logoHeight}
+              className="opacity-75 w-[90px] h-auto md:w-[150px]" />
           </div>
 
-          {/* Links - Center */}
+          {/* Nav links */}
           <div className="flex flex-wrap justify-center gap-3 text-xs md:text-sm">
             {navLinks.map((link, index) => (
               <div key={`${link.href}-${link.label}`} className="flex items-center gap-3">
-                <Link href={link.href} className={`${toneClasses.link} transition`}>
-                  {link.label}
-                </Link>
+                <Link href={link.href} className={`${toneClasses.link} transition`}>{link.label}</Link>
                 {index < navLinks.length - 1 ? <span className={toneClasses.separator}>•</span> : null}
               </div>
             ))}
           </div>
-          <div className="flex gap-3 shrink-0">
-                      {socialLinks.map((link) => (
-                        <a
-                          key={`${link.label}-${link.href}`}
-                          href={link.href}
-                          target={link.href.startsWith('mailto:') ? undefined : '_blank'}
-                          rel={link.href.startsWith('mailto:') ? undefined : 'noopener noreferrer'}
-                          className={`${toneClasses.link} transition`}
-                          aria-label={link.label}
-                        >
-                          {link.icon}
-                        </a>
-                      ))}
-                    </div>
+
+          {/* Social icons */}
+          <div className="flex items-center gap-2 shrink-0">
+            {socialLinks.map((link) => (
+              <SocialIconButton
+                key={`${link.type}-${link.href}`}
+                type={link.type}
+                href={link.href}
+                variant={socialVariant}
+                size={socialSize}
+                scheme={socialScheme}
+              />
+            ))}
+          </div>
         </div>
 
-        {/* Copyright + Social Icons - Bottom */}
+        {/* Copyright */}
         <div className={`mt-3 pt-3 border-t ${toneClasses.border}`}>
-          <p className={`${isLightBg ? 'text-slate-400' : 'text-gray-500'} w-full text-[10px] text-center`}>{copyrightText}</p>
+          <p className={`${isLightBg ? 'text-[var(--color-role-text-secondary)]' : 'text-[var(--color-comp-footer-copyright)]'} w-full text-[10px] text-center`}>
+            {copyrightText}
+          </p>
         </div>
       </div>
     </footer>

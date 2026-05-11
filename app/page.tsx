@@ -7,6 +7,7 @@ import {
   Hero,
   PageShell,
 } from '@/components/generic';
+import { Stripe } from '@/components/Stripe';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CarouselCards } from '@/components/ui/carousel';
@@ -143,6 +144,35 @@ export default function Home() {
         subtitleColor="current"
         data-testid="hp-latest-adventures-8"
       />
+
+      <Divider color="current" size="sm" data-testid="hp-divider-9" />
+
+      {/* Chi Sono Section */}
+      <div className="px-4 py-10 sm:px-6 lg:px-8 hp-chi-sono-2" data-testid="hp-chi-sono-2">
+        <div className="max-w-6xl mx-auto">
+          <Stripe
+            imageSrc="https://res.cloudinary.com/derbnvxif/image/upload/q_auto/f_auto/v1778058830/MZ_profile_image_vf775z.png"
+            imageAlt="Moreno Zuddas"
+            imageKind="pic-portrait"
+            imagePosition="right"
+            imageSize="lg"
+            title="About me"
+            subtitle=""
+            text="Sportivo, appassionato di tecnologia e data. Amo tracciare le mie avventure all'aria aperta, analizzare i dati e condividere le storie dietro ogni numero."
+            buttons={{
+              label: 'Scopri di più',
+              href: '/about',
+              variant: 'default',
+              tone: 'white',
+            }}
+            background="navy"
+            animated
+            animationDelay={0.2}
+            data-testid="hp-stripe-chi-sono-2"
+          />
+        </div>
+      </div>
+
 
       <Divider color="current" size="sm" data-testid="hp-divider-9" />
 

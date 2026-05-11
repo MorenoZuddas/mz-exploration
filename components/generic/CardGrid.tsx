@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useSyncExternalStore } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -11,16 +11,51 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { BadgeChip } from '@/components/BadgeChip';
 import type { BadgeChipType } from '@/components/BadgeChip';
 import type { BadgeChipSize } from '@/components/BadgeChip';
+import {
+  ActivityIcon as Activity,
+  Code2Icon as Code2,
+  CpuIcon as Cpu,
+  ExternalLinkIcon as ExternalLink,
+  HeartHandshakeIcon as HeartHandshake,
+  LightbulbIcon as Lightbulb,
+  MailIcon as Mail,
+  NetworkIcon as Network,
+  PlaneIcon as Plane,
+  PuzzleIcon as Puzzle,
+  SmartphoneIcon as Smartphone,
+  UsersIcon as Users,
+  type LucideIcon,
+} from '@/components/Icons';
 
 export type CardGridType = 'running' | 'track_running' | 'trekking' | 'trip';
 export type CardGridColor = 'current' | 'blue' | 'purple' | 'black';
-export type CardGridVariant = 'default' | 'activity';
+export type CardGridVariant = 'default' | 'activity' | 'flip-card';
 export type CardGridTitlePosition = 'left' | 'center' | 'right';
+export type CardGridOrientation = 'horizontal' | 'vertical';
+export type CardHeightVariant = 'small' | 'medium' | 'large';
+export type FlipCardWidthVariant = 'small' | 'medium' | 'large';
+export type FlipCardColumns = 1 | 2 | 3 | 4;
+export type CardGridIconName =
+  | 'Code2'
+  | 'Smartphone'
+  | 'Cpu'
+  | 'Network'
+  | 'Users'
+  | 'Activity'
+  | 'Plane'
+  | 'Lightbulb'
+  | 'Puzzle'
+  | 'Mail'
+  | 'HeartHandshake'
+  | 'Github'
+  | 'Linkedin'
+  | 'ExternalLink';
 
 export interface CardGridItem {
   id: string;
   title: string;
   href: string;
+  category?: string;
   image?: string;
   type?: CardGridType;
   date?: string;
@@ -30,6 +65,9 @@ export interface CardGridItem {
   pace?: string;
   kcal?: string;
   hasPhoto?: boolean; // Se true, mostra il badge "Photo" sulla card activity
+  icon?: LucideIcon; // Per flip-card variant
+  iconName?: CardGridIconName; // Nome serializzabile icona per flip-card (server -> client safe)
+  flipCardTone?: string; // Colore esplicito per flip-card: 'blue'|'purple'|'pear'|'crimson'|'navy'|'black'
 }
 
 export interface CardGridSortOption {
@@ -38,46 +76,56 @@ export interface CardGridSortOption {
 }
 
 interface CardGridProps {
-  variant?: CardGridVariant;
-  title?: string;
-  subtitle?: string;
-  items?: CardGridItem[];
-  className?: string;
-  containerClassName?: string;
-  gridClassName?: string;
-  cardClassName?: string;
-  imageClassName?: string;
-  columnsClassName?: string;
-  fallbackImage?: string;
-  showTypeBadge?: boolean;
-  showBadgeOnImage?: boolean;
-  showDate?: boolean;
-  showDescription?: boolean;
-  useMotion?: boolean;
-  visibleItems?: number;
-  showVisibilityToggle?: boolean;
-  showMoreLabel?: string;
-  showLessLabel?: string;
-  visibilityToggleClassName?: string;
-  showMoreTone?: ButtonTone;
-  showLessTone?: ButtonTone;
-  sortOptions?: CardGridSortOption[];
-  sortValue?: string;
-  onSortChange?: (value: string) => void;
-  sortLabel?: string;
-  showItemsCount?: boolean;
-  itemsCountLabel?: string;
-  tone?: CardGridColor;
-  sectionClassName?: string;
-  titleColor?: CardGridColor;
-  subtitleColor?: CardGridColor;
-  titlePosition?: CardGridTitlePosition;
-  onItemClick?: (item: CardGridItem) => void;
-  maxCards?: number;
-  activityPhotoBadgePosition?: 'border' | 'date-row'; // 'border' = fuori dal bordo card, 'date-row' = a destra della data
-  activityPhotoBadgeSize?: BadgeChipSize;
-  activityPhotoBadgeRounded?: boolean;
-  activityTextColor?: CardGridColor;
+   variant?: CardGridVariant;
+   title?: string;
+   subtitle?: string;
+   items?: CardGridItem[];
+   className?: string;
+   containerClassName?: string;
+   gridClassName?: string;
+   cardClassName?: string;
+   imageClassName?: string;
+   columnsClassName?: string;
+   fallbackImage?: string;
+   showTypeBadge?: boolean;
+   showBadgeOnImage?: boolean;
+   showDate?: boolean;
+   showDescription?: boolean;
+   useMotion?: boolean;
+   visibleItems?: number;
+   showVisibilityToggle?: boolean;
+   showMoreLabel?: string;
+   showLessLabel?: string;
+   visibilityToggleClassName?: string;
+   showMoreTone?: ButtonTone;
+   showLessTone?: ButtonTone;
+   sortOptions?: CardGridSortOption[];
+   sortValue?: string;
+   onSortChange?: (value: string) => void;
+   sortLabel?: string;
+   showItemsCount?: boolean;
+   itemsCountLabel?: string;
+   tone?: CardGridColor;
+   headerColor?: CardGridColor; // Colore unico per title e subtitle (vanno di pari passo)
+   sectionClassName?: string;
+   titleColor?: CardGridColor;
+   subtitleColor?: CardGridColor;
+   titlePosition?: CardGridTitlePosition;
+   onItemClick?: (item: CardGridItem) => void;
+   maxCards?: number;
+   activityPhotoBadgePosition?: 'border' | 'date-row'; // 'border' = fuori dal bordo card, 'date-row' = a destra della data
+   activityPhotoBadgeSize?: BadgeChipSize;
+   activityPhotoBadgeRounded?: boolean;
+   activityTextColor?: CardGridColor;
+   // Flip-card specific props
+   flipCardOrientation?: CardGridOrientation;
+   flipCardImageSrc?: string;
+   flipCardImageAlt?: string;
+   flipCardWidth?: FlipCardWidthVariant;
+    flipCardColumns?: FlipCardColumns;
+    flipCardCenterIncompleteRow?: boolean;
+   // Card height variants
+   cardHeight?: CardHeightVariant;
 }
 
 const defaultItems: CardGridItem[] = [
@@ -109,47 +157,47 @@ const defaultItems: CardGridItem[] = [
 
 const textColorVariants: Record<CardGridColor, { title: string; subtitle: string }> = {
   current: {
-    title: 'text-slate-900 dark:text-white',
-    subtitle: 'text-slate-600 dark:text-slate-400',
+    title:    'text-[var(--color-tone-current-title)]',
+    subtitle: 'text-[var(--color-tone-current-subtitle)]',
   },
   blue: {
-    title: 'text-blue-700 dark:text-blue-300',
-    subtitle: 'text-blue-600 dark:text-blue-400',
+    title:    'text-[var(--color-tone-blue-title)]',
+    subtitle: 'text-[var(--color-tone-blue-subtitle)]',
   },
   purple: {
-    title: 'text-violet-800 dark:text-violet-300',
-    subtitle: 'text-violet-700 dark:text-violet-400',
+    title:    'text-[var(--color-tone-purple-title)]',
+    subtitle: 'text-[var(--color-tone-purple-subtitle)]',
   },
   black: {
-    title: 'text-black dark:text-slate-200',
-    subtitle: 'text-black/80 dark:text-slate-300',
+    title:    'text-[var(--color-tone-black-title)]',
+    subtitle: 'text-[var(--color-tone-black-subtitle)]',
   },
 };
 
 const activityTextVariants: Record<CardGridColor, { title: string; date: string; label: string; value: string }> = {
   current: {
-    title: 'text-slate-900 dark:text-white',
-    date: 'text-slate-500 dark:text-slate-400',
-    label: 'text-slate-600 dark:text-slate-400',
-    value: 'text-slate-900 dark:text-white',
+    title: 'text-[var(--color-tone-current-title)]',
+    date:  'text-[var(--color-tone-current-subtitle)]',
+    label: 'text-[var(--color-tone-current-subtitle)]',
+    value: 'text-[var(--color-tone-current-title)]',
   },
   blue: {
-    title: 'text-blue-700 dark:text-blue-300',
-    date: 'text-blue-600 dark:text-blue-400',
-    label: 'text-blue-700 dark:text-blue-300',
-    value: 'text-blue-700 dark:text-blue-300',
+    title: 'text-[var(--color-tone-blue-title)]',
+    date:  'text-[var(--color-tone-blue-subtitle)]',
+    label: 'text-[var(--color-tone-blue-subtitle)]',
+    value: 'text-[var(--color-tone-blue-title)]',
   },
   purple: {
-    title: 'text-violet-800 dark:text-violet-300',
-    date: 'text-violet-700 dark:text-violet-400',
-    label: 'text-violet-700 dark:text-violet-300',
-    value: 'text-violet-800 dark:text-violet-200',
+    title: 'text-[var(--color-tone-purple-title)]',
+    date:  'text-[var(--color-tone-purple-subtitle)]',
+    label: 'text-[var(--color-tone-purple-subtitle)]',
+    value: 'text-[var(--color-tone-purple-title)]',
   },
   black: {
-    title: 'text-black dark:text-slate-200',
-    date: 'text-black/70 dark:text-slate-300',
-    label: 'text-black/80 dark:text-slate-300',
-    value: 'text-black dark:text-slate-200',
+    title: 'text-[var(--color-tone-black-title)]',
+    date:  'text-[var(--color-tone-black-subtitle)]',
+    label: 'text-[var(--color-tone-black-subtitle)]',
+    value: 'text-[var(--color-tone-black-title)]',
   },
 };
 
@@ -160,57 +208,325 @@ function toBadgeType(type?: CardGridType): BadgeChipType | null {
   return null;
 }
 
+const toneClasses: Record<string, string> = {
+   current: 'bg-card text-card-foreground border-card',
+   blue: 'bg-[var(--color-comp-tone-blue-bg)] text-[var(--color-comp-tone-blue-text)] border-[var(--color-comp-tone-blue-border)]',
+   purple: 'bg-[var(--color-comp-tone-purple-bg)] text-[var(--color-comp-tone-purple-text)] border-[var(--color-comp-tone-purple-border)]',
+   black: 'bg-[var(--color-role-surface-strong)] text-[var(--color-role-text-inverse)] border-slate-700',
+   navy: 'bg-[var(--color-comp-tone-navy-bg)] text-[var(--color-comp-tone-navy-text)] border-[var(--color-comp-tone-navy-border)]',
+   crimson: 'bg-[var(--color-comp-tone-crimson-bg)] text-[var(--color-comp-tone-crimson-text)] border-[var(--color-comp-tone-crimson-border)]',
+   pear: 'bg-[var(--color-comp-tone-pear-bg)] text-[var(--color-comp-tone-pear-text)] border-[var(--color-comp-tone-pear-border)]',
+};
+
+const flipCardPaletteClasses = [
+  'bg-[var(--color-comp-tone-blue-bg)] text-[var(--color-comp-tone-blue-text)] border-[var(--color-comp-tone-blue-border)]',
+  'bg-[var(--color-comp-tone-purple-bg)] text-[var(--color-comp-tone-purple-text)] border-[var(--color-comp-tone-purple-border)]',
+  'bg-[var(--color-comp-tone-pear-bg)] text-[var(--color-comp-tone-pear-text)] border-[var(--color-comp-tone-pear-border)]',
+  'bg-[var(--color-comp-tone-crimson-bg)] text-[var(--color-comp-tone-crimson-text)] border-[var(--color-comp-tone-crimson-border)]',
+  'bg-[var(--color-comp-tone-navy-bg)] text-[var(--color-comp-tone-navy-text)] border-[var(--color-comp-tone-navy-border)]',
+];
+
+const flipCardToneMap: Record<string, string> = {
+  blue:    flipCardPaletteClasses[0],
+  purple:  flipCardPaletteClasses[1],
+  pear:    flipCardPaletteClasses[2],
+  crimson: flipCardPaletteClasses[3],
+  navy:    flipCardPaletteClasses[4],
+  current: toneClasses.current,
+  black:   toneClasses.black,
+};
+
+function getFlipCardToneClass(tone?: string, fallbackIndex?: number): string {
+  if (tone && flipCardToneMap[tone]) return flipCardToneMap[tone];
+  const idx = (fallbackIndex ?? 0) % flipCardPaletteClasses.length;
+  return flipCardPaletteClasses[idx];
+}
+
+// Solo il colore del bordo per il lato frontale (immagine) della flip-card
+const flipCardToneBorderColorMap: Record<string, string> = {
+  blue:    'var(--color-comp-tone-blue-border)',
+  purple:  'var(--color-comp-tone-purple-border)',
+  pear:    'var(--color-comp-tone-pear-border)',
+  crimson: 'var(--color-comp-tone-crimson-border)',
+  navy:    'var(--color-comp-tone-navy-border)',
+  current: 'var(--color-comp-cardgrid-card-border)',
+  black:   '#334155',
+};
+
+const flipCardPaletteBorderColors = [
+  'var(--color-comp-tone-blue-border)',
+  'var(--color-comp-tone-purple-border)',
+  'var(--color-comp-tone-pear-border)',
+  'var(--color-comp-tone-crimson-border)',
+  'var(--color-comp-tone-navy-border)',
+];
+
+function getFlipCardFrontBorderColor(tone?: string, fallbackIndex?: number): string {
+  if (tone && flipCardToneBorderColorMap[tone]) return flipCardToneBorderColorMap[tone];
+  const idx = (fallbackIndex ?? 0) % flipCardPaletteBorderColors.length;
+  return flipCardPaletteBorderColors[idx];
+}
+
+const flipCardIconMap: Record<CardGridIconName, LucideIcon> = {
+   Activity,
+   Code2,
+   Cpu,
+   HeartHandshake,
+   Network,
+   Smartphone,
+   Lightbulb,
+   Mail,
+   Plane,
+   Puzzle,
+   Users,
+   Github: Code2,
+   Linkedin: Smartphone,
+   ExternalLink,
+};
+
+function resolveFlipCardIcon(name?: CardGridIconName): LucideIcon {
+  if (!name) return ExternalLink;
+  return flipCardIconMap[name] ?? ExternalLink;
+}
+
+function useIsDesktop(): boolean {
+  return useSyncExternalStore(
+    (onStoreChange) => {
+      const mq = window.matchMedia('(min-width: 768px)');
+      const handler = () => onStoreChange();
+      mq.addEventListener('change', handler);
+      return () => mq.removeEventListener('change', handler);
+    },
+    () => window.matchMedia('(min-width: 768px)').matches,
+    () => false
+  );
+}
+
+// cardHeight per default e flip-card (non usato da activity)
+const cardHeightVariants: Record<CardHeightVariant, { image: string; flipCard: string }> = {
+   small: {
+     image:    'h-36',
+     flipCard:  'h-32 sm:h-36',
+   },
+   medium: {
+     image:    'h-48',
+     flipCard:  'h-36 sm:h-40',
+   },
+   large: {
+     image:    'h-60',
+     flipCard:  'h-40 sm:h-44',
+   },
+};
+
+// Larghezza flip-card su desktop: small ~50%, medium ~75%, large 100%
+const flipCardWidthVariants: Record<FlipCardWidthVariant, string> = {
+  small: 'w-full md:w-1/2',
+  medium: 'w-full md:w-3/4',
+  large: 'w-full',
+};
+
+const flipCardGridColSpan: Record<FlipCardColumns, number> = {
+  1: 12,
+  2: 6,
+  3: 4,
+  4: 3,
+};
+
+const flipCardGridSpanClass: Record<FlipCardColumns, string> = {
+  1: 'md:col-span-12',
+  2: 'md:col-span-6',
+  3: 'md:col-span-4',
+  4: 'md:col-span-3',
+};
+
+function FlipCard({
+   item,
+   imageSrc,
+   imageAlt,
+   useMosaicImage,
+   totalItems,
+   columns,
+   index,
+   heightClass,
+   widthClass,
+   backToneClass,
+   frontBorderColor,
+}: {
+   item: { id: string; title: string; description: string; icon: LucideIcon; category?: string };
+   imageSrc: string;
+   imageAlt?: string;
+   useMosaicImage: boolean;
+   totalItems: number;
+   columns: number;
+   index: number;
+   heightClass: string;
+   widthClass: string;
+   backToneClass: string;
+   frontBorderColor: string;
+}) {
+  const [isFlipped, setIsFlipped] = useState(false);
+  const isDesktop = useIsDesktop();
+  const Icon = item.icon;
+
+
+  const col = index % columns;
+  const row = Math.floor(index / columns);
+  const bgPositionX = `${-(col * 100)}%`;
+  const bgPositionY = `${-(row * 100)}%`;
+  const rows = Math.ceil(totalItems / columns);
+
+  // Mobile/tablet (<768px): card piatta come default, nessun flip
+  if (!isDesktop) {
+    return (
+      <div className={`${widthClass} mx-auto rounded-xl border p-3 flex flex-col gap-1.5 shadow-sm ${backToneClass}`}>
+        {item.category ? (
+          <p className="text-[10px] font-semibold uppercase tracking-wide opacity-70">{item.category}</p>
+        ) : null}
+        <div className="flex items-center gap-1.5">
+          <Icon className="h-4 w-4 opacity-90 shrink-0" aria-hidden="true" />
+          <h3 className="text-sm font-semibold leading-tight">{item.title}</h3>
+        </div>
+        <p className="text-xs leading-snug opacity-90">{item.description}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={`${widthClass} ${heightClass} mx-auto cursor-pointer perspective`}
+      onMouseEnter={() => setIsFlipped(true)}
+      onClick={() => setIsFlipped((prev) => !prev)}
+      role="button"
+      tabIndex={0}
+      aria-pressed={isFlipped}
+      aria-label={`${item.title} - ${isFlipped ? 'dettagli' : 'mostra dettagli'}`}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          setIsFlipped(!isFlipped);
+        }
+      }}
+    >
+      <div
+        className="relative w-full h-full transition-transform duration-500"
+        style={{
+          transformStyle: 'preserve-3d',
+          transform: isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
+        }}
+      >
+         <div
+           className="absolute w-full h-full rounded-xl overflow-hidden border-2"
+           style={{
+             backfaceVisibility: 'hidden',
+             borderColor: frontBorderColor,
+             boxShadow: `0 4px 18px -2px ${frontBorderColor}99, 0 0 0 0 transparent`,
+           }}
+         >
+           <div
+             className="w-full h-full bg-cover bg-center"
+             style={{
+               backgroundImage: `url('${imageSrc}')`,
+                // Mosaico solo con immagine globale condivisa; con immagine per-card usiamo cover piena.
+                backgroundPosition: useMosaicImage ? `${bgPositionX} ${bgPositionY}` : 'center',
+                backgroundSize: useMosaicImage ? `${columns * 100}% ${rows * 100}%` : 'cover',
+             }}
+             role="img"
+             aria-label={imageAlt || item.title}
+           />
+          <div className="absolute inset-0 bg-black/15" aria-hidden="true" />
+        </div>
+
+        <div
+          className={`absolute w-full h-full rounded-xl border p-3 sm:p-4 flex flex-col items-center justify-center text-center shadow-sm ${backToneClass}`}
+          style={{
+            backfaceVisibility: 'hidden',
+            transform: 'rotateY(180deg)',
+          }}
+        >
+          {item.category ? (
+            <p className="text-[10px] font-semibold uppercase tracking-wide opacity-70">{item.category}</p>
+          ) : null}
+          <div className="mt-1 flex items-center gap-1.5 justify-center">
+            <Icon className="h-3.5 w-3.5 opacity-90 shrink-0" aria-hidden="true" />
+            <h3 className="text-sm sm:text-base font-semibold leading-tight">{item.title}</h3>
+          </div>
+          <p className="mt-1.5 text-xs sm:text-sm leading-snug opacity-95 overflow-visible">{item.description}</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function CardGrid({
-  variant = 'default',
-  title = 'Ultime Avventure',
-  subtitle = 'I momenti piu recenti dalle mie attivita',
-  items = defaultItems,
-  className = '',
-  containerClassName = '',
-  gridClassName = '',
-  cardClassName = '',
-  imageClassName = '',
-  columnsClassName = 'grid grid-cols-1 md:grid-cols-3 gap-6',
-  fallbackImage = 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=800&q=80',
-  showTypeBadge = true,
-  showBadgeOnImage = false,
-  showDate = true,
-  showDescription = false,
-  useMotion = true,
-  visibleItems,
-  showVisibilityToggle = true,
-  showMoreLabel = 'Mostra tutte',
-  showLessLabel = 'Mostra meno',
-  visibilityToggleClassName = '',
-  showMoreTone = 'navy',
-  showLessTone = 'transparent-white',
-  sortOptions,
-  sortValue,
-  onSortChange,
-  sortLabel = 'Sort by',
-  showItemsCount = false,
-  itemsCountLabel = 'attività',
-  tone,
-  sectionClassName = 'px-4 py-16 sm:px-6 lg:px-8',
-  titleColor = 'current',
-  subtitleColor = 'current',
-  titlePosition = 'left',
-  onItemClick,
-  maxCards,
-  activityPhotoBadgePosition = 'border',
-  activityPhotoBadgeSize = 'medium',
-  activityPhotoBadgeRounded = false,
-  activityTextColor = 'current',
+   variant = 'default',
+   title = 'Ultime Avventure',
+   subtitle = 'I momenti piu recenti dalle mie attivita',
+   items = defaultItems,
+   className = '',
+   containerClassName = '',
+   gridClassName = '',
+   cardClassName = '',
+   imageClassName = '',
+   columnsClassName = 'grid grid-cols-1 md:grid-cols-3 gap-6',
+   fallbackImage = 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=800&q=80',
+   showTypeBadge = true,
+   showBadgeOnImage = false,
+   showDate = true,
+   showDescription = false,
+   useMotion = true,
+   visibleItems,
+   showVisibilityToggle = true,
+   showMoreLabel = 'Mostra tutte',
+   showLessLabel = 'Mostra meno',
+   visibilityToggleClassName = '',
+   showMoreTone = 'navy',
+   showLessTone = 'transparent-white',
+   sortOptions,
+   sortValue,
+   onSortChange,
+   sortLabel = 'Sort by',
+   showItemsCount = false,
+   itemsCountLabel = 'attività',
+   tone,
+   headerColor,
+   sectionClassName = 'px-4 pt-8 pb-8 sm:px-6 lg:px-8',
+   titleColor = 'current',
+   subtitleColor = 'current',
+   titlePosition = 'left',
+   onItemClick,
+   maxCards,
+   activityPhotoBadgePosition = 'border',
+   activityPhotoBadgeSize = 'medium',
+   activityPhotoBadgeRounded = false,
+   activityTextColor = 'current',
+   flipCardOrientation = 'horizontal',
+   flipCardImageSrc = '',
+   flipCardImageAlt = '',
+   flipCardWidth = 'large',
+   flipCardColumns,
+   flipCardCenterIncompleteRow = false,
+   cardHeight = 'medium',
 }: CardGridProps) {
-  const resolvedTitleColor = tone ?? titleColor;
-  const resolvedSubtitleColor = tone ?? subtitleColor;
-  const titleColorClass = textColorVariants[resolvedTitleColor].title;
-  const subtitleColorClass = textColorVariants[resolvedSubtitleColor].subtitle;
-  const activityTextStyle = activityTextVariants[activityTextColor];
-  const normalizedVisibleItems =
-    typeof visibleItems === 'number' && Number.isFinite(visibleItems) && visibleItems > 0
-      ? Math.floor(visibleItems)
-      : null;
+   const resolvedTitleColor = headerColor ?? (tone ?? titleColor);
+   const resolvedSubtitleColor = headerColor ?? (tone ?? subtitleColor);
+   const titleColorClass = textColorVariants[resolvedTitleColor].title;
+   const subtitleColorClass = textColorVariants[resolvedSubtitleColor].subtitle;
+   const activityTextStyle = activityTextVariants[activityTextColor];
+   const normalizedVisibleItems =
+     typeof visibleItems === 'number' && Number.isFinite(visibleItems) && visibleItems > 0
+       ? Math.floor(visibleItems)
+       : null;
+
+   const resolvedGridClass = columnsClassName;
+   const cardHeightClass = cardHeightVariants[cardHeight];
+   const flipCardWidthClass = flipCardWidthVariants[flipCardWidth];
+
+   const orientationDefaultColumns: FlipCardColumns = flipCardOrientation === 'vertical' ? 1 : 3;
+   const resolvedFlipCardColumns = flipCardColumns ?? orientationDefaultColumns;
+   const flipCardColSpan = flipCardGridColSpan[resolvedFlipCardColumns];
+   const flipCardSpanClass = flipCardGridSpanClass[resolvedFlipCardColumns];
+   const flipCardGapClass = flipCardOrientation === 'vertical' ? 'gap-3 sm:gap-4' : 'gap-4 sm:gap-5';
+   const flipCardGridClass = `grid grid-cols-1 md:grid-cols-12 ${flipCardGapClass}`;
 
   // Stato paginazione senza reset via effect (evita setState sincrono nell'effect).
   const paginationKey = `${normalizedVisibleItems ?? 'all'}:${items.length}:${maxCards ?? 'none'}`;
@@ -255,10 +571,10 @@ export function CardGrid({
       : titlePosition === 'right'
         ? 'w-full text-right'
         : '';
-  const baseCardSurfaceClass = 'border-slate-300/80 bg-white dark:border-slate-500/90 dark:border-2 dark:bg-slate-950/40';
-  const defaultCardTitleClass = 'text-xl text-slate-900 transition-colors group-hover:text-blue-600 dark:text-slate-100 dark:group-hover:text-blue-300';
-  const defaultCardDescriptionClass = 'text-sm text-slate-600 dark:text-slate-300';
-  const defaultCardMetaClass = 'text-sm text-slate-500 dark:text-slate-400';
+  const baseCardSurfaceClass = 'border-[var(--color-comp-cardgrid-card-border)] bg-[var(--color-comp-cardgrid-card-bg)] dark:border-2';
+  const defaultCardTitleClass = 'text-xl text-[var(--color-comp-cardgrid-card-title)] transition-colors group-hover:text-[var(--color-comp-cardgrid-card-title-hover)]';
+  const defaultCardDescriptionClass = 'text-sm text-[var(--color-comp-cardgrid-card-description)]';
+  const defaultCardMetaClass = 'text-sm text-[var(--color-comp-cardgrid-card-meta)]';
 
   return (
     <section className={`cardgrid-component ${sectionClassName} ${className}`} data-testid="cardgrid-section">
@@ -288,7 +604,7 @@ export function CardGrid({
               ) : null}
             </div>
             {(showItemsCount || (sortOptions && sortOptions.length > 0 && onSortChange)) ? (
-              <div className="ml-auto flex items-center gap-4 text-sm text-slate-600 dark:text-slate-300 cardgrid-controls">
+              <div className="ml-auto flex items-center gap-4 text-sm text-[var(--color-comp-cardgrid-controls-text)] cardgrid-controls">
                 {showItemsCount ? (
                   <span className="whitespace-nowrap cardgrid-count" data-testid="cardgrid-count">
                     {items.length} {itemsCountLabel}
@@ -299,7 +615,7 @@ export function CardGrid({
                     <span className="font-medium whitespace-nowrap">{sortLabel}</span>
                     <Select value={sortValue} onValueChange={onSortChange}>
                       <SelectTrigger
-                        className="h-9 min-w-[12.5rem] border-slate-300 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 cardgrid-sort-trigger"
+                        className="h-9 min-w-[12.5rem] border-[var(--color-comp-cardgrid-sort-border)] bg-[var(--color-comp-cardgrid-sort-bg)] text-[var(--color-comp-cardgrid-sort-text)] cardgrid-sort-trigger"
                         data-testid="cardgrid-sort-trigger"
                       >
                         <SelectValue placeholder="Seleziona" />
@@ -315,9 +631,55 @@ export function CardGrid({
               </div>
             ) : null}
           </motion.div>
-        ) : null}
+         ) : null}
 
-        <div className={`${columnsClassName} ${gridClassName} cardgrid-items`} data-testid="cardgrid-grid">
+        {variant === 'flip-card' ? (
+           <div className={flipCardGridClass}>
+             {displayedItems.map((item, index) => {
+               const resolvedFlipCardImageSrc = item.image || flipCardImageSrc || fallbackImage;
+               const shouldUseMosaicImage = !item.image && Boolean(flipCardImageSrc);
+               const remainder = displayedItems.length % resolvedFlipCardColumns;
+               const lastRowStartIndex = remainder === 0 ? -1 : displayedItems.length - remainder;
+               const shouldCenterLastRowStart =
+                 flipCardCenterIncompleteRow && remainder > 0 && index === lastRowStartIndex;
+               const centeredGridStart = shouldCenterLastRowStart
+                 ? Math.floor((12 - (remainder * flipCardColSpan)) / 2) + 1
+                 : undefined;
+               const centeredGridStyle = shouldCenterLastRowStart
+                 ? { ['--flip-grid-start' as `--${string}`]: String(centeredGridStart) }
+                 : undefined;
+
+               return (
+                 <div
+                   key={item.id}
+                   className={`${flipCardSpanClass} ${shouldCenterLastRowStart ? 'md:[grid-column-start:var(--flip-grid-start)]' : ''}`}
+                   style={centeredGridStyle}
+                 >
+                   <FlipCard
+                    item={{
+                      id: item.id,
+                      title: item.title,
+                      description: item.description || '',
+                       category: item.category,
+                         icon: item.icon || resolveFlipCardIcon(item.iconName),
+                    }}
+                    imageSrc={resolvedFlipCardImageSrc}
+                    imageAlt={item.title || flipCardImageAlt}
+                    useMosaicImage={shouldUseMosaicImage}
+                    totalItems={displayedItems.length}
+                    columns={resolvedFlipCardColumns}
+                    index={index}
+                    heightClass={cardHeightClass.flipCard}
+                    widthClass={flipCardWidthClass}
+                    backToneClass={getFlipCardToneClass(item.flipCardTone, index)}
+                    frontBorderColor={getFlipCardFrontBorderColor(item.flipCardTone, index)}
+                  />
+                 </div>
+               );
+             })}
+          </div>
+        ) : (
+           <div className={`${resolvedGridClass} ${gridClassName} cardgrid-items`} data-testid="cardgrid-grid">
           {displayedItems.map((item, index) => (
             <motion.div
               key={item.id}
@@ -347,13 +709,13 @@ export function CardGrid({
                           className="absolute -top-0 right-3 z-20 shadow-sm"
                           data-testid={`cardgrid-photo-badge-${item.id}`}
                         />
-                      )}
-                      <Card
-                        className={`${baseCardSurfaceClass} overflow-hidden hover:shadow-lg transition-shadow h-full cursor-pointer group-hover:scale-[1.02] duration-300 activity-card ${cardClassName}`}
-                        data-testid={`activity-card-${item.id}`}
-                      >
-                        {item.image ? (
-                          <div className="relative h-52 w-full overflow-hidden bg-slate-200 dark:bg-slate-700 activity-card-image-wrapper">
+                       )}
+                        <Card
+                          className={`${baseCardSurfaceClass} overflow-hidden hover:shadow-lg transition-shadow h-full cursor-pointer group-hover:scale-[1.02] duration-300 activity-card ${cardClassName}`}
+                          data-testid={`activity-card-${item.id}`}
+                        >
+                         {item.image ? (
+                           <div className={`relative h-52 w-full overflow-hidden bg-[var(--color-comp-cardgrid-image-bg)] activity-card-image-wrapper`}>
                             <Image
                               src={item.image}
                               alt={item.title}
@@ -422,7 +784,7 @@ export function CardGrid({
                           <BadgeChip type={toBadgeType(item.type) as BadgeChipType} text={item.type} className="whitespace-nowrap" />
                         </div>
                       )}
-                      <div className="relative h-48 w-full overflow-hidden bg-slate-200 dark:bg-slate-700">
+                      <div className={`relative ${cardHeightClass.image} w-full overflow-hidden bg-[var(--color-comp-cardgrid-image-bg)]`}>
                         <Image
                           src={item.image || fallbackImage}
                           alt={item.title}
@@ -474,9 +836,12 @@ export function CardGrid({
                            className="absolute -top-0 right-3 z-20 shadow-sm"
                          />
                        )}
-                       <Card className={`${baseCardSurfaceClass} overflow-hidden hover:shadow-lg transition-shadow h-full cursor-pointer group-hover:scale-[1.02] duration-300 ${cardClassName}`}>
-                         {item.image ? (
-                           <div className="relative h-52 w-full overflow-hidden bg-slate-200 dark:bg-slate-700">
+                        <Card
+                          className={`${baseCardSurfaceClass} overflow-hidden hover:shadow-lg transition-shadow h-full cursor-pointer group-hover:scale-[1.02] duration-300 activity-card ${cardClassName}`}
+                          data-testid={`activity-card-${item.id}`}
+                        >
+                          {item.image ? (
+                            <div className={`relative h-52 w-full overflow-hidden bg-[var(--color-comp-cardgrid-image-bg)]`}>
                              <Image
                                src={item.image}
                                alt={item.title}
@@ -521,7 +886,7 @@ export function CardGrid({
                                  <BadgeChip type={toBadgeType(item.type) as BadgeChipType} text={item.type} className="whitespace-nowrap" />
                                </div>
                              )}
-                       <div className="relative h-48 w-full overflow-hidden bg-slate-200 dark:bg-slate-700">
+                       <div className={`relative ${cardHeightClass.image} w-full overflow-hidden bg-[var(--color-comp-cardgrid-image-bg)]`}>
                          <Image
                            src={item.image || fallbackImage}
                            alt={item.title}
@@ -562,8 +927,9 @@ export function CardGrid({
                  </Link>
                )}
             </motion.div>
-          ))}
-        </div>
+           ))}
+          </div>
+        )}
 
         {shouldShowToggle ? (
           <div className={`mt-8 flex justify-center gap-3 ${visibilityToggleClassName} cardgrid-toggle`} data-testid="cardgrid-toggle">

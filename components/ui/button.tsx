@@ -55,17 +55,17 @@ const buttonVariants = cva(
       {
         variant: "default",
         tone: "blue",
-        class: "bg-blue-600 text-white hover:bg-blue-700 hover:shadow-sm",
+        class: "bg-[var(--color-comp-btn-blue-bg)] text-[var(--color-comp-btn-blue-text)] hover:bg-[var(--color-comp-btn-blue-bg-hover)] hover:shadow-sm",
       },
       {
         variant: "default",
         tone: "purple",
-        class: "bg-violet-700 text-white hover:bg-violet-800 hover:shadow-sm",
+        class: "bg-[var(--color-comp-btn-purple-bg)] text-[var(--color-comp-btn-purple-text)] hover:bg-[var(--color-comp-btn-purple-bg-hover)] hover:shadow-sm",
       },
       {
         variant: "default",
         tone: "black",
-        class: "bg-slate-900 text-white hover:bg-black hover:shadow-sm dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white",
+        class: "bg-[var(--color-comp-btn-black-bg)] text-[var(--color-comp-btn-black-text)] hover:bg-[var(--color-comp-btn-black-bg-hover)] hover:shadow-sm",
       },
       {
         variant: "outline",
@@ -75,17 +75,17 @@ const buttonVariants = cva(
       {
         variant: "outline",
         tone: "blue",
-        class: "border border-blue-600 bg-transparent text-blue-700 hover:bg-blue-50 dark:border-blue-400 dark:text-blue-300 dark:hover:bg-blue-950/40",
+        class: "border border-[var(--color-comp-btn-blue-outline-border)] bg-transparent text-[var(--color-comp-btn-blue-outline-text)] hover:bg-[var(--color-comp-btn-blue-outline-bg-hover)]",
       },
       {
         variant: "outline",
         tone: "purple",
-        class: "border border-violet-700 bg-transparent text-violet-800 hover:bg-violet-50 dark:border-violet-400 dark:text-violet-300 dark:hover:bg-violet-950/40",
+        class: "border border-[var(--color-comp-btn-purple-outline-border)] bg-transparent text-[var(--color-comp-btn-purple-outline-text)] hover:bg-[var(--color-comp-btn-purple-outline-bg-hover)]",
       },
       {
         variant: "outline",
         tone: "black",
-        class: "border border-slate-900 bg-transparent text-slate-900 hover:bg-slate-100 dark:border-slate-200 dark:text-slate-100 dark:hover:bg-slate-800",
+        class: "border border-[var(--color-comp-btn-black-outline-border)] bg-transparent text-[var(--color-comp-btn-black-outline-text)] hover:bg-[var(--color-comp-btn-black-outline-bg-hover)]",
       },
       {
         variant: "secondary",
@@ -95,17 +95,17 @@ const buttonVariants = cva(
       {
         variant: "secondary",
         tone: "blue",
-        class: "bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-950/40 dark:text-blue-200 dark:hover:bg-blue-950/60",
+        class: "bg-[var(--color-comp-btn-blue-secondary-bg)] text-[var(--color-comp-btn-blue-secondary-text)] hover:bg-[var(--color-comp-btn-blue-secondary-bg-hover)]",
       },
       {
         variant: "secondary",
         tone: "purple",
-        class: "bg-violet-100 text-violet-800 hover:bg-violet-200 dark:bg-violet-950/40 dark:text-violet-200 dark:hover:bg-violet-950/60",
+        class: "bg-[var(--color-comp-btn-purple-secondary-bg)] text-[var(--color-comp-btn-purple-secondary-text)] hover:bg-[var(--color-comp-btn-purple-secondary-bg-hover)]",
       },
       {
         variant: "secondary",
         tone: "black",
-        class: "bg-slate-200 text-slate-900 hover:bg-slate-300 dark:bg-slate-800 dark:text-slate-100 dark:hover:bg-slate-700",
+        class: "bg-[var(--color-comp-btn-black-secondary-bg)] text-[var(--color-comp-btn-black-secondary-text)] hover:bg-[var(--color-comp-btn-black-secondary-bg-hover)]",
       },
       {
         variant: "ghost",
@@ -115,17 +115,17 @@ const buttonVariants = cva(
       {
         variant: "ghost",
         tone: "blue",
-        class: "text-blue-700 hover:bg-blue-50 hover:text-blue-800 dark:text-blue-300 dark:hover:bg-blue-950/40 dark:hover:text-blue-200",
+        class: "text-[var(--color-comp-btn-blue-ghost-text)] hover:bg-[var(--color-comp-btn-blue-ghost-bg-hover)] hover:text-[var(--color-comp-btn-blue-outline-text)]",
       },
       {
         variant: "ghost",
         tone: "purple",
-        class: "text-violet-700 hover:bg-violet-50 hover:text-violet-800 dark:text-violet-300 dark:hover:bg-violet-950/40 dark:hover:text-violet-200",
+        class: "text-[var(--color-comp-btn-purple-ghost-text)] hover:bg-[var(--color-comp-btn-purple-ghost-bg-hover)] hover:text-[var(--color-comp-btn-purple-outline-text)]",
       },
       {
         variant: "ghost",
         tone: "black",
-        class: "text-slate-900 hover:bg-slate-100 hover:text-black dark:text-slate-100 dark:hover:bg-slate-800 dark:hover:text-white",
+        class: "text-[var(--color-comp-btn-black-ghost-text)] hover:bg-[var(--color-comp-btn-black-ghost-bg-hover)] hover:text-[var(--color-comp-btn-black-bg-hover)]",
       },
       {
         variant: "link",
@@ -135,27 +135,27 @@ const buttonVariants = cva(
       {
         variant: "link",
         tone: "blue",
-        class: "text-blue-700 underline-offset-4 hover:text-blue-800 hover:underline dark:text-blue-300 dark:hover:text-blue-200",
+        class: "text-[var(--color-comp-btn-blue-outline-text)] underline-offset-4 hover:text-[var(--color-comp-btn-blue-bg-hover)] hover:underline",
       },
       {
         variant: "link",
         tone: "purple",
-        class: "text-violet-700 underline-offset-4 hover:text-violet-800 hover:underline dark:text-violet-300 dark:hover:text-violet-200",
+        class: "text-[var(--color-comp-btn-purple-outline-text)] underline-offset-4 hover:text-[var(--color-comp-btn-purple-bg-hover)] hover:underline",
       },
       {
         variant: "link",
         tone: "black",
-        class: "text-slate-900 underline-offset-4 hover:text-black hover:underline dark:text-slate-100 dark:hover:text-white",
+        class: "text-[var(--color-comp-btn-black-outline-text)] underline-offset-4 hover:text-[var(--color-comp-btn-black-bg-hover)] hover:underline",
       },
       {
         variant: "default",
         tone: "navy",
-        class: "bg-slate-900 text-white hover:bg-slate-800 hover:shadow-sm dark:bg-slate-950 dark:hover:bg-slate-900",
+        class: "bg-[var(--color-comp-btn-navy-bg)] text-[var(--color-comp-btn-black-text)] hover:bg-[var(--color-comp-btn-navy-bg-hover)] hover:shadow-sm",
       },
       {
         variant: "default",
         tone: "white",
-        class: "bg-white text-slate-900 hover:bg-slate-100 hover:shadow-sm dark:bg-slate-100 dark:text-slate-900 dark:hover:bg-white",
+        class: "bg-[var(--color-comp-btn-white-bg)] text-[var(--color-comp-btn-white-text)] hover:bg-[var(--color-comp-btn-white-bg-hover)] hover:shadow-sm",
       },
       {
         variant: "default",
@@ -165,12 +165,12 @@ const buttonVariants = cva(
       {
         variant: "outline",
         tone: "navy",
-        class: "border border-slate-900 bg-transparent text-slate-900 hover:bg-slate-100 dark:border-slate-100 dark:text-slate-100 dark:hover:bg-slate-800",
+        class: "border border-[var(--color-comp-btn-black-outline-border)] bg-transparent text-[var(--color-comp-btn-black-outline-text)] hover:bg-[var(--color-comp-btn-black-outline-bg-hover)]",
       },
       {
         variant: "outline",
         tone: "white",
-        class: "border border-white bg-transparent text-white hover:bg-white/10 dark:border-white dark:text-white dark:hover:bg-white/20",
+        class: "border border-white bg-transparent text-white hover:bg-white/10 dark:hover:bg-white/20",
       },
       {
         variant: "outline",
@@ -180,7 +180,7 @@ const buttonVariants = cva(
       {
         variant: "secondary",
         tone: "navy",
-        class: "bg-slate-800 text-slate-100 hover:bg-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800",
+        class: "bg-[var(--color-ref-slate-800)] text-[var(--color-role-text-inverse)] hover:bg-[var(--color-ref-slate-700)]",
       },
       {
         variant: "secondary",

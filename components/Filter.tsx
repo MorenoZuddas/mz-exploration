@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { CalendarDays, Footprints, Ruler, Timer, MapPin, Gauge, Route, ChevronDown, X } from 'lucide-react';
+import { ICON_REGISTRY, Icon, type IconName, type LucideIcon } from '@/components/Icons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -46,46 +46,46 @@ interface FilterProps {
   variant?: 'default' | 'minimal';
 }
 
-const filterTypeIcons: Record<FilterType, React.ComponentType<{ className?: string }>> = {
-  dateStart: CalendarDays,
-  dateEnd: CalendarDays,
-  activityType: Footprints,
-  sortBy: Gauge,
-  distanceMin: Ruler,
-  distanceMax: Route,
-  durationMin: Timer,
-  durationMax: Timer,
-  location: MapPin,
-  pace: Gauge,
+const filterTypeIcons: Record<FilterType, IconName> = {
+  dateStart:   'calendar-days',
+  dateEnd:     'calendar-days',
+  activityType:'footprints',
+  sortBy:      'gauge',
+  distanceMin: 'ruler',
+  distanceMax: 'route',
+  durationMin: 'timer',
+  durationMax: 'timer',
+  location:    'map-pin',
+  pace:        'gauge',
 };
 
 const toneStyles: Record<FilterTone, { wrapper: string; field: string; text: string; icon: string; buttonTone: 'blue' | 'purple' | 'black' | 'current' }> = {
   current: {
-    wrapper: 'border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900',
-    field: 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800',
-    text: 'text-slate-700 dark:text-slate-200',
-    icon: 'text-slate-500 dark:text-slate-400',
+    wrapper: 'border-[var(--color-comp-filter-current-wrapper-border)] bg-[var(--color-comp-filter-current-wrapper-bg)]',
+    field:   'border-[var(--color-comp-filter-current-field-border)] bg-[var(--color-comp-filter-current-field-bg)]',
+    text:    'text-[var(--color-comp-filter-current-text)]',
+    icon:    'text-[var(--color-comp-filter-current-icon)]',
     buttonTone: 'blue',
   },
   blue: {
-    wrapper: 'border-blue-200 dark:border-blue-800/60 bg-blue-50/70 dark:bg-blue-950/30',
-    field: 'border-blue-200 dark:border-blue-800/70 bg-white dark:bg-blue-950/20',
-    text: 'text-blue-800 dark:text-blue-200',
-    icon: 'text-blue-600 dark:text-blue-300',
+    wrapper: 'border-[var(--color-comp-filter-blue-wrapper-border)] bg-[var(--color-comp-filter-blue-wrapper-bg)]',
+    field:   'border-[var(--color-comp-filter-blue-field-border)] bg-[var(--color-comp-filter-blue-field-bg)]',
+    text:    'text-[var(--color-comp-filter-blue-text)]',
+    icon:    'text-[var(--color-comp-filter-blue-icon)]',
     buttonTone: 'blue',
   },
   purple: {
-    wrapper: 'border-violet-200 dark:border-violet-800/60 bg-violet-50/70 dark:bg-violet-950/30',
-    field: 'border-violet-200 dark:border-violet-800/70 bg-white dark:bg-violet-950/20',
-    text: 'text-violet-800 dark:text-violet-200',
-    icon: 'text-violet-600 dark:text-violet-300',
+    wrapper: 'border-[var(--color-comp-filter-purple-wrapper-border)] bg-[var(--color-comp-filter-purple-wrapper-bg)]',
+    field:   'border-[var(--color-comp-filter-purple-field-border)] bg-[var(--color-comp-filter-purple-field-bg)]',
+    text:    'text-[var(--color-comp-filter-purple-text)]',
+    icon:    'text-[var(--color-comp-filter-purple-icon)]',
     buttonTone: 'purple',
   },
   black: {
-    wrapper: 'border-slate-700 bg-slate-900',
-    field: 'border-slate-600 bg-slate-800',
-    text: 'text-slate-100',
-    icon: 'text-slate-300',
+    wrapper: 'border-[var(--color-comp-filter-black-wrapper-border)] bg-[var(--color-comp-filter-black-wrapper-bg)]',
+    field:   'border-[var(--color-comp-filter-black-field-border)] bg-[var(--color-comp-filter-black-field-bg)]',
+    text:    'text-[var(--color-comp-filter-black-text)]',
+    icon:    'text-[var(--color-comp-filter-black-icon)]',
     buttonTone: 'black',
   },
 };
@@ -156,7 +156,8 @@ export function Filter({
 
   const renderFilterInput = (config: FilterConfig) => {
     const value = filterState[config.type] || '';
-    const Icon = filterTypeIcons[config.type] ?? CalendarDays;
+    const iconName = filterTypeIcons[config.type] ?? 'calendar-days';
+    const IconComp = (ICON_REGISTRY[iconName] ?? ICON_REGISTRY['calendar-days']) as LucideIcon;
 
     const isCompact = density === 'compact';
     const isMinimal = variant === 'minimal';
@@ -167,12 +168,12 @@ export function Filter({
     const iconSize = isCompact ? 'w-3.5 h-3.5' : 'w-4 h-4';
     const labelSize = isCompact ? 'text-[11px]' : 'text-xs';
     const minimalControlWidth = 'w-[9rem] xl:w-[9.5rem]';
-    const minimalTextClass = 'text-slate-800 dark:text-slate-200';
-    const minimalPlaceholderClass = 'placeholder:text-slate-800 dark:placeholder:text-slate-200';
+    const minimalTextClass = 'text-[var(--color-comp-filter-minimal-text)]';
+    const minimalPlaceholderClass = 'placeholder:text-[var(--color-comp-filter-minimal-text)]';
     const minimalFieldClass = isMinimal
-      ? 'border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100'
+      ? 'border-[var(--color-comp-filter-minimal-border)] bg-[var(--color-comp-filter-minimal-bg)] text-[var(--color-comp-filter-minimal-text)]'
       : '';
-    const minimalIconClass = isMinimal ? 'text-slate-500 dark:text-slate-400' : style.icon;
+    const minimalIconClass = isMinimal ? 'text-[var(--color-comp-filter-minimal-icon)]' : style.icon;
     const resolvedFieldClass = isMinimal ? minimalFieldClass : style.field;
 
     if (config.type === 'dateStart' || config.type === 'dateEnd') {
@@ -191,11 +192,11 @@ export function Filter({
             className={`${minimalControlWidth} inline-flex h-9 items-center justify-between gap-2 cursor-pointer ${minimalTextClass}`}
             aria-label={`Apri calendario ${fieldLabel}`}
           >
-            <Icon className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+            <IconComp className={`w-4 h-4 ${minimalIconClass}`} />
                 <span className={`text-xs font-semibold uppercase tracking-wide whitespace-nowrap ${minimalTextClass}`}>
               {value || fieldLabel}
             </span>
-            <ChevronDown className="w-4 h-4 text-slate-400" />
+            <Icon name="chevron-down" className={`w-4 h-4 ${minimalIconClass}`} />
             <input
               ref={(el) => {
                 dateInputRefs.current[config.type] = el;
@@ -225,7 +226,7 @@ export function Filter({
           aria-label={`Apri calendario ${fieldLabel}`}
         >
           <div className="flex items-center gap-2 min-w-0">
-            <Icon className={`${iconSize} shrink-0 ${minimalIconClass}`} />
+            <IconComp className={`${iconSize} shrink-0 ${minimalIconClass}`} />
             <span className={`${labelSize} font-semibold tracking-wide truncate ${minimalIconClass}`}>
               {value || fieldLabel}
             </span>
@@ -248,9 +249,9 @@ export function Filter({
       if (isMinimal) {
         return (
           <Select value={value} onValueChange={(v) => handleChange(config.type, v)} disabled={disabled}>
-            <SelectTrigger className={`h-9 ${minimalControlWidth} border-0 bg-transparent shadow-none px-0 py-0 text-xs font-semibold uppercase tracking-wide focus:ring-0 focus:ring-offset-0 data-[placeholder]:text-slate-800 dark:data-[placeholder]:text-slate-200 [&_svg]:text-slate-500 dark:[&_svg]:text-slate-400 ${minimalTextClass}`}>
+            <SelectTrigger className={`h-9 ${minimalControlWidth} border-0 bg-transparent shadow-none px-0 py-0 text-xs font-semibold uppercase tracking-wide focus:ring-0 focus:ring-offset-0 data-[placeholder]:${minimalTextClass} [&_svg]:${minimalIconClass} ${minimalTextClass}`}>
               <div className="flex items-center gap-2">
-                <Icon className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+                <IconComp className={`w-4 h-4 ${minimalIconClass}`} />
                 <SelectValue placeholder={fieldLabel} />
               </div>
             </SelectTrigger>
@@ -267,9 +268,9 @@ export function Filter({
 
       return (
         <Select value={value} onValueChange={(v) => handleChange(config.type, v)} disabled={disabled}>
-          <SelectTrigger className={`${fieldHeight} ${resolvedFieldClass} ${isMinimal ? 'text-slate-900 dark:text-slate-100' : style.text}`}>
+          <SelectTrigger className={`${fieldHeight} ${resolvedFieldClass} ${isMinimal ? minimalTextClass : style.text}`}>
             <div className="flex items-center gap-2">
-              <Icon className={`${iconSize} ${minimalIconClass}`} />
+              <IconComp className={`${iconSize} ${minimalIconClass}`} />
               <SelectValue placeholder={fieldLabel} />
             </div>
           </SelectTrigger>
@@ -294,7 +295,7 @@ export function Filter({
     return (
       isMinimal ? (
         <div className={`${minimalControlWidth} inline-flex h-9 items-center gap-2 ${minimalTextClass}`}>
-          <Icon className="w-4 h-4 shrink-0 text-slate-500 dark:text-slate-400" />
+          <IconComp className={`w-4 h-4 shrink-0 ${minimalIconClass}`} />
           <Input
             type={inputType}
             placeholder={fieldLabel}
@@ -306,14 +307,14 @@ export function Filter({
         </div>
       ) : (
         <div className={`rounded-lg border ${fieldPadding} ${fieldHeight} flex items-center gap-2 ${resolvedFieldClass}`}>
-          <Icon className={`${iconSize} shrink-0 ${minimalIconClass}`} />
+          <IconComp className={`${iconSize} shrink-0 ${minimalIconClass}`} />
           <Input
             type={inputType}
             placeholder={fieldLabel}
             value={value}
             onChange={(e) => handleChange(config.type, e.target.value)}
             disabled={disabled}
-            className={`border-0 bg-transparent shadow-none px-0 h-auto ${isMinimal ? 'text-slate-900 dark:text-slate-100' : style.text}`}
+            className={`border-0 bg-transparent shadow-none px-0 h-auto ${isMinimal ? minimalTextClass : style.text}`}
           />
         </div>
       )
@@ -327,7 +328,7 @@ export function Filter({
           {filters.map((filter, index) => (
             <div key={filter.type} className="shrink-0 flex items-center gap-3">
               {renderFilterInput(filter)}
-              {index < filters.length - 1 ? <span className="h-5 w-px bg-slate-300 dark:bg-slate-700" /> : null}
+              {index < filters.length - 1 ? <span className="h-5 w-px bg-[var(--color-comp-filter-separator)]" /> : null}
             </div>
           ))}
           <div className="ml-auto shrink-0 flex items-center gap-2 pl-2">
@@ -344,18 +345,18 @@ export function Filter({
                 key={f.type}
                 type="button"
                 onClick={() => clearSingleFilter(f.type)}
-                className="inline-flex items-center gap-1 rounded-md bg-slate-900 text-white text-xs font-medium px-2.5 py-1"
+                className="inline-flex items-center gap-1 rounded-md bg-[var(--color-comp-filter-active-badge-bg)] text-[var(--color-comp-filter-active-badge-text)] text-xs font-medium px-2.5 py-1"
                 aria-label={`Rimuovi filtro ${f.label}`}
               >
                 <span className="uppercase tracking-wide">{f.display}</span>
-                <X className="h-3.5 w-3.5" />
+                <Icon name="x" size="sm" aria-hidden="true" />
               </button>
             ))}
             <button
               type="button"
               onClick={handleReset}
               disabled={disabled}
-              className="text-sm font-semibold uppercase tracking-wide text-slate-800 underline underline-offset-2"
+              className="text-sm font-semibold uppercase tracking-wide text-[var(--color-comp-filter-reset-text)] underline underline-offset-2"
             >
               CLEAR ALL FILTERS
             </button>
@@ -386,7 +387,5 @@ export function Filter({
     )
   );
 }
-
-
 
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { ListMusic, Library, Camera, PlaneTakeoff, Mountain, Zap, SportShoe } from 'lucide-react';
+import { Icon } from '@/components/Icons';
 import type { ReactNode } from 'react';
 
 type DividerIconType = 'running' | 'trekking' | 'trip' | 'books' | 'photo' | 'music' | 'default';
@@ -17,31 +17,31 @@ interface DividerProps {
 }
 
 const iconMap: Record<DividerIconType, ReactNode> = {
-  running: <SportShoe className="w-full h-full" strokeWidth={2.25} />,
-  trekking: <Mountain className="w-full h-full" strokeWidth={2} />,
-  trip: <PlaneTakeoff className="w-full h-full" strokeWidth={2} />,
-  books: <Library className="w-full h-full" strokeWidth={2} />,
-  photo: <Camera className="w-full h-full" strokeWidth={2} />,
-  music: <ListMusic className="w-full h-full" strokeWidth={2} />,
-  default: <Zap className="w-full h-full" strokeWidth={2} />,
+  running:  <Icon name="sport-shoe" className="w-full h-full" strokeWidth={2.25} />,
+  trekking: <Icon name="mountain" className="w-full h-full" />,
+  trip:     <Icon name="plane-takeoff" className="w-full h-full" />,
+  books:    <Icon name="library" className="w-full h-full" />,
+  photo:    <Icon name="camera" className="w-full h-full" />,
+  music:    <Icon name="list-music" className="w-full h-full" />,
+  default:  <Icon name="zap" className="w-full h-full" />,
 };
 
 const toneVariants: Record<NonNullable<DividerProps['tone']>, { line: string; symbol: string }> = {
   current: {
-    line: 'bg-gradient-to-r from-transparent via-slate-300 to-transparent dark:via-slate-700',
-    symbol: 'text-slate-500 dark:text-slate-400',
+    line: 'bg-gradient-to-r from-transparent via-[var(--color-comp-divider-current-line)] to-transparent',
+    symbol: 'text-[var(--color-comp-divider-current-symbol)]',
   },
   blue: {
-    line: 'bg-gradient-to-r from-transparent via-blue-600 to-transparent dark:via-blue-500',
-    symbol: 'text-blue-600 dark:text-blue-400',
+    line: 'bg-gradient-to-r from-transparent via-[var(--color-comp-divider-blue-line)] to-transparent',
+    symbol: 'text-[var(--color-comp-divider-blue-symbol)]',
   },
   purple: {
-    line: 'bg-gradient-to-r from-transparent via-violet-900 to-transparent dark:via-violet-700',
-    symbol: 'text-violet-900 dark:text-violet-400',
+    line: 'bg-gradient-to-r from-transparent via-[var(--color-comp-divider-purple-line)] to-transparent',
+    symbol: 'text-[var(--color-comp-divider-purple-symbol)]',
   },
   black: {
-    line: 'bg-gradient-to-r from-transparent via-black to-transparent dark:via-slate-200',
-    symbol: 'text-black dark:text-slate-200',
+    line: 'bg-gradient-to-r from-transparent via-[var(--color-comp-divider-black-line)] to-transparent',
+    symbol: 'text-[var(--color-comp-divider-black-symbol)]',
   },
 };
 
@@ -98,4 +98,3 @@ export function Divider({
     </div>
   );
 }
-
