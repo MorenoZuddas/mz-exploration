@@ -511,8 +511,8 @@ export default function RunningPage() {
           </div>
         </section>
 
-        {/* ─── Filtri ─── */}
-        <section className="sticky top-12 md:top-12 z-40 relative px-4 py-[2px] sm:px-6 lg:px-8 bg-sky-50/95 dark:bg-slate-900/95 backdrop-blur-sm border-b border-sky-200/80 dark:border-slate-800 shadow-none dark:shadow-[0_18px_36px_-18px_rgba(2,6,23,0.95)] after:pointer-events-none after:absolute after:inset-x-0 after:-bottom-3 after:h-3 after:bg-gradient-to-b after:from-transparent after:to-transparent dark:after:from-black/55 dark:after:to-transparent run-filters-3" data-testid="run-filters-3">
+         {/* ─── Filtri ─── */}
+         <section className="sticky top-12 md:top-12 z-40 relative px-4 py-[2px] sm:px-6 lg:px-8 bg-white dark:bg-slate-900/95 backdrop-blur-sm border-b border-slate-200/0 dark:border-slate-800 shadow-[0_4px_6px_1px_rgba(0,0,0,0.1)] dark:shadow-[0_18px_36px_-18px_rgba(2,6,23,0.95)] after:pointer-events-none after:absolute after:inset-x-0 after:-bottom-3 after:h-3 after:bg-gradient-to-b after:from-transparent after:to-transparent dark:after:from-black/55 dark:after:to-transparent run-filters-3" data-testid="run-filters-3">
           <div className="max-w-6xl mx-auto">
             <Filter
               filters={runningFilterConfig}
