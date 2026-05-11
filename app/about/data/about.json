@@ -25,55 +25,70 @@
       "name": "Electrical Engineering",
       "description": "Laurea triennale in ingegneria elettronica: basi solide su sistemi, segnali e hardware.",
       "icon": "Cpu",
-      "tone": "blue"
+      "tone": "blue",
+      "image": "https://res.cloudinary.com/derbnvxif/image/upload/q_auto/f_auto/v1778507830/engin_bt4znb.webp"
     },
     {
       "category": "Frontend",
       "name": "Web Development",
       "description": "Mi piace quando tecnologia e design si incontrano e creano delle esperienze.",
       "icon": "Code2",
-      "tone": "purple"
+      "tone": "purple",
+      "image": "https://res.cloudinary.com/derbnvxif/image/upload/q_auto/f_auto/v1778507795/FE_pcxqle.png"
     },
     {
       "category": "Cloud & Infrastructure",
       "name": "DevOps/Cloud",
       "description": "Deploy e infrastruttura con Vercel, MongoDB Atlas e ambienti serverless.",
       "icon": "Activity",
-      "tone": "navy"
+      "tone": "navy",
+      "image": "https://res.cloudinary.com/derbnvxif/image/upload/q_auto/f_auto/v1778508554/devops_xvhfdt.avif"
     },
     {
       "category": "CMS & Digital",
       "name": "AEM development",
       "description": "Certificato Adobe Experience Manager, ho utilizzato anche altri cms come Drupal e Wix.",
       "icon": "Puzzle",
-      "tone": "crimson"
+      "tone": "crimson",
+      "image": "https://res.cloudinary.com/derbnvxif/image/upload/q_auto/f_auto/v1778507803/certif_tvtuui.png"
     },
     {
       "category": "Actual job",
       "name": "Deloitte Italy",
       "description": "Sviluppatore per il Green Dot delle Big4. Lavoro su progetti di digital transformation, con focus su AEM e soluzioni cloud.",
       "icon": "Network",
-      "tone": "pear"
+      "tone": "pear",
+      "image": "https://res.cloudinary.com/derbnvxif/image/upload/q_auto/f_auto/v1778508558/job-1_d2dt2o.webp"
     }
   ],
   "passions": [
     {
       "title": "Running & Endurance",
-      "description": "Corro analizzo ogni attività. I dati e la loro interpretazione sono il cuore di questo progetto. I numeri raccontano storie, se sai ascoltarle.",
+      "description": "Corro analizzo ogni attività. I dati e la loro interpretazione sono il cuore di questo progetto. I numeri raccontano un sacco di storie, se sai ascoltarle.",
       "icon": "Activity",
-      "tone": "blue"
+      "tone": "purple",
+      "image": "https://res.cloudinary.com/derbnvxif/image/upload/q_auto/f_auto/v1778508556/running_yxhhs3.jpg"
     },
     {
       "title": "Exploration & Travel",
-      "description": "Viaggiare ed esplorare è il modo in cui rimango curioso. Ogni posto nuovo è un sistema da capire, tra trekking e viaggi.",
+      "description": "Viaggiare ed esplorare è il modo in cui rimango curioso. Ogni posto nuovo è un sistema da capire, tra trekking, viaggi e innumerevoli libri, ogni modo è buono per scoprire il mondo.",
       "icon": "Plane",
-      "tone": "purple"
+      "tone": "pear",
+      "image": "https://res.cloudinary.com/derbnvxif/image/upload/q_auto/f_auto/v1778508555/exploration_c98zy7.avif"
     },
     {
       "title": "Tech Innovation",
-      "description": "Passione per il progresso, da hardware a software, passando per la cybersecurity alla AI.",
+      "description": "Passione per il progresso, da hardware a software, passando per la cybersecurity alla AI. Sono sempre stato un grande fan della tecnologia, ho sempre smontato e rimontato qualsiasi cosa funzionasse con impulsi elettrici (anche prendendo una piccola scossa).",
       "icon": "Cpu",
-      "tone": "pear"
+      "tone": "navy",
+      "image": "https://res.cloudinary.com/derbnvxif/image/upload/q_auto/f_auto/v1778508557/tech_jqjwew.webp"
+    },
+    {
+      "title": "Volunteering & Charity",
+      "description": "Nel mio piccolo, contribuisco ad aiutare le persone vicino a me, donando il sangue, partecipando a racolte fondi o trasmettendo la mia vita al prossimo con AVIS, AISM e altre associazioni.",
+      "icon": "HeartHandshake",
+      "tone": "crimson",
+      "image": "https://res.cloudinary.com/derbnvxif/image/upload/q_auto/f_auto/v1778508554/charity_n2o8ph.jpg"
     }
   ],
   "contacts": [

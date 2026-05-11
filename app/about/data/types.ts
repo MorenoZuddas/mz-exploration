@@ -11,7 +11,8 @@ export type AboutIconName =
   | 'Mail'
   | 'Github'
   | 'Linkedin'
-  | 'ExternalLink';
+  | 'ExternalLink'
+  | 'HeartHandshake';
 
 export interface AboutHeroData {
   headline: string;
@@ -32,6 +33,7 @@ export interface AboutSkillData {
   description: string;
   icon: AboutIconName;
   tone?: string; // Colore della flip-card: 'blue'|'purple'|'pear'|'crimson'|'navy'|'black'
+  image?: string; // Immagine specifica per la card flip-card (opzionale)
 }
 
 export interface AboutPassionData {
@@ -39,6 +41,7 @@ export interface AboutPassionData {
   description: string;
   icon: AboutIconName;
   tone?: string; // Colore della flip-card
+  image?: string; // Immagine specifica per la card flip-card (opzionale)
 }
 
 export interface AboutContactData {

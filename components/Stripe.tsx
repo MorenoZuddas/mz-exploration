@@ -71,7 +71,7 @@ const imageSizeVariants = {
 };
 
 const stripeSizeVariants = {
-  sm: 'p-3 sm:p-4',
+  sm: 'py-3 px-8 sm:py-4 sm:px-8',
   md: 'p-5 sm:p-6 lg:p-8',
   lg: 'p-8 sm:p-10 lg:p-12',
 };

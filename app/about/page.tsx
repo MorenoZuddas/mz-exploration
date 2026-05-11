@@ -5,6 +5,7 @@ import {
   Code2,
   Cpu,
   ExternalLink,
+  HeartHandshake,
   Lightbulb,
   Mail,
   Network,
@@ -15,7 +16,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
-import { AnimatedSection, PageShell, CardGrid } from '@/components/generic';
+import { AnimatedSection, PageShell, CardGrid, Text } from '@/components/generic';
 import { Stripe } from '@/components/Stripe';
 
 import aboutJson from './data/about.json';
@@ -34,14 +35,15 @@ const iconMap: Record<AboutIconName, LucideIcon> = {
   Plane,
   Puzzle,
   Users,
+  HeartHandshake,
   Github: Code2,
   Linkedin: Smartphone,
   ExternalLink,
 };
 
 // URLs per le immagini dei carousel
-const SKILLS_CAROUSEL_IMAGE = 'https://res.cloudinary.com/derbnvxif/image/upload/q_auto/f_auto/v1776171153/cld-sample-2.jpg';
-const PASSIONS_CAROUSEL_IMAGE = 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1200&q=80';
+const SKILLS_CAROUSEL_IMAGE = 'https://res.cloudinary.com/derbnvxif/image/upload/q_auto/f_auto/v1778504874/electrical-engineer-wp_mfqbwh.jpg';
+const PASSIONS_CAROUSEL_IMAGE = 'https://res.cloudinary.com/derbnvxif/image/upload/q_auto/f_auto/v1778505543/running-wp_virem9.jpg';
 
 function resolveIcon(name: AboutIconName): LucideIcon {
   return iconMap[name] ?? ExternalLink;
@@ -99,30 +101,13 @@ export default function AboutPage() {
           data-testid="about-hero-section"
         />
 
-        <div className="my-8 h-px bg-slate-200 dark:bg-slate-800/90" aria-hidden="true" />
-
-        <AnimatedSection className="about-mission-4" delay={0.05}>
-          <section data-testid="about-mission-section">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 sm:text-2xl">{about.mission.title}</h2>
-            <div className="mt-4 space-y-3 sm:space-y-4">
-              {about.mission.paragraphs.map((paragraph) => (
-                <p key={paragraph} className="text-sm leading-relaxed text-slate-700 dark:text-slate-300 sm:text-base">
-                  {paragraph}
-                </p>
-              ))}
-            </div>
-          </section>
-        </AnimatedSection>
-
-        <div className="my-8 h-px bg-slate-200 dark:bg-slate-800/90" aria-hidden="true" />
-
         <AnimatedSection className="about-skills-4" delay={0.1}>
           <section data-testid="about-skills-section">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 sm:text-2xl">Competenze e Background</h2>
             <CardGrid
               variant="flip-card"
-              title=""
+              title="Competenze e Background"
               subtitle=""
+              titlePosition="center"
               items={about.skills.map((skill) => ({
                 id: `${skill.category}-${skill.name}`,
                 title: skill.name,
@@ -131,25 +116,47 @@ export default function AboutPage() {
                 description: skill.description,
                 iconName: skill.icon,
                 flipCardTone: skill.tone,
+                image: skill.image,
               }))}
               flipCardOrientation="horizontal"
+              flipCardColumns={3}
+              flipCardCenterIncompleteRow
               flipCardImageSrc={SKILLS_CAROUSEL_IMAGE}
               flipCardImageAlt="Background competenze"
               tone="blue"
-              gridSize="mid-range"
+              headerColor="current"
               cardHeight="medium"
               useMotion={false}
             />
           </section>
         </AnimatedSection>
 
+        <div className="my-8 h-px bg-slate-200 dark:bg-slate-800/90" aria-hidden="true" />
+
+        <AnimatedSection className="about-mission-4" delay={0.05}>
+                  <section data-testid="about-mission-section">
+                    <Text as="h2" variant="subtitle" align="center" className="text-slate-900 dark:text-slate-100 sm:text-2xl">
+                      {about.mission.title}
+                    </Text>
+                    <div className="mt-4 space-y-3 sm:space-y-4">
+                      {about.mission.paragraphs.map((paragraph) => (
+                        <Text key={paragraph} as="p" variant="body" className="text-sm leading-relaxed text-slate-700 dark:text-slate-300 sm:text-base">
+                          {paragraph}
+                        </Text>
+                      ))}
+                    </div>
+                  </section>
+                </AnimatedSection>
+
+                <div className="my-8 h-px bg-slate-200 dark:bg-slate-800/90" aria-hidden="true" />
+
         <AnimatedSection className="about-passions-4" delay={0.15}>
           <section data-testid="about-passions-section">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 sm:text-2xl">Passioni e Hobby</h2>
             <CardGrid
               variant="flip-card"
-              title=""
-              subtitle=""
+              title="Passioni e Hobby"
+              subtitle="La mia vita oltre la figura professionale"
+              titlePosition="center"
               items={about.passions.map((passion) => ({
                 id: passion.title,
                 title: passion.title,
@@ -157,13 +164,17 @@ export default function AboutPage() {
                 description: passion.description,
                 iconName: passion.icon,
                 flipCardTone: passion.tone,
+                image: passion.image,
               }))}
-              flipCardOrientation="vertical"
+              flipCardOrientation="horizontal"
+              flipCardColumns={2}
+              flipCardCenterIncompleteRow
               flipCardImageSrc={PASSIONS_CAROUSEL_IMAGE}
               flipCardImageAlt="Passioni e hobby"
               tone="purple"
-              gridSize="mid-range"
-              cardHeight="small"
+              headerColor="current"
+              cardHeight="medium"
+              flipCardWidth="large"
               useMotion={false}
             />
           </section>
@@ -173,10 +184,12 @@ export default function AboutPage() {
 
         <AnimatedSection className="about-cta-4" delay={0.2}>
           <section className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 p-6 sm:p-8" data-testid="about-cta-section">
-            <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100 sm:text-2xl">Vuoi collaborare?</h2>
-            <p className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-300 sm:text-base">
+            <Text as="h2" variant="subtitle" className="text-slate-900 dark:text-slate-100 sm:text-2xl">
+              Vuoi collaborare?
+            </Text>
+            <Text as="p" variant="body" className="mt-2 text-sm leading-relaxed text-slate-600 dark:text-slate-300 sm:text-base">
               Se vuoi confrontarti su una collaborazione, un prodotto o una nuova idea, puoi trovarmi qui.
-            </p>
+            </Text>
 
             <div className="mt-5 flex flex-wrap gap-2">
               {about.contacts.map((contact) => {

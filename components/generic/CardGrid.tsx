@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo, useState, useSyncExternalStore } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -16,6 +16,7 @@ import {
   Code2,
   Cpu,
   ExternalLink,
+  HeartHandshake,
   Lightbulb,
   Mail,
   Network,
@@ -31,8 +32,9 @@ export type CardGridColor = 'current' | 'blue' | 'purple' | 'black';
 export type CardGridVariant = 'default' | 'activity' | 'flip-card';
 export type CardGridTitlePosition = 'left' | 'center' | 'right';
 export type CardGridOrientation = 'horizontal' | 'vertical';
-export type CardGridSize = 'full-screen' | 'mid-range';
 export type CardHeightVariant = 'small' | 'medium' | 'large';
+export type FlipCardWidthVariant = 'small' | 'medium' | 'large';
+export type FlipCardColumns = 1 | 2 | 3 | 4;
 export type CardGridIconName =
   | 'Code2'
   | 'Smartphone'
@@ -44,6 +46,7 @@ export type CardGridIconName =
   | 'Lightbulb'
   | 'Puzzle'
   | 'Mail'
+  | 'HeartHandshake'
   | 'Github'
   | 'Linkedin'
   | 'ExternalLink';
@@ -103,6 +106,7 @@ interface CardGridProps {
    showItemsCount?: boolean;
    itemsCountLabel?: string;
    tone?: CardGridColor;
+   headerColor?: CardGridColor; // Colore unico per title e subtitle (vanno di pari passo)
    sectionClassName?: string;
    titleColor?: CardGridColor;
    subtitleColor?: CardGridColor;
@@ -117,8 +121,10 @@ interface CardGridProps {
    flipCardOrientation?: CardGridOrientation;
    flipCardImageSrc?: string;
    flipCardImageAlt?: string;
-   // Grid size and card height variants
-   gridSize?: CardGridSize;
+   flipCardWidth?: FlipCardWidthVariant;
+    flipCardColumns?: FlipCardColumns;
+    flipCardCenterIncompleteRow?: boolean;
+   // Card height variants
    cardHeight?: CardHeightVariant;
 }
 
@@ -240,6 +246,7 @@ const flipCardIconMap: Record<CardGridIconName, LucideIcon> = {
    Activity,
    Code2,
    Cpu,
+   HeartHandshake,
    Network,
    Smartphone,
    Lightbulb,
@@ -257,11 +264,18 @@ function resolveFlipCardIcon(name?: CardGridIconName): LucideIcon {
   return flipCardIconMap[name] ?? ExternalLink;
 }
 
-// full-screen = card grandi (poche colonne), mid-range = card medie (più colonne)
-const gridSizeVariants: Record<CardGridSize, string> = {
-   'full-screen': 'grid grid-cols-1 sm:grid-cols-2 gap-6',
-   'mid-range':   'grid grid-cols-1 md:grid-cols-3 gap-6',
-};
+function useIsDesktop(): boolean {
+  return useSyncExternalStore(
+    (onStoreChange) => {
+      const mq = window.matchMedia('(min-width: 768px)');
+      const handler = () => onStoreChange();
+      mq.addEventListener('change', handler);
+      return () => mq.removeEventListener('change', handler);
+    },
+    () => window.matchMedia('(min-width: 768px)').matches,
+    () => false
+  );
+}
 
 // cardHeight per default e flip-card (non usato da activity)
 const cardHeightVariants: Record<CardHeightVariant, { image: string; flipCard: string }> = {
@@ -279,38 +293,54 @@ const cardHeightVariants: Record<CardHeightVariant, { image: string; flipCard: s
    },
 };
 
+// Larghezza flip-card su desktop: small ~50%, medium ~75%, large 100%
+const flipCardWidthVariants: Record<FlipCardWidthVariant, string> = {
+  small: 'w-full md:w-1/2',
+  medium: 'w-full md:w-3/4',
+  large: 'w-full',
+};
+
+const flipCardGridColSpan: Record<FlipCardColumns, number> = {
+  1: 12,
+  2: 6,
+  3: 4,
+  4: 3,
+};
+
+const flipCardGridSpanClass: Record<FlipCardColumns, string> = {
+  1: 'md:col-span-12',
+  2: 'md:col-span-6',
+  3: 'md:col-span-4',
+  4: 'md:col-span-3',
+};
+
 function FlipCard({
    item,
    imageSrc,
    imageAlt,
+   useMosaicImage,
    totalItems,
    columns,
    index,
    heightClass,
+   widthClass,
    backToneClass,
 }: {
    item: { id: string; title: string; description: string; icon: LucideIcon; category?: string };
    imageSrc: string;
    imageAlt?: string;
+   useMosaicImage: boolean;
    totalItems: number;
    columns: number;
    index: number;
    heightClass: string;
+   widthClass: string;
    backToneClass: string;
 }) {
   const [isFlipped, setIsFlipped] = useState(false);
-  // Lazy init: legge direttamente il valore al mount (solo client), poi si aggiorna via listener
-  const [isDesktop, setIsDesktop] = useState<boolean>(() =>
-    typeof window !== 'undefined' ? window.matchMedia('(min-width: 768px)').matches : false
-  );
+  const isDesktop = useIsDesktop();
   const Icon = item.icon;
 
-  useEffect(() => {
-    const mq = window.matchMedia('(min-width: 768px)');
-    const handler = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
-    mq.addEventListener('change', handler);
-    return () => mq.removeEventListener('change', handler);
-  }, []);
 
   const col = index % columns;
   const row = Math.floor(index / columns);
@@ -321,7 +351,7 @@ function FlipCard({
   // Mobile/tablet (<768px): card piatta come default, nessun flip
   if (!isDesktop) {
     return (
-      <div className={`rounded-xl border p-3 flex flex-col gap-1.5 shadow-sm ${backToneClass}`}>
+      <div className={`${widthClass} mx-auto rounded-xl border p-3 flex flex-col gap-1.5 shadow-sm ${backToneClass}`}>
         {item.category ? (
           <p className="text-[10px] font-semibold uppercase tracking-wide opacity-70">{item.category}</p>
         ) : null}
@@ -336,8 +366,9 @@ function FlipCard({
 
   return (
     <div
-      className={`${heightClass} cursor-pointer perspective`}
-      onClick={() => setIsFlipped(!isFlipped)}
+      className={`${widthClass} ${heightClass} mx-auto cursor-pointer perspective`}
+      onMouseEnter={() => setIsFlipped(true)}
+      onClick={() => setIsFlipped((prev) => !prev)}
       role="button"
       tabIndex={0}
       aria-pressed={isFlipped}
@@ -366,8 +397,9 @@ function FlipCard({
              className="w-full h-full bg-cover bg-center"
              style={{
                backgroundImage: `url('${imageSrc}')`,
-               backgroundPosition: `${bgPositionX} ${bgPositionY}`,
-               backgroundSize: `${columns * 100}% ${rows * 100}%`,
+                // Mosaico solo con immagine globale condivisa; con immagine per-card usiamo cover piena.
+                backgroundPosition: useMosaicImage ? `${bgPositionX} ${bgPositionY}` : 'center',
+                backgroundSize: useMosaicImage ? `${columns * 100}% ${rows * 100}%` : 'cover',
              }}
              role="img"
              aria-label={imageAlt || item.title}
@@ -427,6 +459,7 @@ export function CardGrid({
    showItemsCount = false,
    itemsCountLabel = 'attività',
    tone,
+   headerColor,
    sectionClassName = 'px-4 pt-8 pb-8 sm:px-6 lg:px-8',
    titleColor = 'current',
    subtitleColor = 'current',
@@ -440,11 +473,13 @@ export function CardGrid({
    flipCardOrientation = 'horizontal',
    flipCardImageSrc = '',
    flipCardImageAlt = '',
-   gridSize = 'mid-range',
+   flipCardWidth = 'large',
+   flipCardColumns,
+   flipCardCenterIncompleteRow = false,
    cardHeight = 'medium',
 }: CardGridProps) {
-   const resolvedTitleColor = tone ?? titleColor;
-   const resolvedSubtitleColor = tone ?? subtitleColor;
+   const resolvedTitleColor = headerColor ?? (tone ?? titleColor);
+   const resolvedSubtitleColor = headerColor ?? (tone ?? subtitleColor);
    const titleColorClass = textColorVariants[resolvedTitleColor].title;
    const subtitleColorClass = textColorVariants[resolvedSubtitleColor].subtitle;
    const activityTextStyle = activityTextVariants[activityTextColor];
@@ -453,18 +488,16 @@ export function CardGrid({
        ? Math.floor(visibleItems)
        : null;
 
-   // Resolve grid size and card height
-   const resolvedGridClass = !columnsClassName.startsWith('grid') ? gridSizeVariants[gridSize] : columnsClassName;
+   const resolvedGridClass = columnsClassName;
    const cardHeightClass = cardHeightVariants[cardHeight];
+   const flipCardWidthClass = flipCardWidthVariants[flipCardWidth];
 
-   // For flip-card, build grid class based on gridSize and orientation
-   const flipCardGridClass = flipCardOrientation === 'vertical'
-     ? gridSize === 'full-screen'
-       ? 'grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
-       : 'grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 md:grid-cols-3'
-     : gridSize === 'full-screen'
-       ? 'grid gap-4 sm:gap-5 grid-cols-1 sm:grid-cols-2'
-       : 'grid gap-4 sm:gap-5 grid-cols-1 sm:grid-cols-2 md:grid-cols-3';
+   const orientationDefaultColumns: FlipCardColumns = flipCardOrientation === 'vertical' ? 1 : 3;
+   const resolvedFlipCardColumns = flipCardColumns ?? orientationDefaultColumns;
+   const flipCardColSpan = flipCardGridColSpan[resolvedFlipCardColumns];
+   const flipCardSpanClass = flipCardGridSpanClass[resolvedFlipCardColumns];
+   const flipCardGapClass = flipCardOrientation === 'vertical' ? 'gap-3 sm:gap-4' : 'gap-4 sm:gap-5';
+   const flipCardGridClass = `grid grid-cols-1 md:grid-cols-12 ${flipCardGapClass}`;
 
   // Stato paginazione senza reset via effect (evita setState sincrono nell'effect).
   const paginationKey = `${normalizedVisibleItems ?? 'all'}:${items.length}:${maxCards ?? 'none'}`;
@@ -573,25 +606,47 @@ export function CardGrid({
 
         {variant === 'flip-card' ? (
            <div className={flipCardGridClass}>
-             {displayedItems.map((item, index) => (
-               <FlipCard
-                 key={item.id}
-                 item={{
-                   id: item.id,
-                   title: item.title,
-                   description: item.description || '',
-                    category: item.category,
-                      icon: item.icon || resolveFlipCardIcon(item.iconName),
-                 }}
-                 imageSrc={flipCardImageSrc}
-                 imageAlt={flipCardImageAlt}
-                 totalItems={displayedItems.length}
-                 columns={flipCardOrientation === 'vertical' ? 3 : (gridSize === 'full-screen' ? 2 : 3)}
-                 index={index}
-                 heightClass={cardHeightClass.flipCard}
-                 backToneClass={getFlipCardToneClass(item.flipCardTone, index)}
-               />
-             ))}
+             {displayedItems.map((item, index) => {
+               const resolvedFlipCardImageSrc = item.image || flipCardImageSrc || fallbackImage;
+               const shouldUseMosaicImage = !item.image && Boolean(flipCardImageSrc);
+               const remainder = displayedItems.length % resolvedFlipCardColumns;
+               const lastRowStartIndex = remainder === 0 ? -1 : displayedItems.length - remainder;
+               const shouldCenterLastRowStart =
+                 flipCardCenterIncompleteRow && remainder > 0 && index === lastRowStartIndex;
+               const centeredGridStart = shouldCenterLastRowStart
+                 ? Math.floor((12 - (remainder * flipCardColSpan)) / 2) + 1
+                 : undefined;
+               const centeredGridStyle = shouldCenterLastRowStart
+                 ? { ['--flip-grid-start' as `--${string}`]: String(centeredGridStart) }
+                 : undefined;
+
+               return (
+                 <div
+                   key={item.id}
+                   className={`${flipCardSpanClass} ${shouldCenterLastRowStart ? 'md:[grid-column-start:var(--flip-grid-start)]' : ''}`}
+                   style={centeredGridStyle}
+                 >
+                   <FlipCard
+                    item={{
+                      id: item.id,
+                      title: item.title,
+                      description: item.description || '',
+                       category: item.category,
+                         icon: item.icon || resolveFlipCardIcon(item.iconName),
+                    }}
+                    imageSrc={resolvedFlipCardImageSrc}
+                    imageAlt={item.title || flipCardImageAlt}
+                    useMosaicImage={shouldUseMosaicImage}
+                    totalItems={displayedItems.length}
+                    columns={resolvedFlipCardColumns}
+                    index={index}
+                    heightClass={cardHeightClass.flipCard}
+                    widthClass={flipCardWidthClass}
+                    backToneClass={getFlipCardToneClass(item.flipCardTone, index)}
+                  />
+                 </div>
+               );
+             })}
           </div>
         ) : (
            <div className={`${resolvedGridClass} ${gridClassName} cardgrid-items`} data-testid="cardgrid-grid">
@@ -699,7 +754,7 @@ export function CardGrid({
                           <BadgeChip type={toBadgeType(item.type) as BadgeChipType} text={item.type} className="whitespace-nowrap" />
                         </div>
                       )}
-                      <div className="relative h-48 w-full overflow-hidden bg-[var(--color-comp-cardgrid-image-bg)]">
+                      <div className={`relative ${cardHeightClass.image} w-full overflow-hidden bg-[var(--color-comp-cardgrid-image-bg)]`}>
                         <Image
                           src={item.image || fallbackImage}
                           alt={item.title}
@@ -801,7 +856,7 @@ export function CardGrid({
                                  <BadgeChip type={toBadgeType(item.type) as BadgeChipType} text={item.type} className="whitespace-nowrap" />
                                </div>
                              )}
-                       <div className="relative h-48 w-full overflow-hidden bg-[var(--color-comp-cardgrid-image-bg)]">
+                       <div className={`relative ${cardHeightClass.image} w-full overflow-hidden bg-[var(--color-comp-cardgrid-image-bg)]`}>
                          <Image
                            src={item.image || fallbackImage}
                            alt={item.title}

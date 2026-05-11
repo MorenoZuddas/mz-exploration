@@ -509,16 +509,155 @@ function ColorPaletteSection() {
           </Panel>
         ))}
       </div>
+      {/* Tone Cheat Sheet */}
       <div id="color-palette-props" className="mt-4 scroll-mt-24">
-        <PropsLegend
-          items={[
-            { prop: "ref", values: ["raw palette"], description: "Colori sorgente." },
-            { prop: "role", values: ["surface/text/border"], description: "Ruoli UI globali." },
-            { prop: "comp", values: ["component variants"], description: "Override mirati per componente." },
-            { prop: "page", values: ["gradients"], description: "Sfondi pagina di alto livello." },
-            { prop: "brand", values: ["business aliases"], description: "Alias di naming prodotto." },
-          ]}
-        />
+        <Panel>
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-3">Tone Cheat Sheet — cosa scrivere nella prop</p>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 mb-4">
+            Quando un componente accetta una prop <code className="bg-slate-100 dark:bg-slate-800 rounded px-1">tone</code> o <code className="bg-slate-100 dark:bg-slate-800 rounded px-1">flipCardTone</code>, usa i valori nella prima colonna. La colonna <em>Tipo</em> indica se è chiaro (light) o scuro (dark).
+          </p>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs border-collapse">
+              <thead>
+                <tr className="border-b border-slate-200 dark:border-slate-700 text-left text-[11px] uppercase tracking-wider text-slate-500">
+                  <th className="pb-2 pr-4 font-semibold">Valore prop</th>
+                  <th className="pb-2 pr-4 font-semibold">Sfondo</th>
+                  <th className="pb-2 pr-4 font-semibold">Testo</th>
+                  <th className="pb-2 pr-4 font-semibold">Tipo</th>
+                  <th className="pb-2 pr-4 font-semibold">Componenti</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                {[
+                  {
+                    value: "current",
+                    bg: "var(--color-comp-cardgrid-card-bg, #ffffff)",
+                    border: "var(--color-comp-cardgrid-card-border, #e2e8f0)",
+                    textSample: "var(--color-comp-cardgrid-card-title, #0f172a)",
+                    type: "adaptive",
+                    desc: "Segue il tema (light/dark) dell'app",
+                    components: "CardGrid, Button, Text, Card",
+                  },
+                  {
+                    value: "blue",
+                    bg: "#eff6ff",
+                    border: "#bfdbfe",
+                    textSample: "#0f172a",
+                    type: "light",
+                    desc: "Azzurro tenue, testo scuro",
+                    components: "CardGrid, flip-card, Button, Card, Divider",
+                  },
+                  {
+                    value: "purple",
+                    bg: "#f5f3ff",
+                    border: "#ddd6fe",
+                    textSample: "#0f172a",
+                    type: "light",
+                    desc: "Viola tenue, testo scuro",
+                    components: "CardGrid, flip-card, Button, Card, Divider",
+                  },
+                  {
+                    value: "navy",
+                    bg: "#0f172a",
+                    border: "#1e293b",
+                    textSample: "#f1f5f9",
+                    type: "dark",
+                    desc: "Blu notte scuro, testo chiaro",
+                    components: "flip-card (flipCardTone), Button",
+                  },
+                  {
+                    value: "crimson",
+                    bg: "#ba0c2f",
+                    border: "#ba0c2f",
+                    textSample: "#ffffff",
+                    type: "dark",
+                    desc: "Rosso intenso, testo bianco",
+                    components: "flip-card (flipCardTone)",
+                  },
+                  {
+                    value: "pear",
+                    bg: "#e8f2c5",
+                    border: "#8db600",
+                    textSample: "#0f172a",
+                    type: "light",
+                    desc: "Verde pera, testo scuro",
+                    components: "flip-card (flipCardTone)",
+                  },
+                  {
+                    value: "black",
+                    bg: "#0f172a",
+                    border: "#334155",
+                    textSample: "#f1f5f9",
+                    type: "dark",
+                    desc: "Quasi nero, testo chiaro",
+                    components: "CardGrid, Button, Card, Text",
+                  },
+                  {
+                    value: "white",
+                    bg: "#ffffff",
+                    border: "#e2e8f0",
+                    textSample: "#0f172a",
+                    type: "light",
+                    desc: "Bianco puro, testo scuro",
+                    components: "Button, Stripe (background)",
+                  },
+                ].map((row) => (
+                  <tr key={row.value} className="align-middle">
+                    <td className="py-2 pr-4">
+                      <code className="rounded bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 font-mono text-[11px] font-semibold text-slate-800 dark:text-slate-100">
+                        {row.value}
+                      </code>
+                    </td>
+                    <td className="py-2 pr-4">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="inline-block h-5 w-5 flex-shrink-0 rounded border border-slate-300 dark:border-slate-600 shadow-sm"
+                          style={{ backgroundColor: row.bg }}
+                          title={row.bg}
+                        />
+                        <span
+                          className="inline-block h-5 w-5 flex-shrink-0 rounded-full border-2 shadow-sm"
+                          style={{ backgroundColor: row.textSample, borderColor: row.border }}
+                          title={`testo: ${row.textSample}`}
+                        />
+                      </div>
+                    </td>
+                    <td className="py-2 pr-4 text-[11px] text-slate-600 dark:text-slate-400">{row.desc}</td>
+                    <td className="py-2 pr-4">
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                        row.type === "dark"
+                          ? "bg-slate-800 text-slate-100"
+                          : row.type === "adaptive"
+                            ? "bg-violet-100 text-violet-800 dark:bg-violet-900/40 dark:text-violet-300"
+                            : "bg-slate-100 text-slate-700"
+                      }`}>
+                        {row.type}
+                      </span>
+                    </td>
+                    <td className="py-2 text-[11px] text-slate-500 dark:text-slate-400">{row.components}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-900/50 dark:bg-amber-950/30 p-3 text-[11px] text-amber-800 dark:text-amber-200 space-y-1">
+            <p className="font-semibold">⚠️ Attenzione: non tutti i valori funzionano su tutti i componenti</p>
+            <p><code className="rounded bg-amber-100 dark:bg-amber-900/50 px-1">navy</code>, <code className="rounded bg-amber-100 dark:bg-amber-900/50 px-1">crimson</code>, <code className="rounded bg-amber-100 dark:bg-amber-900/50 px-1">pear</code> sono disponibili solo per <strong>flip-card</strong> tramite la prop <code className="rounded bg-amber-100 dark:bg-amber-900/50 px-1">flipCardTone</code> su ogni item.</p>
+            <p><code className="rounded bg-amber-100 dark:bg-amber-900/50 px-1">CardGrid tone</code> accetta solo: <strong>current · blue · purple · black</strong>.</p>
+            <p><code className="rounded bg-amber-100 dark:bg-amber-900/50 px-1">headerColor</code> su CardGrid accetta: <strong>current · blue · purple · black</strong>.</p>
+          </div>
+        </Panel>
+        <div className="mt-3">
+          <PropsLegend
+            items={[
+              { prop: "ref", values: ["raw palette"], description: "Colori sorgente." },
+              { prop: "role", values: ["surface/text/border"], description: "Ruoli UI globali." },
+              { prop: "comp", values: ["component variants"], description: "Override mirati per componente." },
+              { prop: "page", values: ["gradients"], description: "Sfondi pagina di alto livello." },
+              { prop: "brand", values: ["business aliases"], description: "Alias di naming prodotto." },
+            ]}
+          />
+        </div>
       </div>
     </Section>
   )
@@ -879,6 +1018,9 @@ function CardGridSection() {
    const [tone, setTone] = useState<Tone>("current")
    const [variant, setVariant] = useState<"default" | "activity" | "flip-card">("default")
    const [flipCardOrientation, setFlipCardOrientation] = useState<"horizontal" | "vertical">("horizontal")
+   const [flipCardWidth, setFlipCardWidth] = useState<"small" | "medium" | "large">("large")
+    const [flipCardColumns, setFlipCardColumns] = useState<"1" | "2" | "3" | "4">("3")
+    const [flipCardCenterIncompleteRow, setFlipCardCenterIncompleteRow] = useState(true)
    const [flipCardItemCount, setFlipCardItemCount] = useState<"1" | "2" | "3" | "4" | "5">("3")
    const [flipCardImageUrl, setFlipCardImageUrl] = useState("https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=1200&q=80")
    const [badgePos, setBadgePos] = useState<"border" | "date-row">("border")
@@ -889,6 +1031,7 @@ function CardGridSection() {
    const [showBadge, setShowBadge] = useState(true)
    const [showBadgeOnImage, setShowBadgeOnImage] = useState(false)
    const [showDesc, setShowDesc] = useState(false)
+   const [cardHeight, setCardHeight] = useState<"small" | "medium" | "large">("medium")
     const items = useMemo(() => {
       if (variant === "activity") return makeActivityItems(Number(total))
       if (variant === "flip-card") return makeFlipCardItems(Number(flipCardItemCount))
@@ -902,6 +1045,9 @@ function CardGridSection() {
            <div className="grid gap-2">
              <Ctl label="tone" value={tone} options={CARD_TONES} onChange={setTone} />
              <Ctl label="variant" value={variant} options={["default", "activity", "flip-card"]} onChange={setVariant} />
+             {(variant === "default" || variant === "flip-card") && (
+               <Ctl label="cardHeight" value={cardHeight} options={["small", "medium", "large"]} onChange={(v) => setCardHeight(v as "small" | "medium" | "large")} />
+             )}
              {variant === "activity" && (
                <>
                  <Ctl label="photo badge pos" value={badgePos} options={["border", "date-row"]} onChange={(v) => setBadgePos(v as "border" | "date-row")} />
@@ -913,6 +1059,9 @@ function CardGridSection() {
               {variant === "flip-card" && (
                 <>
                   <Ctl label="orientation" value={flipCardOrientation} options={["horizontal", "vertical"]} onChange={(v) => setFlipCardOrientation(v as "horizontal" | "vertical")} />
+                   <Ctl label="flip card width" value={flipCardWidth} options={["small", "medium", "large"]} onChange={(v) => setFlipCardWidth(v as "small" | "medium" | "large")} />
+                  <Ctl label="flip card columns" value={flipCardColumns} options={["1", "2", "3", "4"]} onChange={(v) => setFlipCardColumns(v as "1" | "2" | "3" | "4")} />
+                  <Toggle label="center incomplete row" checked={flipCardCenterIncompleteRow} onChange={setFlipCardCenterIncompleteRow} />
                   <Ctl label="card count" value={flipCardItemCount} options={["1", "2", "3", "4", "5"]} onChange={setFlipCardItemCount} />
                   <label className="flex flex-col gap-1 text-xs">
                     <span className="uppercase tracking-wider text-slate-400 font-semibold">image url</span>
@@ -935,9 +1084,10 @@ function CardGridSection() {
            <CardGrid
              title="CardGrid riusabile"
              subtitle={variant === "flip-card" ? `Flip Cards - ${flipCardItemCount} elementi` : `Totali ${total}${maxCards ? `, max ${maxCards}` : `, visibili ${visible}`}`}
-             items={variant === "flip-card" ? makeItems(Number(flipCardItemCount)) : items}
+             items={items}
              variant={variant}
              tone={tone}
+             cardHeight={variant === "activity" ? undefined : cardHeight}
              visibleItems={variant !== "flip-card" && maxCards ? undefined : Number(visible)}
              showVisibilityToggle={variant !== "flip-card" && !maxCards}
              showMoreLabel="Mostra tutte"
@@ -953,6 +1103,9 @@ function CardGridSection() {
              activityPhotoBadgeRounded={variant === "activity" ? badgeRounded : undefined}
              activityTextColor={variant === "activity" ? activityTextColor : undefined}
              flipCardOrientation={variant === "flip-card" ? flipCardOrientation : undefined}
+             flipCardWidth={variant === "flip-card" ? flipCardWidth : undefined}
+             flipCardColumns={variant === "flip-card" ? Number(flipCardColumns) as 1 | 2 | 3 | 4 : undefined}
+             flipCardCenterIncompleteRow={variant === "flip-card" ? flipCardCenterIncompleteRow : undefined}
              flipCardImageSrc={variant === "flip-card" ? flipCardImageUrl : undefined}
              flipCardImageAlt={variant === "flip-card" ? "Demo flip-card" : undefined}
              sectionClassName="px-6 py-8 bg-white dark:bg-slate-900"
@@ -976,6 +1129,7 @@ function CardGridSection() {
              items={[
                { prop: "tone", values: [...CARD_TONES] },
                { prop: "variant", values: ["default", "activity", "flip-card"] },
+               ...(variant !== "activity" ? [{ prop: "cardHeight", values: ["small", "medium", "large"] }] : []),
                { prop: "total cards", values: ["3", "4", "6", "8", "10", "12"] },
                { prop: "visible cards", values: ["3", "4", "6", "8", "10", "12"] },
                ...(variant !== "flip-card" ? [{ prop: "maxCards", values: ["", "1", "2", "3", "4", "6", "8", "10", "12"] }] : []),
@@ -991,6 +1145,9 @@ function CardGridSection() {
                { prop: "showDescription", values: ["true", "false"] },
                ...(variant === "flip-card" ? [
                  { prop: "flipCardOrientation", values: ["horizontal", "vertical"], description: "Orientation per il flip-card (vertical = 1 colonna)" },
+                  { prop: "flipCardWidth", values: ["small (50%)", "medium (75%)", "large (100%)"], description: "Larghezza card su desktop" },
+                  { prop: "flipCardColumns", values: ["1", "2", "3", "4"], description: "Numero di card per riga su desktop" },
+                  { prop: "flipCardCenterIncompleteRow", values: ["true", "false"], description: "Centra l'ultima riga se incompleta" },
                  { prop: "flipCardImageSrc", values: ["string (URL)"], description: "URL immagine da spezzare per il background delle card" },
                  { prop: "flipCardImageAlt", values: ["string"], description: "Testo alt per accessibilità" },
                ] : []),
