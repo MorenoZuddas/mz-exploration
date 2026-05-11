@@ -122,11 +122,11 @@ const defaultNavLinks: FooterNavLink[] = [
 ];
 
 const defaultSocialLinks: FooterSocialLink[] = [
-  { type: 'instagram', href: 'https://www.instagram.com/morenozuddas?igsh=bXJpZTU4cWN0MHY=' },
-  { type: 'linkedin', href: 'https://www.linkedin.com/in/moreno-zuddas-12321a128/' },
-  { type: 'github',   href: 'https://github.com/MorenoZuddas7' },
-  { type: 'strava',   href: 'https://www.strava.com/athletes/154912379' },
-  { type: 'email',    href: 'mailto:morenozuddas1@gmail.com' },
+    { type: 'email',    href: 'mailto:morenozuddas1@gmail.com' },
+    { type: 'github',   href: 'https://github.com/MorenoZuddas7' },
+    { type: 'instagram', href: 'https://www.instagram.com/morenozuddas?igsh=bXJpZTU4cWN0MHY=' },
+    { type: 'linkedin', href: 'https://www.linkedin.com/in/moreno-zuddas-12321a128/' },
+    { type: 'strava',   href: 'https://www.strava.com/athletes/154912379' },
 ];
 
 // ── Componente Footer ─────────────────────────────────────────────────
