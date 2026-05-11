@@ -242,6 +242,31 @@ function getFlipCardToneClass(tone?: string, fallbackIndex?: number): string {
   return flipCardPaletteClasses[idx];
 }
 
+// Solo il colore del bordo per il lato frontale (immagine) della flip-card
+const flipCardToneBorderColorMap: Record<string, string> = {
+  blue:    'var(--color-comp-tone-blue-border)',
+  purple:  'var(--color-comp-tone-purple-border)',
+  pear:    'var(--color-comp-tone-pear-border)',
+  crimson: 'var(--color-comp-tone-crimson-border)',
+  navy:    'var(--color-comp-tone-navy-border)',
+  current: 'var(--color-comp-cardgrid-card-border)',
+  black:   '#334155',
+};
+
+const flipCardPaletteBorderColors = [
+  'var(--color-comp-tone-blue-border)',
+  'var(--color-comp-tone-purple-border)',
+  'var(--color-comp-tone-pear-border)',
+  'var(--color-comp-tone-crimson-border)',
+  'var(--color-comp-tone-navy-border)',
+];
+
+function getFlipCardFrontBorderColor(tone?: string, fallbackIndex?: number): string {
+  if (tone && flipCardToneBorderColorMap[tone]) return flipCardToneBorderColorMap[tone];
+  const idx = (fallbackIndex ?? 0) % flipCardPaletteBorderColors.length;
+  return flipCardPaletteBorderColors[idx];
+}
+
 const flipCardIconMap: Record<CardGridIconName, LucideIcon> = {
    Activity,
    Code2,
@@ -325,6 +350,7 @@ function FlipCard({
    heightClass,
    widthClass,
    backToneClass,
+   frontBorderColor,
 }: {
    item: { id: string; title: string; description: string; icon: LucideIcon; category?: string };
    imageSrc: string;
@@ -336,6 +362,7 @@ function FlipCard({
    heightClass: string;
    widthClass: string;
    backToneClass: string;
+   frontBorderColor: string;
 }) {
   const [isFlipped, setIsFlipped] = useState(false);
   const isDesktop = useIsDesktop();
@@ -388,9 +415,11 @@ function FlipCard({
         }}
       >
          <div
-           className="absolute w-full h-full rounded-xl overflow-hidden border border-[var(--color-comp-cardgrid-card-border)] shadow-sm"
+           className="absolute w-full h-full rounded-xl overflow-hidden border-2"
            style={{
              backfaceVisibility: 'hidden',
+             borderColor: frontBorderColor,
+             boxShadow: `0 4px 18px -2px ${frontBorderColor}99, 0 0 0 0 transparent`,
            }}
          >
            <div
@@ -643,6 +672,7 @@ export function CardGrid({
                     heightClass={cardHeightClass.flipCard}
                     widthClass={flipCardWidthClass}
                     backToneClass={getFlipCardToneClass(item.flipCardTone, index)}
+                    frontBorderColor={getFlipCardFrontBorderColor(item.flipCardTone, index)}
                   />
                  </div>
                );
