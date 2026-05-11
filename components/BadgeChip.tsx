@@ -1,6 +1,6 @@
 'use client';
 
-import { ListMusic, Library, Camera, PlaneTakeoff, Mountain, SportShoe } from 'lucide-react';
+import { Icon } from '@/components/Icons';
 import { cloneElement, isValidElement, type ReactNode } from 'react';
 
 export type BadgeChipType = 'running' | 'trekking' | 'trip' | 'books' | 'photo' | 'music';
@@ -37,37 +37,37 @@ const chipStyles: Record<BadgeChipType, { wrapper: string; text: string; default
     wrapper: 'bg-[var(--color-comp-badge-running-bg)]',
     text: 'text-[var(--color-comp-badge-running-text)]',
     defaultText: 'Running',
-    icon: <SportShoe className="h-3.5 w-3.5" strokeWidth={2.25} />,
+    icon: <Icon name="sport-shoe" size="sm" strokeWidth={2.25} />,
   },
   trekking: {
     wrapper: 'bg-[var(--color-comp-badge-trekking-bg)]',
     text: 'text-[var(--color-comp-badge-trekking-text)]',
     defaultText: 'Trekking',
-    icon: <Mountain className="h-3.5 w-3.5" />,
+    icon: <Icon name="mountain" size="sm" />,
   },
   trip: {
     wrapper: 'bg-[var(--color-comp-badge-trip-bg)]',
     text: 'text-[var(--color-comp-badge-trip-text)]',
     defaultText: 'Trip',
-    icon: <PlaneTakeoff className="h-3.5 w-3.5" />,
+    icon: <Icon name="plane-takeoff" size="sm" />,
   },
   books: {
     wrapper: 'bg-[var(--color-comp-badge-books-bg)]',
     text: 'text-[var(--color-comp-badge-books-text)]',
     defaultText: 'Books',
-    icon: <Library className="h-3.5 w-3.5" />,
+    icon: <Icon name="library" size="sm" />,
   },
   photo: {
     wrapper: 'bg-[var(--color-comp-badge-photo-bg)]',
     text: 'text-[var(--color-comp-badge-photo-text)]',
     defaultText: 'Photo',
-    icon: <Camera className="h-3.5 w-3.5" />,
+    icon: <Icon name="camera" size="sm" />,
   },
   music: {
     wrapper: 'bg-[var(--color-comp-badge-music-bg)]',
     text: 'text-[var(--color-comp-badge-music-text)]',
     defaultText: 'Music',
-    icon: <ListMusic className="h-3.5 w-3.5" />,
+    icon: <Icon name="list-music" size="sm" />,
   },
 };
 
@@ -105,8 +105,3 @@ export function BadgeChip({
     </span>
   );
 }
-
-
-
-
-

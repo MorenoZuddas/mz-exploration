@@ -1,6 +1,6 @@
 'use client';
 
-import { ListMusic, Library, Camera, PlaneTakeoff, Mountain, Zap, SportShoe } from 'lucide-react';
+import { Icon } from '@/components/Icons';
 import type { ReactNode } from 'react';
 
 type DividerIconType = 'running' | 'trekking' | 'trip' | 'books' | 'photo' | 'music' | 'default';
@@ -17,13 +17,13 @@ interface DividerProps {
 }
 
 const iconMap: Record<DividerIconType, ReactNode> = {
-  running: <SportShoe className="w-full h-full" strokeWidth={2.25} />,
-  trekking: <Mountain className="w-full h-full" strokeWidth={2} />,
-  trip: <PlaneTakeoff className="w-full h-full" strokeWidth={2} />,
-  books: <Library className="w-full h-full" strokeWidth={2} />,
-  photo: <Camera className="w-full h-full" strokeWidth={2} />,
-  music: <ListMusic className="w-full h-full" strokeWidth={2} />,
-  default: <Zap className="w-full h-full" strokeWidth={2} />,
+  running:  <Icon name="sport-shoe" className="w-full h-full" strokeWidth={2.25} />,
+  trekking: <Icon name="mountain" className="w-full h-full" />,
+  trip:     <Icon name="plane-takeoff" className="w-full h-full" />,
+  books:    <Icon name="library" className="w-full h-full" />,
+  photo:    <Icon name="camera" className="w-full h-full" />,
+  music:    <Icon name="list-music" className="w-full h-full" />,
+  default:  <Icon name="zap" className="w-full h-full" />,
 };
 
 const toneVariants: Record<NonNullable<DividerProps['tone']>, { line: string; symbol: string }> = {
@@ -98,4 +98,3 @@ export function Divider({
     </div>
   );
 }
-

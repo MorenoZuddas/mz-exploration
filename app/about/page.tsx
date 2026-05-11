@@ -1,53 +1,65 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
-import {
-  Activity,
-  Code2,
-  Cpu,
-  ExternalLink,
-  HeartHandshake,
-  Lightbulb,
-  Mail,
-  Network,
-  Plane,
-  Puzzle,
-  Smartphone,
-  Users,
-  type LucideIcon,
-} from 'lucide-react';
+import type { CSSProperties } from 'react';
 
 import { AnimatedSection, PageShell, CardGrid, Text } from '@/components/generic';
 import { Stripe } from '@/components/Stripe';
+import {
+  ActivityIcon,
+  GithubIcon,
+  LinkedinIcon,
+  MailIcon,
+  SOCIAL_BRAND_COLORS,
+  SOCIAL_LABELS,
+  type SocialType,
+} from '@/components/Icons';
 
 import aboutJson from './data/about.json';
-import type { AboutContentData, AboutIconName } from './data/types';
+import type { AboutContentData } from './data/types';
 
 const about = aboutJson as AboutContentData;
 
-const iconMap: Record<AboutIconName, LucideIcon> = {
-  Activity,
-  Code2,
-  Cpu,
-  Network,
-  Smartphone,
-  Lightbulb,
-  Mail,
-  Plane,
-  Puzzle,
-  Users,
-  HeartHandshake,
-  Github: Code2,
-  Linkedin: Smartphone,
-  ExternalLink,
-};
-
-// URLs per le immagini dei carousel
 const SKILLS_CAROUSEL_IMAGE = 'https://res.cloudinary.com/derbnvxif/image/upload/q_auto/f_auto/v1778504874/electrical-engineer-wp_mfqbwh.jpg';
 const PASSIONS_CAROUSEL_IMAGE = 'https://res.cloudinary.com/derbnvxif/image/upload/q_auto/f_auto/v1778505543/running-wp_virem9.jpg';
 
-function resolveIcon(name: AboutIconName): LucideIcon {
-  return iconMap[name] ?? ExternalLink;
+// ── Social icons inline ───────────────────────────────────────────────
+type ContactSocialType = SocialType;
+
+const CONTACT_BRAND_COLORS = SOCIAL_BRAND_COLORS;
+const CONTACT_LABELS = SOCIAL_LABELS;
+
+function contactIconStyle(type: ContactSocialType): CSSProperties {
+  return { backgroundColor: 'transparent', borderColor: CONTACT_BRAND_COLORS[type], color: CONTACT_BRAND_COLORS[type] };
 }
+
+function ContactIcon({ type, href }: { type: ContactSocialType; href: string }) {
+  const isExternal = /^https?:\/\//.test(href);
+  const iconEl = type === 'github' ? <GithubIcon className="h-6 w-6" />
+    : type === 'linkedin' ? <LinkedinIcon className="h-6 w-6" />
+    : type === 'email' ? <MailIcon className="h-6 w-6" aria-hidden="true" />
+    : <ActivityIcon className="h-6 w-6" aria-hidden="true" />;
+
+  return (
+    <a
+      href={href}
+      target={isExternal ? '_blank' : undefined}
+      rel={isExternal ? 'noopener noreferrer' : undefined}
+      aria-label={CONTACT_LABELS[type]}
+      className="inline-flex items-center justify-center rounded-full border transition-all duration-200 hover:scale-110 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 p-2.5"
+      style={contactIconStyle(type)}
+    >
+      {iconEl}
+    </a>
+  );
+}
+
+function iconNameToSocialType(icon: string): ContactSocialType | null {
+  if (icon === 'Github') return 'github';
+  if (icon === 'Linkedin') return 'linkedin';
+  if (icon === 'Mail') return 'email';
+  if (icon === 'Activity') return 'strava';
+  return null;
+}
+// ─────────────────────────────────────────────────────────────────────
 
 export const metadata: Metadata = {
   title: 'Chi Sono | MZ Exploration',
@@ -67,6 +79,17 @@ export const metadata: Metadata = {
 };
 
 export default function AboutPage() {
+  const aboutSocialEntries = about.contacts
+    .map((contact) => {
+      const socialType = iconNameToSocialType(contact.icon);
+      if (!socialType) return null;
+      return [socialType, contact.href] as const;
+    })
+    .filter((entry): entry is readonly [ContactSocialType, string] => entry !== null);
+
+  const aboutSocialIcons = aboutSocialEntries.map(([type]) => type);
+  const aboutSocialLinks = Object.fromEntries(aboutSocialEntries) as Partial<Record<ContactSocialType, string>>;
+
   const personJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Person',
@@ -191,24 +214,10 @@ export default function AboutPage() {
               Se vuoi confrontarti su una collaborazione, un prodotto o una nuova idea, puoi trovarmi qui.
             </Text>
 
-            <div className="mt-5 flex flex-wrap gap-2">
-              {about.contacts.map((contact) => {
-                const Icon = resolveIcon(contact.icon);
-                const isExternal = !contact.href.startsWith('/');
-
-                return (
-                  <Link
-                    key={contact.label}
-                    href={contact.href}
-                    target={isExternal && !contact.href.startsWith('mailto:') ? '_blank' : undefined}
-                    rel={isExternal && !contact.href.startsWith('mailto:') ? 'noopener noreferrer' : undefined}
-                    className="inline-flex items-center gap-1.5 rounded-lg border-2 border-slate-900 bg-transparent px-4 py-2 text-sm font-medium text-slate-900 transition-all duration-200 hover:scale-[1.02] hover:shadow-lg dark:border-white dark:text-white"
-                  >
-                    <Icon className="h-4 w-4" aria-hidden="true" />
-                    {contact.label}
-                  </Link>
-                );
-              })}
+            <div className="mt-5 flex flex-wrap items-center gap-3">
+              {aboutSocialIcons.map((type) => (
+                <ContactIcon key={type} type={type} href={aboutSocialLinks[type] ?? '#'} />
+              ))}
             </div>
           </section>
         </AnimatedSection>

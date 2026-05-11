@@ -12,20 +12,20 @@ import { BadgeChip } from '@/components/BadgeChip';
 import type { BadgeChipType } from '@/components/BadgeChip';
 import type { BadgeChipSize } from '@/components/BadgeChip';
 import {
-  Activity,
-  Code2,
-  Cpu,
-  ExternalLink,
-  HeartHandshake,
-  Lightbulb,
-  Mail,
-  Network,
-  Plane,
-  Puzzle,
-  Smartphone,
-  Users,
+  ActivityIcon as Activity,
+  Code2Icon as Code2,
+  CpuIcon as Cpu,
+  ExternalLinkIcon as ExternalLink,
+  HeartHandshakeIcon as HeartHandshake,
+  LightbulbIcon as Lightbulb,
+  MailIcon as Mail,
+  NetworkIcon as Network,
+  PlaneIcon as Plane,
+  PuzzleIcon as Puzzle,
+  SmartphoneIcon as Smartphone,
+  UsersIcon as Users,
   type LucideIcon,
-} from 'lucide-react';
+} from '@/components/Icons';
 
 export type CardGridType = 'running' | 'track_running' | 'trekking' | 'trip';
 export type CardGridColor = 'current' | 'blue' | 'purple' | 'black';

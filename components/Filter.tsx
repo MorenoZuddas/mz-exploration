@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { CalendarDays, Footprints, Ruler, Timer, MapPin, Gauge, Route, ChevronDown, X } from 'lucide-react';
+import { ICON_REGISTRY, Icon, type IconName, type LucideIcon } from '@/components/Icons';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -46,17 +46,17 @@ interface FilterProps {
   variant?: 'default' | 'minimal';
 }
 
-const filterTypeIcons: Record<FilterType, React.ComponentType<{ className?: string }>> = {
-  dateStart: CalendarDays,
-  dateEnd: CalendarDays,
-  activityType: Footprints,
-  sortBy: Gauge,
-  distanceMin: Ruler,
-  distanceMax: Route,
-  durationMin: Timer,
-  durationMax: Timer,
-  location: MapPin,
-  pace: Gauge,
+const filterTypeIcons: Record<FilterType, IconName> = {
+  dateStart:   'calendar-days',
+  dateEnd:     'calendar-days',
+  activityType:'footprints',
+  sortBy:      'gauge',
+  distanceMin: 'ruler',
+  distanceMax: 'route',
+  durationMin: 'timer',
+  durationMax: 'timer',
+  location:    'map-pin',
+  pace:        'gauge',
 };
 
 const toneStyles: Record<FilterTone, { wrapper: string; field: string; text: string; icon: string; buttonTone: 'blue' | 'purple' | 'black' | 'current' }> = {
@@ -156,7 +156,8 @@ export function Filter({
 
   const renderFilterInput = (config: FilterConfig) => {
     const value = filterState[config.type] || '';
-    const Icon = filterTypeIcons[config.type] ?? CalendarDays;
+    const iconName = filterTypeIcons[config.type] ?? 'calendar-days';
+    const IconComp = (ICON_REGISTRY[iconName] ?? ICON_REGISTRY['calendar-days']) as LucideIcon;
 
     const isCompact = density === 'compact';
     const isMinimal = variant === 'minimal';
@@ -191,11 +192,11 @@ export function Filter({
             className={`${minimalControlWidth} inline-flex h-9 items-center justify-between gap-2 cursor-pointer ${minimalTextClass}`}
             aria-label={`Apri calendario ${fieldLabel}`}
           >
-            <Icon className={`w-4 h-4 ${minimalIconClass}`} />
+            <IconComp className={`w-4 h-4 ${minimalIconClass}`} />
                 <span className={`text-xs font-semibold uppercase tracking-wide whitespace-nowrap ${minimalTextClass}`}>
               {value || fieldLabel}
             </span>
-            <ChevronDown className={`w-4 h-4 ${minimalIconClass}`} />
+            <Icon name="chevron-down" className={`w-4 h-4 ${minimalIconClass}`} />
             <input
               ref={(el) => {
                 dateInputRefs.current[config.type] = el;
@@ -225,7 +226,7 @@ export function Filter({
           aria-label={`Apri calendario ${fieldLabel}`}
         >
           <div className="flex items-center gap-2 min-w-0">
-            <Icon className={`${iconSize} shrink-0 ${minimalIconClass}`} />
+            <IconComp className={`${iconSize} shrink-0 ${minimalIconClass}`} />
             <span className={`${labelSize} font-semibold tracking-wide truncate ${minimalIconClass}`}>
               {value || fieldLabel}
             </span>
@@ -250,7 +251,7 @@ export function Filter({
           <Select value={value} onValueChange={(v) => handleChange(config.type, v)} disabled={disabled}>
             <SelectTrigger className={`h-9 ${minimalControlWidth} border-0 bg-transparent shadow-none px-0 py-0 text-xs font-semibold uppercase tracking-wide focus:ring-0 focus:ring-offset-0 data-[placeholder]:${minimalTextClass} [&_svg]:${minimalIconClass} ${minimalTextClass}`}>
               <div className="flex items-center gap-2">
-                <Icon className={`w-4 h-4 ${minimalIconClass}`} />
+                <IconComp className={`w-4 h-4 ${minimalIconClass}`} />
                 <SelectValue placeholder={fieldLabel} />
               </div>
             </SelectTrigger>
@@ -269,7 +270,7 @@ export function Filter({
         <Select value={value} onValueChange={(v) => handleChange(config.type, v)} disabled={disabled}>
           <SelectTrigger className={`${fieldHeight} ${resolvedFieldClass} ${isMinimal ? minimalTextClass : style.text}`}>
             <div className="flex items-center gap-2">
-              <Icon className={`${iconSize} ${minimalIconClass}`} />
+              <IconComp className={`${iconSize} ${minimalIconClass}`} />
               <SelectValue placeholder={fieldLabel} />
             </div>
           </SelectTrigger>
@@ -294,7 +295,7 @@ export function Filter({
     return (
       isMinimal ? (
         <div className={`${minimalControlWidth} inline-flex h-9 items-center gap-2 ${minimalTextClass}`}>
-          <Icon className={`w-4 h-4 shrink-0 ${minimalIconClass}`} />
+          <IconComp className={`w-4 h-4 shrink-0 ${minimalIconClass}`} />
           <Input
             type={inputType}
             placeholder={fieldLabel}
@@ -306,7 +307,7 @@ export function Filter({
         </div>
       ) : (
         <div className={`rounded-lg border ${fieldPadding} ${fieldHeight} flex items-center gap-2 ${resolvedFieldClass}`}>
-          <Icon className={`${iconSize} shrink-0 ${minimalIconClass}`} />
+          <IconComp className={`${iconSize} shrink-0 ${minimalIconClass}`} />
           <Input
             type={inputType}
             placeholder={fieldLabel}
@@ -348,7 +349,7 @@ export function Filter({
                 aria-label={`Rimuovi filtro ${f.label}`}
               >
                 <span className="uppercase tracking-wide">{f.display}</span>
-                <X className="h-3.5 w-3.5" />
+                <Icon name="x" size="sm" aria-hidden="true" />
               </button>
             ))}
             <button
@@ -386,7 +387,5 @@ export function Filter({
     )
   );
 }
-
-
 
 

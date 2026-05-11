@@ -32,6 +32,7 @@ import { Filter, type FilterConfig, type FilterType } from "@/components/Filter"
 import { Statistics, type StatisticsMetricKey } from "@/components/Statistics"
 import { AnimatedSection, CardGrid, Divider, Hero, PageShell, Text, type CardGridItem } from "@/components/generic"
 import { Stripe } from "@/components/Stripe"
+import { Icon, ICON_CATEGORIES, type IconName, SOCIAL_BRAND_COLORS } from "@/components/Icons"
 import { cn } from "@/lib/utils"
 
 type Tone = "current" | "blue" | "purple" | "black"
@@ -446,6 +447,7 @@ const COMPONENTS_NAV = [
   { id: "filter", label: "Filter" },
   { id: "header-footer", label: "Header + Footer" },
   { id: "hero", label: "Hero" },
+  { id: "icons", label: "Icons" },
   { id: "input-select", label: "Input + Select" },
   { id: "loader", label: "Loader" },
   { id: "modal", label: "Modal" },
@@ -2285,6 +2287,86 @@ function AnimatedSectionDemo() {
   )
 }
 
+function IconsSection() {
+  const [selectedSize, setSelectedSize] = useState<"xs" | "sm" | "md" | "lg" | "xl">("md")
+  const [selectedScheme, setSelectedScheme] = useState<"inherit" | "light" | "dark">("inherit")
+  const [selectedStrokeWidth, setSelectedStrokeWidth] = useState(2)
+
+  return (
+    <Section id="icons" title="Icons">
+      <div className="grid lg:grid-cols-[320px_1fr] gap-4 mb-4">
+        <Panel>
+          <div className="grid gap-2">
+            <Ctl label="size" value={selectedSize} options={["xs", "sm", "md", "lg", "xl"]} onChange={(v) => setSelectedSize(v as "xs" | "sm" | "md" | "lg" | "xl")} />
+            <Ctl label="scheme" value={selectedScheme} options={["inherit", "light", "dark"]} onChange={(v) => setSelectedScheme(v as "inherit" | "light" | "dark")} />
+            <label className="flex flex-col gap-1 text-xs">
+              <span className="uppercase tracking-wider text-slate-400 font-semibold">strokeWidth</span>
+              <input
+                type="number"
+                step="0.5"
+                min="1"
+                max="3"
+                value={selectedStrokeWidth}
+                onChange={(e) => setSelectedStrokeWidth(Number(e.target.value))}
+                className="h-8 px-2 rounded border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800"
+              />
+            </label>
+          </div>
+        </Panel>
+        <Panel>
+          <p className="text-xs text-slate-500 mb-3">Totali: {ICON_CATEGORIES.flatMap(c => c.icons).length} icone organizzate in {ICON_CATEGORIES.length} categorie</p>
+        </Panel>
+      </div>
+
+      {ICON_CATEGORIES.map((category) => (
+        <Panel key={category.label}>
+          <h3 className="text-sm font-semibold mb-3 text-slate-900 dark:text-slate-100">{category.label}</h3>
+          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
+            {category.icons.map((iconName) => (
+              <div key={iconName} className="flex flex-col items-center gap-2 p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                <Icon name={iconName} size={selectedSize} scheme={selectedScheme} strokeWidth={selectedStrokeWidth} />
+                <p className="text-[10px] text-center text-slate-600 dark:text-slate-400 truncate w-full" title={iconName}>
+                  {iconName}
+                </p>
+              </div>
+            ))}
+          </div>
+        </Panel>
+      ))}
+
+      <Panel>
+        <h3 className="text-sm font-semibold mb-3">Social Brand Colors</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {Object.entries(SOCIAL_BRAND_COLORS).map(([key, color]) => (
+            <div key={key} className="rounded-lg border border-slate-200 dark:border-slate-700 p-3">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-6 h-6 rounded" style={{ backgroundColor: color }} />
+                <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">{key}</span>
+              </div>
+              <p className="text-[10px] font-mono text-slate-600 dark:text-slate-400">{color}</p>
+            </div>
+          ))}
+        </div>
+      </Panel>
+
+      <div className="mt-4">
+        <PropsLegend
+          items={[
+            { prop: "name", values: ["IconName (string union)"] },
+            { prop: "size", values: ["xs", "sm", "md", "lg", "xl"] },
+            { prop: "scheme", values: ["inherit", "light", "dark"] },
+            { prop: "strokeWidth", values: ["number (default 2)"] },
+            { prop: "className", values: ["string (optional)"] },
+            { prop: "aria-label", values: ["string (optional)"] },
+            { prop: "aria-hidden", values: ["boolean | 'true' | 'false' (default true)"] },
+          ]}
+        />
+      </div>
+    </Section>
+  )
+}
+
+
 export default function StorybookPage() {
   return (
     <PageShell background="white" className="text-slate-900 dark:text-slate-100">
@@ -2310,17 +2392,18 @@ export default function StorybookPage() {
             <CardSection />
             <CardGridSection />
             <CarouselShowcaseSection />
-           <DividerSection />
-           <FilterSection />
-           <HeaderFooterSection />
-           <HeroSection />
-           <InputSelectSection />
-           <LoaderSection />
-           <ModalSection />
-           <StatisticsSingleTestSection />
-           <StatisticsSection />
-           <StripeSection />
-           <TextSection />
+            <DividerSection />
+            <FilterSection />
+            <HeaderFooterSection />
+            <HeroSection />
+            <IconsSection />
+            <InputSelectSection />
+            <LoaderSection />
+            <ModalSection />
+            <StatisticsSingleTestSection />
+            <StatisticsSection />
+            <StripeSection />
+            <TextSection />
         </main>
       </div>
     </PageShell>

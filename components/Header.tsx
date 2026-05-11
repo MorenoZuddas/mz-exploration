@@ -3,7 +3,13 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ChevronDown, Mountain, PlaneTakeoff, SportShoe, type LucideIcon } from 'lucide-react';
+import {
+  ChevronDownIcon,
+  MountainIcon,
+  PlaneTakeoffIcon,
+  SportShoeIcon,
+  type LucideIcon,
+} from '@/components/Icons';
 
 export interface HeaderNavLink {
   label: React.ReactNode;
@@ -57,9 +63,9 @@ const defaultAboutLink: HeaderNavLink = { label: 'Chi Sono', href: '/about' };
 const defaultContactLink: HeaderNavLink = { label: 'Contatti', href: '/contact' };
 const defaultExplorationLink: HeaderNavLink = { label: 'Exploration', href: '/exploration' };
 const defaultExplorationItems: HeaderExplorationItem[] = [
-  { label: 'Running', href: '/exploration/running', icon: SportShoe },
-  { label: 'Trekking', href: '/exploration/trekking', icon: Mountain },
-  { label: 'Trips', href: '/exploration/trips', icon: PlaneTakeoff },
+  { label: 'Running', href: '/exploration/running', icon: SportShoeIcon },
+  { label: 'Trekking', href: '/exploration/trekking', icon: MountainIcon },
+  { label: 'Trips', href: '/exploration/trips', icon: PlaneTakeoffIcon },
 ];
 
 export default function Header({
@@ -137,7 +143,7 @@ export default function Header({
               >
                 <span className="inline-grid grid-cols-[var(--exp-text-w)_12px] items-center gap-x-[2px] leading-none">
                   <span className="w-[var(--exp-text-w)] text-left">{explorationLink.label}</span>
-                  <ChevronDown className="h-[12px] w-[12px] justify-self-end group-hover:rotate-180 transition-transform" />
+                  <ChevronDownIcon className="h-[12px] w-[12px] justify-self-end group-hover:rotate-180 transition-transform" />
                 </span>
               </Link>
 
@@ -155,7 +161,7 @@ export default function Header({
                     >
                       <span className="inline-grid grid-cols-[var(--exp-text-w)_12px] items-center gap-x-[2px] leading-none">
                         <span className="w-[var(--exp-text-w)] text-left">{item.label}</span>
-                        <item.icon className="h-[12px] w-[12px] justify-self-end" strokeWidth={item.icon === SportShoe ? 2.25 : undefined} />
+                        <item.icon className="h-[12px] w-[12px] justify-self-end" strokeWidth={item.icon === SportShoeIcon ? 2.25 : undefined} />
                       </span>
                     </Link>
                   ))}
@@ -222,7 +228,7 @@ export default function Header({
                   aria-label={isExplorationOpen ? 'Chiudi sotto-menu Exploration' : 'Apri sotto-menu Exploration'}
                   aria-expanded={isExplorationOpen}
                 >
-                  <ChevronDown
+                  <ChevronDownIcon
                     className={`w-3.5 h-3.5 transition-transform ${
                       isExplorationOpen ? 'rotate-180' : ''
                     }`}
@@ -241,7 +247,7 @@ export default function Header({
                       className={`flex items-center justify-between gap-3 px-4 py-2 ${toneClasses.hoverBg} ${toneClasses.link} transition-colors text-sm`}
                     >
                       <span>{item.label}</span>
-                      <item.icon className="h-[12px] w-[12px] shrink-0" strokeWidth={item.icon === SportShoe ? 2.25 : undefined} />
+                      <item.icon className="h-[12px] w-[12px] shrink-0" strokeWidth={item.icon === SportShoeIcon ? 2.25 : undefined} />
                     </Link>
                   ))}
                   </div>
