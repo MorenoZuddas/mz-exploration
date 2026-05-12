@@ -118,8 +118,8 @@ function buildAdminHtml(submission: ContactSubmission, receivedAt: Date): string
               <tr>
                 <td style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px 18px;">
                   <p style="margin:0 0 3px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#94a3b8;">Da</p>
-                  <p style="margin:0;font-size:16px;font-weight:600;color:#0f172a;">${escapeHtml(submission.name)}</p>
-                  <a href="mailto:${escapeHtml(submission.email)}" style="font-size:13px;color:#0ea5e9;text-decoration:none;">${escapeHtml(submission.email)}</a>
+                  <p style="margin:0 0 6px;font-size:14px;color:#0f172a;">Nome: <strong>${escapeHtml(submission.name)}</strong></p>
+                  <p style="margin:0;font-size:14px;color:#0f172a;">E-mail: <a href="mailto:${escapeHtml(submission.email)}" style="color:#0ea5e9;text-decoration:none;"><strong>${escapeHtml(submission.email)}</strong></a></p>
                 </td>
               </tr>
             </table>
@@ -211,8 +211,24 @@ function buildUserHtml(submission: ContactSubmission, receivedAt: Date): string 
               Abbiamo ricevuto il tuo messaggio il <strong>${dateStr}</strong> alle <strong>${timeStr}</strong> e ti risponderemo il prima possibile.
             </p>
 
-            <!-- Oggetto -->
+            <!-- Data e ora -->
+            <p style="margin:0 0 24px;font-size:13px;color:#64748b;">
+              📅 <strong style="color:#0f172a;">${dateStr}</strong> alle <strong style="color:#0f172a;">${timeStr}</strong>
+            </p>
+
+            <!-- Da -->
             <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:12px;">
+              <tr>
+                <td style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px 18px;">
+                  <p style="margin:0 0 3px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#94a3b8;">Da</p>
+                  <p style="margin:0 0 6px;font-size:14px;color:#0f172a;">Nome: <strong>${escapeHtml(submission.name)}</strong></p>
+                  <p style="margin:0;font-size:14px;color:#0f172a;">E-mail: <a href="mailto:${escapeHtml(submission.email)}" style="color:#0ea5e9;text-decoration:none;"><strong>${escapeHtml(submission.email)}</strong></a></p>
+                </td>
+              </tr>
+            </table>
+
+            <!-- Oggetto -->
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom:24px;">
               <tr>
                 <td style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px 18px;">
                   <p style="margin:0 0 3px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#94a3b8;">Oggetto</p>
@@ -222,8 +238,8 @@ function buildUserHtml(submission: ContactSubmission, receivedAt: Date): string 
             </table>
 
             <!-- Messaggio -->
-            <p style="margin:16px 0 8px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#94a3b8;">Il tuo messaggio</p>
-            <div style="background:#f8fafc;border-left:4px solid #e2e8f0;border-radius:0 10px 10px 0;padding:16px 20px;font-size:14px;line-height:1.8;color:#64748b;white-space:pre-wrap;">${escapeHtml(submission.message)}</div>
+            <p style="margin:0 0 8px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#94a3b8;">Messaggio</p>
+            <div style="background:#f8fafc;border-left:4px solid #0f172a;border-radius:0 10px 10px 0;padding:16px 20px;font-size:15px;line-height:1.8;color:#334155;white-space:pre-wrap;">${escapeHtml(submission.message)}</div>
 
             ${siteUrl ? `
             <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:28px;">

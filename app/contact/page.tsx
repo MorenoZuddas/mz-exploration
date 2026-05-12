@@ -111,7 +111,9 @@ export default function ContactPage() {
             })}
           </div>
 
-          <Divider tone="blue" size="sm" />
+          <div className="-my-5 sm:my-0">
+            <Divider tone="blue" size="sm" />
+          </div>
 
            <section className="max-w-3xl rounded-xl border border-slate-300/80 dark:border-slate-700 bg-white dark:bg-slate-950/40 p-5 sm:p-6 space-y-4">
              <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Richiedi ricontatto</h2>
