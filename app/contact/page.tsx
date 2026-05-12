@@ -77,9 +77,9 @@ export default function ContactPage() {
         </div>
       </section>
 
-      <section className="px-4 pt-8 pb-10 sm:px-6 lg:px-8">
+      <section className="px-4 py-10 sm:px-6 lg:px-8">
         <div className="mx-auto w-full max-w-6xl space-y-8">
-          <Text as="p" variant="body" className="text-slate-700 dark:text-slate-300 text-base sm:text-lg">
+          <Text as="p" variant="body" className="mx-auto max-w-3xl text-center text-base text-slate-700 dark:text-slate-300 sm:text-lg">
             Se vuoi collaborare, proporre un progetto o semplicemente fare due chiacchiere, scrivimi pure o usa il form qui sotto.
           </Text>
 
@@ -111,15 +111,13 @@ export default function ContactPage() {
             })}
           </div>
 
-          <div className="-my-5 sm:my-0">
-            <Divider tone="blue" size="sm" />
-          </div>
-
-           <section className="max-w-3xl rounded-xl border border-slate-300/80 dark:border-slate-700 bg-white dark:bg-slate-950/40 p-5 sm:p-6 space-y-4">
-             <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Richiedi ricontatto</h2>
-             <p className="text-sm text-slate-600 dark:text-slate-300">Compila il form e ti ricontatterò presto.</p>
-             <ContactForm />
-           </section>
+          <section className="mx-auto w-full max-w-3xl rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-900/60 sm:p-6 space-y-4">
+            <div className="space-y-1 text-center">
+              <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Richiedi ricontatto</h2>
+              <p className="text-sm text-slate-600 dark:text-slate-300">Compila il form e ti ricontatterò presto.</p>
+            </div>
+            <ContactForm />
+          </section>
         </div>
       </section>
     </PageShell>
