@@ -1,6 +1,48 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 
-import { PageShell } from '@/components/generic';
+import { ContactForm } from '@/components/contact/ContactForm';
+import { Icon, SOCIAL_BRAND_COLORS } from '@/components/Icons';
+import { Divider, PageShell, Text } from '@/components/generic';
+
+export const metadata: Metadata = {
+  title: 'Contatti | MZ Exploration',
+  description: 'Contatti e ricontatto email su MZ Exploration.',
+  alternates: {
+    canonical: '/contact',
+  },
+};
+
+const contactLinks = [
+  {
+    label: 'Email',
+    href: 'mailto:morenozuddas1@gmail.com',
+    value: 'morenozuddas1@gmail.com',
+    icon: 'mail' as const,
+    color: SOCIAL_BRAND_COLORS.email,
+  },
+  {
+    label: 'LinkedIn',
+    href: 'https://www.linkedin.com/in/moreno-zuddas-12321a128/',
+    value: 'Moreno Zuddas',
+    icon: 'linkedin' as const,
+    color: SOCIAL_BRAND_COLORS.linkedin,
+  },
+  {
+    label: 'Instagram',
+    href: 'https://www.instagram.com/morenozuddas/?__d=1%3F%2F',
+    value: '@morenozuddas',
+    icon: 'instagram' as const,
+    color: SOCIAL_BRAND_COLORS.instagram,
+  },
+  {
+    label: 'GitHub',
+    href: 'https://github.com/MorenoZuddas7',
+    value: 'MorenoZuddas7',
+    icon: 'github' as const,
+    color: SOCIAL_BRAND_COLORS.github,
+  },
+];
 
 export default function ContactPage() {
   return (
@@ -35,38 +77,47 @@ export default function ContactPage() {
         </div>
       </section>
 
-      <section className="px-4 pt-6 pb-10 sm:px-6 lg:px-8 co-content-3" data-testid="co-content-3">
-        <div className="max-w-3xl mx-auto">
-          <p className="text-lg text-slate-700 dark:text-slate-300 mb-8 co-description-3" data-testid="co-description-3">
-            Se vuoi collaborare o semplicemente fare due chiacchiere su running, trekking o sviluppo,
-            scrivimi pure.
-          </p>
+      <section className="px-4 pt-8 pb-10 sm:px-6 lg:px-8">
+        <div className="mx-auto w-full max-w-6xl space-y-8">
+          <Text as="p" variant="body" className="text-slate-700 dark:text-slate-300 text-base sm:text-lg">
+            Se vuoi collaborare, proporre un progetto o semplicemente fare due chiacchiere, scrivimi pure o usa il form qui sotto.
+          </Text>
 
-          <div className="rounded-lg border-2 border-slate-300/80 dark:border-slate-500/90 bg-white dark:bg-slate-950/40 p-6 space-y-4 co-contact-box-3" data-testid="co-contact-box-3">
-            <div className="co-contact-item-3" data-testid="co-contact-email-3">
-              <p className="text-sm text-slate-500 dark:text-slate-400 co-contact-label-3" data-testid="co-contact-email-label-3">Email</p>
-              <a
-                href="mailto:moreno@example.com"
-                className="text-blue-600 dark:text-blue-400 font-medium hover:underline co-contact-link-3"
-                data-testid="co-contact-email-link-3"
-              >
-                moreno@example.com
-              </a>
-            </div>
-
-            <div className="co-contact-item-4" data-testid="co-contact-linkedin-4">
-              <p className="text-sm text-slate-500 dark:text-slate-400 co-contact-label-4" data-testid="co-contact-linkedin-label-4">LinkedIn</p>
-              <a
-                href="https://www.linkedin.com/in/moreno-zuddas-12321a128/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 dark:text-blue-400 font-medium hover:underline co-contact-link-4"
-                data-testid="co-contact-linkedin-link-4"
-              >
-                Moreno Zuddas
-              </a>
-            </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {contactLinks.map((entry) => {
+              const isExternal = /^https?:\/\//.test(entry.href);
+              return (
+                <a
+                  key={entry.label}
+                  href={entry.href}
+                  target={isExternal ? '_blank' : undefined}
+                  rel={isExternal ? 'noopener noreferrer' : undefined}
+                  className="rounded-xl border border-slate-300/80 dark:border-slate-700 bg-white/95 dark:bg-slate-950/50 p-4 transition hover:-translate-y-0.5 hover:shadow-sm"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <span
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-full border"
+                      style={{ color: entry.color, borderColor: entry.color }}
+                    >
+                      <Icon name={entry.icon} size="sm" aria-hidden="true" />
+                    </span>
+                    <div>
+                      <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">{entry.label}</p>
+                      <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{entry.value}</p>
+                    </div>
+                  </div>
+                </a>
+              );
+            })}
           </div>
+
+          <Divider tone="blue" size="sm" />
+
+           <section className="max-w-3xl rounded-xl border border-slate-300/80 dark:border-slate-700 bg-white dark:bg-slate-950/40 p-5 sm:p-6 space-y-4">
+             <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Richiedi ricontatto</h2>
+             <p className="text-sm text-slate-600 dark:text-slate-300">Compila il form e ti ricontatterò presto.</p>
+             <ContactForm />
+           </section>
         </div>
       </section>
     </PageShell>

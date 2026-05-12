@@ -7,6 +7,13 @@ export async function GET(): Promise<NextResponse> {
     MONGODB_DB_NAME: process.env.MONGODB_DB_NAME || 'NOT_SET',
     MONGODB_AUTO_MAINTENANCE: process.env.MONGODB_AUTO_MAINTENANCE || 'NOT_SET',
     CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME || 'NOT_SET',
+    ADMIN_EMAIL: process.env.ADMIN_EMAIL || 'NOT_SET',
+    NOTIFY_EMAIL: process.env.NOTIFY_EMAIL || 'NOT_SET',
+    EMAIL_FROM: process.env.EMAIL_FROM || 'NOT_SET',
+    EMAIL_HOST: process.env.EMAIL_HOST || 'NOT_SET',
+    EMAIL_PORT: process.env.EMAIL_PORT || 'NOT_SET',
+    EMAIL_USER: process.env.EMAIL_USER ? '***SET***' : 'NOT_SET',
+    EMAIL_PASSWORD: process.env.EMAIL_PASSWORD ? '***SET***' : 'NOT_SET',
     NODE_ENV: process.env.NODE_ENV || 'NOT_SET',
   };
 
