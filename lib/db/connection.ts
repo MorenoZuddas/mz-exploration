@@ -51,6 +51,11 @@ export async function connectToDatabase(): Promise<Connection> {
     }
   }
 
+  const configuredDbName = process.env.MONGODB_DB_NAME || 'mz-exploration';
+  const resolvedDbName = process.env.NODE_ENV === 'production'
+    ? (configuredDbName === 'test' ? 'mz-experience' : configuredDbName)
+    : configuredDbName;
+
   console.log('🔗 Creando nuova connessione a MongoDB...');
 
   try {
@@ -62,7 +67,7 @@ export async function connectToDatabase(): Promise<Connection> {
         minPoolSize: parseInt(process.env.MONGODB_MIN_POOL_SIZE || '1'),
         serverSelectionTimeoutMS: parseInt(process.env.MONGODB_SERVER_SELECTION_TIMEOUT_MS || '10000'),
         socketTimeoutMS: parseInt(process.env.MONGODB_SOCKET_TIMEOUT_MS || '45000'),
-        dbName: process.env.MONGODB_DB_NAME || 'mz-exploration',
+        dbName: resolvedDbName,
       }),
       new Promise<never>((_, reject) =>
         setTimeout(() => reject(new Error('MongoDB connection timeout')), connectTimeoutMs)

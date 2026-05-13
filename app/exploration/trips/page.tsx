@@ -60,7 +60,7 @@ const relatedExplorationCards: CardGridItem[] = [
     title: 'Exploration',
     description: 'Panoramica generale',
     href: '/exploration',
-    image: 'https://res.cloudinary.com/derbnvxif/image/upload/v1777886949/MZEXPLORATION_1_vm9xop.png',
+    image: 'https://res.cloudinary.com/derbnvxif/image/upload/q_auto/f_auto/v1777467395/pexels-davideibiza-9385860_yvrxlv.jpg',
   },
   {
     id: 'exp-running-mini',

@@ -32,7 +32,7 @@ import { Filter, type FilterConfig, type FilterType } from "@/components/Filter"
 import { Statistics, type StatisticsMetricKey } from "@/components/Statistics"
 import { AnimatedSection, CardGrid, Divider, Hero, PageShell, Text, type CardGridItem } from "@/components/generic"
 import { Stripe } from "@/components/Stripe"
-import { Icon, ICON_CATEGORIES, type IconName, SOCIAL_BRAND_COLORS } from "@/components/Icons"
+import { Icon, ICON_CATEGORIES, SOCIAL_BRAND_COLORS } from "@/components/Icons"
 import { cn } from "@/lib/utils"
 
 type Tone = "current" | "blue" | "purple" | "black"

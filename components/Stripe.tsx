@@ -161,7 +161,7 @@ export function Stripe({
   );
 
   const contentEl = (
-    <div className={cn('space-y-1.5 sm:space-y-2', isLandscape ? 'w-full' : 'flex-1')}>
+    <div className={cn('space-y-1.5 text-center sm:space-y-2 md:text-left', isLandscape ? 'w-full' : 'flex-1')}>
       <h2 className={cn('text-xl font-bold leading-tight sm:text-2xl lg:text-3xl', bgStyle.textTitle)}>
         {title}
       </h2>
@@ -177,7 +177,7 @@ export function Stripe({
       )}
 
       {buttonsList.length > 0 && (
-        <div className="flex flex-wrap gap-2 pt-2 sm:pt-3">
+        <div className="flex flex-wrap justify-center gap-2 pt-2 sm:pt-3 md:justify-start">
           {buttonsList.map((btn, idx) => (
             <Button
               key={idx}
