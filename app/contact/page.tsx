@@ -3,7 +3,7 @@ import Link from 'next/link';
 
 import { ContactForm } from '@/components/contact/ContactForm';
 import { Icon, SOCIAL_BRAND_COLORS } from '@/components/Icons';
-import { Divider, PageShell, Text } from '@/components/generic';
+import { PageShell, Text } from '@/components/generic';
 
 export const metadata: Metadata = {
   title: 'Contatti | MZ Exploration',
@@ -83,34 +83,6 @@ export default function ContactPage() {
             Se vuoi collaborare, proporre un progetto o semplicemente fare due chiacchiere, scrivimi pure o usa il form qui sotto.
           </Text>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {contactLinks.map((entry) => {
-              const isExternal = /^https?:\/\//.test(entry.href);
-              return (
-                <a
-                  key={entry.label}
-                  href={entry.href}
-                  target={isExternal ? '_blank' : undefined}
-                  rel={isExternal ? 'noopener noreferrer' : undefined}
-                  className="rounded-xl border border-slate-300/80 dark:border-slate-700 bg-white/95 dark:bg-slate-950/50 p-4 transition hover:-translate-y-0.5 hover:shadow-sm"
-                >
-                  <div className="flex items-center gap-2.5">
-                    <span
-                      className="inline-flex h-9 w-9 items-center justify-center rounded-full border"
-                      style={{ color: entry.color, borderColor: entry.color }}
-                    >
-                      <Icon name={entry.icon} size="sm" aria-hidden="true" />
-                    </span>
-                    <div>
-                      <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">{entry.label}</p>
-                      <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{entry.value}</p>
-                    </div>
-                  </div>
-                </a>
-              );
-            })}
-          </div>
-
           <section className="mx-auto w-full max-w-3xl rounded-2xl border border-slate-200 bg-slate-50 p-5 dark:border-slate-800 dark:bg-slate-900/60 sm:p-6 space-y-4">
             <div className="space-y-1 text-center">
               <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">Richiedi ricontatto</h2>
@@ -118,6 +90,34 @@ export default function ContactPage() {
             </div>
             <ContactForm />
           </section>
+
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                      {contactLinks.map((entry) => {
+                        const isExternal = /^https?:\/\//.test(entry.href);
+                        return (
+                          <a
+                            key={entry.label}
+                            href={entry.href}
+                            target={isExternal ? '_blank' : undefined}
+                            rel={isExternal ? 'noopener noreferrer' : undefined}
+                            className="rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:-translate-y-0.5 hover:shadow-sm dark:border-slate-800 dark:bg-slate-900/60"
+                          >
+                            <div className="flex items-center gap-2.5">
+                              <span
+                                className="inline-flex h-9 w-9 items-center justify-center rounded-full border"
+                                style={{ color: entry.color, borderColor: entry.color }}
+                              >
+                                <Icon name={entry.icon} size="sm" aria-hidden="true" />
+                              </span>
+                              <div>
+                                <p className="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">{entry.label}</p>
+                                <p className="text-sm font-medium text-slate-800 dark:text-slate-100">{entry.value}</p>
+                              </div>
+                            </div>
+                          </a>
+                        );
+                      })}
+                    </div>
         </div>
       </section>
     </PageShell>

@@ -258,7 +258,7 @@ function buildUserHtml(submission: ContactSubmission, receivedAt: Date): string 
         <!-- Footer -->
         <tr>
           <td style="background:#f8fafc;border-top:1px solid #e2e8f0;padding:18px 36px;">
-            <p style="margin:0;font-size:12px;color:#94a3b8;">Questa è una conferma automatica — non rispondere a questa email.</p>
+            <p style="margin:0;font-size:12px;color:#94a3b8;">Questa è una conferma automatica.</p>
           </td>
         </tr>
 
