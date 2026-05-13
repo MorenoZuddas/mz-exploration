@@ -136,7 +136,7 @@ function buildAdminHtml(submission: ContactSubmission, receivedAt: Date): string
 
             <!-- Messaggio -->
             <p style="margin:0 0 8px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#94a3b8;">Messaggio</p>
-            <div style="background:#f8fafc;border-left:4px solid #0f172a;border-radius:0 10px 10px 0;padding:16px 20px;font-size:15px;line-height:1.8;color:#334155;white-space:pre-wrap;">${escapeHtml(submission.message)}</div>
+            <div style="background:#f8fafc;border-left:4px solid #0f172a;border-radius:0 10px 10px 0;padding:16px 20px;font-size:15px;line-height:1.8;color:#334155;white-space:pre-wrap;word-break:break-word;overflow-wrap:break-word;">${escapeHtml(submission.message)}</div>
 
             <!-- CTA -->
             <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:28px;">
@@ -239,7 +239,7 @@ function buildUserHtml(submission: ContactSubmission, receivedAt: Date): string 
 
             <!-- Messaggio -->
             <p style="margin:0 0 8px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:#94a3b8;">Messaggio</p>
-            <div style="background:#f8fafc;border-left:4px solid #0f172a;border-radius:0 10px 10px 0;padding:16px 20px;font-size:15px;line-height:1.8;color:#334155;white-space:pre-wrap;">${escapeHtml(submission.message)}</div>
+            <div style="background:#f8fafc;border-left:4px solid #0f172a;border-radius:0 10px 10px 0;padding:16px 20px;font-size:15px;line-height:1.8;color:#334155;white-space:pre-wrap;word-break:break-word;overflow-wrap:break-word;">${escapeHtml(submission.message)}</div>
 
             ${siteUrl ? `
             <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:28px;">
