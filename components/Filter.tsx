@@ -20,7 +20,7 @@ export type FilterType =
 
 type FilterTone = 'current' | 'blue' | 'purple' | 'black';
 
-interface FilterOption {
+export interface FilterOption {
   value: string;
   label: string;
   appliedLabel?: string;
