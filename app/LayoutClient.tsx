@@ -1,6 +1,6 @@
 'use client';
 
-import { useLayoutEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Loader from "@/components/Loader";
 import Header from "@/components/Header";
@@ -11,15 +11,15 @@ export default function LayoutClient({
 }: {
   children: React.ReactNode;
 }) {
-  // Avvia il loader gia' al primo render, cosi' l'overlay precede eventuali skeleton locali.
-  const [isLoading, setIsLoading] = useState(true);
   const pathname = usePathname();
+  // Mantiene l'ultima route "pronta": se cambia pathname, il loader resta visibile finche' non scade il timer.
+  const [readyPathname, setReadyPathname] = useState<string | null>(null);
+  const isLoading = readyPathname !== pathname;
   const isStorybookRoute = pathname.startsWith('/storybook');
   const footerClassName = pathname.startsWith('/exploration') ? '!mt-0' : '';
 
-  useLayoutEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => setIsLoading(false), 500);
+  useEffect(() => {
+    const timer = setTimeout(() => setReadyPathname(pathname), 500);
     return () => {
       clearTimeout(timer);
     };
