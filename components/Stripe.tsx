@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { trackEvent } from '@/lib/analytics';
 import { Button } from '@/components/ui/button';
 import { AnimatedSection } from '@/components/generic';
 
@@ -187,7 +188,12 @@ export function Stripe({
               size="lg"
               className="hover:scale-[1.02] hover:shadow-lg transition-transform"
             >
-              <Link href={btn.href}>{btn.label}</Link>
+              <Link
+                href={btn.href}
+                onClick={() => trackEvent('cta_click', { component: 'stripe', label: btn.label, href: btn.href, title })}
+              >
+                {btn.label}
+              </Link>
             </Button>
           ))}
         </div>
@@ -238,5 +244,4 @@ export function Stripe({
     content
   );
 }
-
 

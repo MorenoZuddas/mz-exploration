@@ -8,6 +8,7 @@ import {
   PageShell,
 } from '@/components/generic';
 import { Stripe } from '@/components/Stripe';
+import { trackEvent } from '@/lib/analytics';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CarouselCards } from '@/components/ui/carousel';
@@ -122,7 +123,13 @@ export default function Home() {
                         <CardContent className="space-y-4 p-0">
                           <p className="text-xs text-white/90 sm:text-sm hp-carousel-description-6" data-testid={`hp-carousel-description-${slide.id}-6`}>{slide.description}</p>
                           <Button asChild tone="white" size="default" radius="lg" className="hp-carousel-button-6">
-                            <Link href={slide.href} data-testid={`hp-carousel-link-${slide.id}-6`}>Vai a {slide.title}</Link>
+                            <Link
+                              href={slide.href}
+                              onClick={() => trackEvent('homepage_carousel_click', { section: 'homepage_carousel', itemId: slide.id, title: slide.title, href: slide.href })}
+                              data-testid={`hp-carousel-link-${slide.id}-6`}
+                            >
+                              Vai a {slide.title}
+                            </Link>
                           </Button>
                         </CardContent>
                       </div>
@@ -207,7 +214,12 @@ export default function Home() {
           </p>
           <div className="mt-6">
             <Button asChild size="default" radius="lg" className="bg-[#0070ba] hover:bg-[#005ea6] text-white hp-support-button-11" data-testid="hp-support-button-11">
-              <Link href="https://www.paypal.com/pool/9rgt9FR7Or?sr=wccr" target="_blank" rel="noopener noreferrer">
+              <Link
+                href="https://www.paypal.com/pool/9rgt9FR7Or?sr=wccr"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => trackEvent('donation_click', { section: 'homepage_support', provider: 'paypal', href: 'https://www.paypal.com/pool/9rgt9FR7Or?sr=wccr' })}
+              >
                 💙 Dona su PayPal
               </Link>
             </Button>

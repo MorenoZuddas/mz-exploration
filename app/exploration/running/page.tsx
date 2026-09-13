@@ -10,6 +10,7 @@ import { Modal } from '@/components/Modal';
 import { Divider, PageShell, CardGrid, type CardGridItem } from '@/components/generic';
 import { getCachedActivities, setCachedActivities } from '@/lib/cache/activities';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
+import { trackEvent } from '@/lib/analytics';
 
 interface ApiPhoto {
   activityId: number;
@@ -220,10 +221,12 @@ export default function RunningPage() {
 
   const handleActivityClick = (activityId: string): void => {
     if (isDesktop) {
+      trackEvent('activity_open', { activityId, mode: 'modal', section: 'running_list', href: `/exploration/running/${activityId}` });
       setSelectedActivityId(activityId);
       return;
     }
 
+    trackEvent('activity_open', { activityId, mode: 'page', section: 'running_list', href: `/exploration/running/${activityId}` });
     router.push(`/exploration/running/${activityId}`);
   };
 
@@ -271,6 +274,7 @@ export default function RunningPage() {
   ];
 
   const handleFilterChange = (state: FilterState) => {
+    trackEvent('filter_apply', { section: 'running', hasDateStart: Boolean(state.dateStart), hasDateEnd: Boolean(state.dateEnd), activityType: state.activityType || 'all', distanceMin: state.distanceMin || '', distanceMax: state.distanceMax || '' });
     setFilters({
       dateFrom: state.dateStart ? toStartOfDay(state.dateStart) : undefined,
       dateTo: state.dateEnd ? toEndOfDay(state.dateEnd) : undefined,
@@ -284,6 +288,7 @@ export default function RunningPage() {
   };
 
    const resetRunningFilters = () => {
+     trackEvent('filter_reset', { section: 'running' });
      setFilters({ dateFrom: undefined, dateTo: undefined, types: [], minDistance: undefined, maxDistance: undefined });
       setOffset(0);
       setActivities([]);
@@ -291,6 +296,7 @@ export default function RunningPage() {
    };
 
     const handleSortChange = (value: RunningSortValue) => {
+      trackEvent('sort_change', { section: 'running', value });
       setSortBy(value);
       setOffset(0);
       setActivities([]);
@@ -518,6 +524,7 @@ export default function RunningPage() {
            {/* Back link */}
            <Link
              href="/exploration"
+             onClick={() => trackEvent('navigation_click', { section: 'running_hero', label: 'exploration', href: '/exploration' })}
              className="absolute top-6 left-6 sm:left-10 hidden sm:inline-flex items-center gap-1.5 text-white hover:text-white text-sm font-medium transition z-10 run-back-link-2"
              data-testid="run-back-link-2"
            >
@@ -528,6 +535,7 @@ export default function RunningPage() {
            <div className="absolute top-6 right-6 sm:right-10 hidden sm:flex flex-col gap-4 z-10 run-action-links-2">
              <Link
                href="/exploration/running/equipment"
+               onClick={() => trackEvent('navigation_click', { section: 'running_hero', label: 'equipment', href: '/exploration/running/equipment' })}
                className="inline-flex items-center gap-1.5 text-white/75 hover:text-white text-sm font-medium transition run-equipment-link-2"
                data-testid="run-equipment-link-2"
              >
@@ -535,6 +543,7 @@ export default function RunningPage() {
              </Link>
              <a
                href="https://www.fidal.it/atleta/Moreno-Zuddas/iKmRlJWobWQ%3D"
+               onClick={() => trackEvent('external_link_click', { section: 'running_hero', label: 'fidal', href: 'https://www.fidal.it/atleta/Moreno-Zuddas/iKmRlJWobWQ%3D' })}
                target="_blank"
                rel="noopener noreferrer"
                className="inline-flex items-center gap-1.5 text-white/75 hover:text-white text-sm font-medium transition run-fidal-link-2"
@@ -710,6 +719,7 @@ export default function RunningPage() {
               </div>
               <Link
                 href="/exploration/running/equipment"
+                onClick={() => trackEvent('navigation_click', { section: 'running_equipment_cta', label: 'equipment', href: '/exploration/running/equipment' })}
                 className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-900 dark:bg-slate-700 text-white text-sm font-medium hover:bg-black dark:hover:bg-slate-600 transition-colors"
               >
                 Attrezzatura

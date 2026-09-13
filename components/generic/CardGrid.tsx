@@ -4,6 +4,7 @@ import { useMemo, useState, useSyncExternalStore } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { trackEvent } from '@/lib/analytics';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import type { ButtonTone } from '@/components/ui/button';
@@ -423,7 +424,10 @@ function FlipCard({
     <div
       className={`${widthClass} ${heightClass} mx-auto cursor-pointer perspective`}
       onMouseEnter={() => setIsFlipped(true)}
-      onClick={() => setIsFlipped((prev) => !prev)}
+      onClick={() => {
+        trackEvent('card_flip', { component: 'CardGrid', itemId: item.id, title: item.title });
+        setIsFlipped((prev) => !prev);
+      }}
       role="button"
       tabIndex={0}
       aria-pressed={isFlipped}
@@ -431,6 +435,7 @@ function FlipCard({
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
+          trackEvent('card_flip', { component: 'CardGrid', itemId: item.id, title: item.title, trigger: 'keyboard' });
           setIsFlipped(!isFlipped);
         }
       }}
@@ -740,7 +745,10 @@ export function CardGrid({
               {onItemClick ? (
                 <button
                   type="button"
-                  onClick={() => onItemClick(item)}
+                  onClick={() => {
+                    trackEvent('card_click', { component: 'CardGrid', itemId: item.id, title: item.title, href: item.href, variant, mode: 'action' });
+                    onItemClick(item);
+                  }}
                   className="block group h-full w-full text-left cardgrid-item-button"
                   data-testid={`cardgrid-item-button-${item.id}`}
                 >
@@ -877,7 +885,11 @@ export function CardGrid({
                   )}
                 </button>
                ) : (
-                 <Link href={item.href} className="block group h-full">
+                 <Link
+                   href={item.href}
+                   onClick={() => trackEvent('card_click', { component: 'CardGrid', itemId: item.id, title: item.title, href: item.href, variant })}
+                   className="block group h-full"
+                 >
                    {variant === 'activity' ? (
                      <div className={activityPhotoBadgePosition === 'border' ? 'relative pt-3' : 'relative'}>
                        {item.hasPhoto && activityPhotoBadgePosition === 'border' && (
@@ -1000,6 +1012,7 @@ export function CardGrid({
                  onClick={() => {
                    const step = normalizedVisibleItems ?? 4;
                    const nextShownCount = shownCount + step;
+                   trackEvent('cardgrid_pagination', { action: 'show_more', shownCount, nextShownCount, totalItems: items.length });
                    setPaginationState({
                      key: paginationKey,
                      shownCount: nextShownCount,
@@ -1019,10 +1032,13 @@ export function CardGrid({
                  variant="default"
                  tone={showLessTone}
                  onClick={() =>
-                   setPaginationState({
-                     key: paginationKey,
-                     shownCount: normalizedVisibleItems ?? 4,
-                   })
+                   {
+                     trackEvent('cardgrid_pagination', { action: 'show_less', totalItems: items.length });
+                     setPaginationState({
+                       key: paginationKey,
+                       shownCount: normalizedVisibleItems ?? 4,
+                     });
+                   }
                  }
                  className="cardgrid-show-less"
                  data-testid="cardgrid-show-less"
@@ -1036,4 +1052,3 @@ export function CardGrid({
     </section>
   );
 }
-

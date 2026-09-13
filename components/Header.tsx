@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { trackEvent } from '@/lib/analytics';
 import {
   ChevronDownIcon,
   MountainIcon,
@@ -98,10 +99,13 @@ export default function Header({
     const opening = !isMenuOpen;
     setIsMenuOpen(opening);
     if (opening) setIsExplorationOpen(true);
+    trackEvent('navigation_menu_toggle', { state: opening ? 'open' : 'close', device: 'mobile' });
   };
 
   const toggleExploration = () => {
-    setIsExplorationOpen(!isExplorationOpen);
+    const opening = !isExplorationOpen;
+    setIsExplorationOpen(opening);
+    trackEvent('navigation_dropdown_toggle', { section: 'header_exploration', state: opening ? 'open' : 'close', device: 'mobile' });
   };
 
   const closeMenu = () => {
@@ -114,7 +118,7 @@ export default function Header({
       <div className="max-w-6xl mx-auto px-3 py-[10px] sm:px-4 md:py-[14px]">
         <div className="flex items-center justify-between">
           {/* Logo - Left */}
-          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+          <Link href="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity" onClick={() => trackEvent('navigation_click', { section: 'header', label: 'logo', href: '/' })}>
             <Image
                 src={logoSrc}
                 alt={logoAlt}
@@ -129,6 +133,7 @@ export default function Header({
           <nav className="hidden md:flex items-center gap-8">
             <Link
               href={aboutLink.href}
+              onClick={() => trackEvent('navigation_click', { section: 'header', label: String(aboutLink.label), href: aboutLink.href, device: 'desktop' })}
               className={`${toneClasses.link} transition-colors font-medium`}
             >
               {aboutLink.label}
@@ -138,6 +143,7 @@ export default function Header({
             <div className="relative group">
               <Link
                 href={explorationLink.href}
+                onClick={() => trackEvent('navigation_click', { section: 'header', label: String(explorationLink.label), href: explorationLink.href, device: 'desktop' })}
                 className={`${toneClasses.link} transition-colors font-medium`}
                 style={{ ['--exp-text-w' as string]: explorationTextColumnWidth }}
               >
@@ -157,6 +163,7 @@ export default function Header({
                     <Link
                       key={`${item.href}-${item.label}`}
                       href={item.href}
+                      onClick={() => trackEvent('navigation_click', { section: 'header_dropdown', label: item.label, href: item.href, device: 'desktop' })}
                       className={`block whitespace-nowrap px-3 py-2 text-sm leading-none ${toneClasses.hoverBg} ${toneClasses.link} transition-colors`}
                     >
                       <span className="inline-grid grid-cols-[var(--exp-text-w)_12px] items-center gap-x-[2px] leading-none">
@@ -171,6 +178,7 @@ export default function Header({
 
             <Link
               href={contactLink.href}
+              onClick={() => trackEvent('navigation_click', { section: 'header', label: String(contactLink.label), href: contactLink.href, device: 'desktop' })}
               className={`${toneClasses.link} transition-colors font-medium`}
             >
               {contactLink.label}
@@ -206,7 +214,10 @@ export default function Header({
           <nav className={`md:hidden mt-2 pb-2 border-t pt-3 space-y-1 ${toneClasses.border}`}>
             <Link
               href="/about"
-              onClick={closeMenu}
+              onClick={() => {
+                trackEvent('navigation_click', { section: 'header', label: String(aboutLink.label), href: '/about', device: 'mobile' });
+                closeMenu();
+              }}
               className={`block px-3 py-1.5 text-[15px] ${toneClasses.hoverBg} ${toneClasses.link} transition-colors rounded-md font-medium`}
             >
               {aboutLink.label}
@@ -217,7 +228,10 @@ export default function Header({
               <div className="flex items-stretch gap-1">
                 <Link
                   href={explorationLink.href}
-                  onClick={closeMenu}
+                  onClick={() => {
+                    trackEvent('navigation_click', { section: 'header', label: String(explorationLink.label), href: explorationLink.href, device: 'mobile' });
+                    closeMenu();
+                  }}
                   className={`flex-1 px-3 py-1.5 text-[15px] ${toneClasses.hoverBg} ${toneClasses.link} transition-colors rounded-md font-medium`}
                 >
                   {explorationLink.label}
@@ -243,7 +257,10 @@ export default function Header({
                     <Link
                       key={`${item.href}-${item.label}-mobile`}
                       href={item.href}
-                      onClick={closeMenu}
+                      onClick={() => {
+                        trackEvent('navigation_click', { section: 'header_dropdown', label: item.label, href: item.href, device: 'mobile' });
+                        closeMenu();
+                      }}
                       className={`flex items-center justify-between gap-3 px-4 py-2 ${toneClasses.hoverBg} ${toneClasses.link} transition-colors text-sm`}
                     >
                       <span>{item.label}</span>
@@ -257,7 +274,10 @@ export default function Header({
 
             <Link
               href={contactLink.href}
-              onClick={closeMenu}
+              onClick={() => {
+                trackEvent('navigation_click', { section: 'header', label: String(contactLink.label), href: contactLink.href, device: 'mobile' });
+                closeMenu();
+              }}
               className={`block px-3 py-1.5 text-[15px] ${toneClasses.hoverBg} ${toneClasses.link} transition-colors rounded-md font-medium`}
             >
               {contactLink.label}

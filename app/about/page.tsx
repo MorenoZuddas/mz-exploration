@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react';
 
 import { AnimatedSection, PageShell, CardGrid, Text } from '@/components/generic';
 import { Stripe } from '@/components/Stripe';
+import { trackEvent } from '@/lib/analytics';
 import {
   ActivityIcon,
   GithubIcon,
@@ -41,6 +42,7 @@ function ContactIcon({ type, href }: { type: ContactSocialType; href: string }) 
   return (
     <a
       href={href}
+      onClick={() => trackEvent('social_click', { section: 'about', type, href })}
       target={isExternal ? '_blank' : undefined}
       rel={isExternal ? 'noopener noreferrer' : undefined}
       aria-label={CONTACT_LABELS[type]}
@@ -227,6 +229,7 @@ export default function AboutPage() {
               <div className="mt-4">
                 <a
                   href="https://www.paypal.com/pool/9rgt9FR7Or?sr=wccr"
+                  onClick={() => trackEvent('donation_click', { section: 'about', provider: 'paypal', href: 'https://www.paypal.com/pool/9rgt9FR7Or?sr=wccr' })}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold text-white transition-colors duration-200 hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
@@ -243,4 +246,3 @@ export default function AboutPage() {
     </PageShell>
   );
 }
-
