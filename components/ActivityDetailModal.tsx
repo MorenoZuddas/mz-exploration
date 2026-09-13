@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { trackEvent } from '@/lib/analytics';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ActivityPhotos } from '@/components/ActivityPhotos';
@@ -93,7 +92,6 @@ export function ActivityDetailModal({
 
   useEffect(() => {
     if (!isOpen || !activityId) return;
-    trackEvent('activity_modal_open', { activityId, href: detailsPageUrl, component: 'ActivityDetailModal' });
 
     const fetchActivity = async () => {
       try {
@@ -129,7 +127,7 @@ export function ActivityDetailModal({
     };
 
     void fetchActivity();
-  }, [isOpen, activityId, detailsPageUrl, photo]);
+  }, [isOpen, activityId, photo]);
 
   if (!isOpen) return null;
 
@@ -263,10 +261,7 @@ export function ActivityDetailModal({
                   Chiudi
                 </Button>
                 <Button asChild tone={tone} width="full">
-                  <Link href={detailsPageUrl} onClick={() => {
-                    trackEvent('activity_detail_click', { activityId, href: detailsPageUrl, component: 'ActivityDetailModal' });
-                    onClose();
-                  }}>
+                  <Link href={detailsPageUrl} onClick={onClose}>
                     Vedi Più Dettagli →
                   </Link>
                 </Button>
@@ -278,3 +273,4 @@ export function ActivityDetailModal({
     </>
   );
 }
+

@@ -8,7 +8,6 @@ import { BackpackIcon } from '@/components/Icons';
 import { ActivityDetailModal } from '@/components/ActivityDetailModal';
 import { CardGrid, Divider, PageShell, type CardGridItem } from '@/components/generic';
 import { getCachedActivities, setCachedActivities } from '@/lib/cache/activities';
-import { trackEvent } from '@/lib/analytics';
 
 interface ApiPhoto {
   activityId: number;
@@ -136,10 +135,8 @@ export default function TrekkingPage() {
 
   const handleActivityClick = (activityId: string) => {
     if (isDesktop) {
-      trackEvent('activity_open', { activityId, mode: 'modal', section: 'trekking_list', href: `/exploration/trekking/${activityId}` });
       setSelectedActivityId(activityId);
     } else {
-      trackEvent('activity_open', { activityId, mode: 'page', section: 'trekking_list', href: `/exploration/trekking/${activityId}` });
       router.push(`/exploration/trekking/${activityId}`);
     }
   };
@@ -287,7 +284,6 @@ export default function TrekkingPage() {
 
         <Link
           href="/exploration"
-          onClick={() => trackEvent('navigation_click', { section: 'trekking_hero', label: 'exploration', href: '/exploration' })}
           className="absolute top-6 left-6 sm:left-10 hidden sm:inline-flex items-center gap-1.5 text-white hover:text-white text-sm font-medium transition z-10 trek-back-link-2"
           data-testid="trek-back-link-2"
         >
@@ -296,7 +292,6 @@ export default function TrekkingPage() {
 
         <Link
           href="/exploration/trekking/equipment"
-          onClick={() => trackEvent('navigation_click', { section: 'trekking_hero', label: 'equipment', href: '/exploration/trekking/equipment' })}
           className="absolute top-6 right-6 sm:right-10 hidden sm:inline-flex items-center gap-1.5 text-white/75 hover:text-white text-sm font-medium transition z-10 trek-equipment-link-2"
           data-testid="trek-equipment-link-2"
         >
@@ -405,7 +400,6 @@ export default function TrekkingPage() {
             </div>
             <Link
               href="/exploration/trekking/equipment"
-              onClick={() => trackEvent('navigation_click', { section: 'trekking_equipment_cta', label: 'equipment', href: '/exploration/trekking/equipment' })}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-900 dark:bg-slate-700 text-white text-sm font-medium hover:bg-black dark:hover:bg-slate-600 transition-colors"
             >
               Attrezzatura

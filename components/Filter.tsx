@@ -2,7 +2,6 @@
 
 import React, { useRef, useState } from 'react';
 import { ICON_REGISTRY, Icon, type IconName, type LucideIcon } from '@/components/Icons';
-import { trackEvent } from '@/lib/analytics';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -221,10 +220,7 @@ export function Filter({
           <div
             role="button"
             tabIndex={0}
-            onClick={() => {
-              trackEvent('filter_control_open', { control: config.type, variant, tone });
-              dateInputRefs.current[config.type]?.showPicker?.();
-            }}
+            onClick={() => dateInputRefs.current[config.type]?.showPicker?.()}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
@@ -257,10 +253,7 @@ export function Filter({
         <div
           role="button"
           tabIndex={0}
-          onClick={() => {
-            trackEvent('filter_control_open', { control: config.type, variant, tone });
-            dateInputRefs.current[config.type]?.showPicker?.();
-          }}
+          onClick={() => dateInputRefs.current[config.type]?.showPicker?.()}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
               e.preventDefault();
@@ -387,10 +380,7 @@ export function Filter({
             </div>
           ))}
           <div className="ml-auto shrink-0 flex items-center gap-2 pl-2">
-            <Button tone="black" onClick={() => {
-              trackEvent('filter_submit_click', { variant, tone, activeFilters: activeFilters.length });
-              handleApply();
-            }} disabled={disabled} size={density === 'compact' ? 'sm' : 'default'}>
+            <Button tone="black" onClick={handleApply} disabled={disabled} size={density === 'compact' ? 'sm' : 'default'}>
               {applyLabel}
             </Button>
           </div>
@@ -402,10 +392,7 @@ export function Filter({
               <button
                 key={f.type}
                 type="button"
-                onClick={() => {
-                  trackEvent('filter_chip_remove', { control: f.type, label: f.label });
-                  clearSingleFilter(f.type);
-                }}
+                onClick={() => clearSingleFilter(f.type)}
                 className="inline-flex items-center gap-1 rounded-md bg-[var(--color-comp-filter-active-badge-bg)] text-[var(--color-comp-filter-active-badge-text)] text-xs font-medium px-2.5 py-1"
                 aria-label={`Rimuovi filtro ${f.label}`}
               >
@@ -415,10 +402,7 @@ export function Filter({
             ))}
             <button
               type="button"
-              onClick={() => {
-                trackEvent('filter_reset_click', { variant, tone });
-                handleReset();
-              }}
+              onClick={handleReset}
               disabled={disabled}
               className="text-sm font-semibold uppercase tracking-wide text-[var(--color-comp-filter-reset-text)] underline underline-offset-2"
             >
@@ -439,17 +423,11 @@ export function Filter({
 
         <div className="flex gap-2 justify-end">
           {hasActiveFilters ? (
-            <Button variant="outline" tone="black" onClick={() => {
-              trackEvent('filter_reset_click', { variant, tone });
-              handleReset();
-            }} disabled={disabled} size={density === 'compact' ? 'sm' : 'default'}>
+            <Button variant="outline" tone="black" onClick={handleReset} disabled={disabled} size={density === 'compact' ? 'sm' : 'default'}>
               {resetLabel}
             </Button>
           ) : null}
-          <Button tone={style.buttonTone} onClick={() => {
-            trackEvent('filter_submit_click', { variant, tone, activeFilters: activeFilters.length });
-            handleApply();
-          }} disabled={disabled} size={density === 'compact' ? 'sm' : 'default'}>
+          <Button tone={style.buttonTone} onClick={handleApply} disabled={disabled} size={density === 'compact' ? 'sm' : 'default'}>
             {applyLabel}
           </Button>
         </div>
@@ -457,4 +435,5 @@ export function Filter({
     )
   );
 }
+
 

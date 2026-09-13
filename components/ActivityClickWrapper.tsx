@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Modal } from '@/components/Modal';
-import { trackEvent } from '@/lib/analytics';
 import type { ReactNode } from 'react';
 
 interface Props {
@@ -45,12 +44,10 @@ export function ActivityClickHandler({
 
   const handleClick = () => {
     if (isDesktop) {
-      trackEvent('activity_open', { activityId, mode: 'modal', href: detailsPageUrl });
       // Desktop: apri modale
       setShowModal(true);
       onDesktopOpen?.();
     } else {
-      trackEvent('activity_open', { activityId, mode: 'page', href: detailsPageUrl });
       // Mobile/tablet: vai alla pagina
       router.push(detailsPageUrl);
     }
@@ -80,3 +77,4 @@ export function ActivityClickHandler({
     </>
   );
 }
+

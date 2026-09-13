@@ -7,7 +7,6 @@ import { Divider, PageShell, Text } from '@/components/generic';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CarouselCards } from '@/components/ui/carousel';
-import { trackEvent } from '@/lib/analytics';
 
 export const dynamic = 'force-dynamic';
 
@@ -67,7 +66,6 @@ export default async function RunningEquipmentPage() {
 
         <Link
           href="/exploration/running"
-          onClick={() => trackEvent('navigation_click', { section: 'running_equipment', label: 'back_to_running', href: '/exploration/running' })}
           className="absolute top-6 left-6 sm:left-10 inline-flex items-center gap-1.5 text-white/85 hover:text-white text-sm font-medium transition z-10 run-eq-back-link-1"
           data-testid="run-eq-back-link-1"
         >
@@ -152,13 +150,7 @@ export default async function RunningEquipmentPage() {
                      {officialUrl ? (
                        <div className="pt-2 mt-auto flex justify-center">
                          <Button asChild variant="outline" tone="blue" size="default" width="auto">
-                           <a
-                             href={officialUrl}
-                             target="_blank"
-                             rel="noopener noreferrer"
-                             title={item.productDescription || 'Vai alla scheda ufficiale del prodotto'}
-                             onClick={() => trackEvent('equipment_link_click', { section: 'running_equipment', itemId: item.id, brand: item.brand, model: item.model, href: officialUrl })}
-                           >
+                           <a href={officialUrl} target="_blank" rel="noopener noreferrer" title={item.productDescription || 'Vai alla scheda ufficiale del prodotto'}>
                              Product Description →
                            </a>
                          </Button>
@@ -203,3 +195,4 @@ export default async function RunningEquipmentPage() {
     </PageShell>
   );
 }
+
