@@ -8,7 +8,7 @@ import { ShirtIcon, SlidersHorizontalIcon, TrophyIcon } from '@/components/Icons
 import { Filter, type FilterConfig, type FilterState } from '@/components/Filter';
 import { Modal } from '@/components/Modal';
 import { Divider, PageShell, CardGrid, type CardGridItem } from '@/components/generic';
-import { getCachedActivities, setCachedActivities } from '@/lib/cache/activities';
+import { clearCache, getCachedActivities, setCachedActivities } from '@/lib/cache/activities';
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select';
 
 interface ApiPhoto {
@@ -41,10 +41,14 @@ interface GarminSummary {
 interface GarminApiResponse {
   status?: string;
   data?: {
+    total_unique_activities?: number;
     recent_activities?: GarminApiActivity[];
     summary?: GarminSummary;
     global_summary?: GarminSummary;
     filtered_summary?: GarminSummary;
+    pagination?: {
+      has_more?: boolean;
+    };
   };
 }
 
@@ -315,7 +319,6 @@ export default function RunningPage() {
          const normalizedCached = cached.map(normalizeRunningActivity);
          if (isActive) {
            setActivities(normalizedCached);
-           setLoading(false);
          }
        }
 
@@ -364,14 +367,21 @@ export default function RunningPage() {
            // Se è un caricamento progressivo, concatena; altrimenti sostituisci
            if (isLoadingMore) {
              setActivities(prev => [...prev, ...runningActivities]);
-             // Se ne ha caricati meno di 100, significa che non ce ne sono altri
-             if (runningActivities.length < 100) {
-               setHasMoreToLoad(false);
-             }
            } else {
              setActivities(runningActivities);
-             // Se ne ha caricati meno di 100, significa che non ce ne sono altri
-             setHasMoreToLoad(runningActivities.length >= 100);
+           }
+
+           setHasMoreToLoad(Boolean(data?.data?.pagination?.has_more));
+
+           const totalUniqueActivities = data?.data?.total_unique_activities;
+           if (
+             ENABLE_ACTIVITY_CACHE &&
+             isDefaultQuery &&
+             !isLoadingMore &&
+             typeof totalUniqueActivities === 'number' &&
+             totalUniqueActivities > runningActivities.length
+           ) {
+             clearCache('running');
            }
 
            // global_summary: hero sempre sul totale running, indipendente dai filtri
@@ -379,7 +389,13 @@ export default function RunningPage() {
            const fs = data?.data?.filtered_summary ?? data?.data?.summary ?? null;
            if (gs) setGlobalSummary(gs);
            setSummary(fs);
-           if (ENABLE_ACTIVITY_CACHE && isDefaultQuery && !isLoadingMore) {
+           if (
+             ENABLE_ACTIVITY_CACHE &&
+             isDefaultQuery &&
+             !isLoadingMore &&
+             typeof totalUniqueActivities === 'number' &&
+             totalUniqueActivities <= runningActivities.length
+           ) {
              setCachedActivities(runningActivities, 'running');
            }
            setError(null);
