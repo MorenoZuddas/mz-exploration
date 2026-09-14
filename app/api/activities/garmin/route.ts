@@ -103,7 +103,16 @@ function parseBooleanParam(value: string | null, fallback = false): boolean {
 }
 
 function getRunningDbTypes(): string[] {
-  return ['running', 'track_running', 'road_running', 'trail_running', 'virtual_running'];
+  return [
+    'running',
+    'track_running',
+    'road_running',
+    'trail_running',
+    'virtual_running',
+    'indoor_running',
+    'treadmill_running',
+    'run',
+  ];
 }
 
 function getTrekkingDbTypes(): string[] {
@@ -292,7 +301,14 @@ async function getCachedSummary(cacheKey: string, match: Record<string, unknown>
 
 function normalizeListedActivityType(type: string | undefined): string {
   const normalized = normalizeType(type);
-  if (['road_running', 'trail_running', 'virtual_running'].includes(normalized)) {
+  if ([
+    'road_running',
+    'trail_running',
+    'virtual_running',
+    'indoor_running',
+    'treadmill_running',
+    'run',
+  ].includes(normalized)) {
     return 'running';
   }
   if (normalized === 'trekking') {
